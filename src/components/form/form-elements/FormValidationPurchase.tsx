@@ -110,7 +110,7 @@ export default function ConfirmationForm() {
         type: "purchase",
       }).toString();
 
-      router.push(`/pin-verifikasi?${query}`);
+      router.push(`/verifikasi?${query}`);
     }
   };
 

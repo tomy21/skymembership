@@ -53,8 +53,8 @@ export default function HistoryHome() {
     { id: 'parking', label: 'Parking' },
   ]
   
-  const handleCekDetails = (type: string, va: string) => {
-    router.push(`/payment?typeTransaction=${type}&idTransaction=${va}`);
+  const handleCekDetails = (id: string) => {
+    router.push(`/payment?idTransaction=${id}`);
   }
 
 
@@ -96,7 +96,7 @@ export default function HistoryHome() {
               data?.data?.map((items: responseHistoryPayment) => (
                 <CardHistory
                   key={items.id}
-                  onClick={() => handleCekDetails("payment", items.virtual_account)}
+                  onClick={() => handleCekDetails(items.trxId.toString())}
                   type="payment"
                   date={items.createdAt}
                   product={items.purchase_type}

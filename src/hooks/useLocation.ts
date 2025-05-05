@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { Location } from "../../libs/API/Location";
 
-export const useAllLocation = (page = 1 , limit = 10) => {
+export const useAllLocation = (page = 1 , limit = 10, search = "") => {
   return useQuery({
-    queryKey: ['AllLocation'],
-    queryFn: () => Location.getAllLocation(page, limit),
+    queryKey: ['AllLocation', page, limit, search],
+    queryFn: () => Location.getAllLocation(page, limit, search),
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
     retry: 1,
     refetchOnWindowFocus: false,

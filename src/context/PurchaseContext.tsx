@@ -1,6 +1,6 @@
 // context/TopupContext.tsx
 "use client";
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 interface Option {
   id: string;
@@ -23,19 +23,34 @@ interface PurchaseContextType {
 
 const PurchaseContext = createContext<PurchaseContextType | undefined>(undefined);
 
+const defaultData: PurchaseData = {
+  idProduct: 0,
+  bank_id: "",
+  plate_number: "",
+  type: "",
+  provider: null,
+};
+
 export const PurchaseProvider = ({ children }: { children: ReactNode }) => {
-  const [purchaseData, setPurchaseState] = useState<PurchaseData>({
-    idProduct: 0,
-    bank_id: "",
-    plate_number: "",
-    type: "",
-    provider:  null,
-  });
+  const [purchaseData, setPurchaseState] = useState<PurchaseData>(defaultData);
+
+  // Ambil dari localStorage saat awal load
+  useEffect(() => {
+    const stored = localStorage.getItem("purchaseData");
+    if (stored) {
+      setPurchaseState(JSON.parse(stored));
+    }
+  }, []);
+
+  // Simpan ke localStorage setiap kali berubah
+  useEffect(() => {
+    localStorage.setItem("purchaseData", JSON.stringify(purchaseData));
+  }, [purchaseData]);
 
   const setPurchaseData = (data: Partial<PurchaseData>) => {
     setPurchaseState((prev) => ({ ...prev, ...data }));
   };
-
+  
   return (
     <PurchaseContext.Provider value={{ purchaseData, setPurchaseData }}>
       {children}

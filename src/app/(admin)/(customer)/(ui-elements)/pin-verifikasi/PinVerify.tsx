@@ -105,6 +105,7 @@ export default function PinVerify() {
 
               queryClient.invalidateQueries({ queryKey: ["userById"] });
               router.push("/payment");
+              localStorage.removeItem("purchaseData");
             },
             onError: (error) => {
               console.error("Topup error:", error);
@@ -154,7 +155,7 @@ export default function PinVerify() {
             setPaymentData(paymentDetails); 
             queryClient.invalidateQueries({ queryKey: ["userById"] });
             router.push("/payment");
-
+            localStorage.removeItem("purchaseData");
           },
           onError: (error) => {
             console.error("Topup error:", error);

@@ -69,7 +69,7 @@ const Accordion: FC = () => {
   ];
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-lg text-sm text-gray-500 mt-4">
+    <div className="w-full max-w-md mx-auto text-sm text-gray-500 mt-4">
       {items.map((item, index) => (
         <AccordionItem
           key={index}

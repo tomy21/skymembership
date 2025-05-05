@@ -6,6 +6,7 @@ export const login = async (data: string) => {
   const response = await APIAPPS.post(`/v01/member/api/auth/login`,{
     data
   });
+  
   return response.data;
 };
 

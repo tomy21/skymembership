@@ -66,3 +66,13 @@ export const usePaymentByVA = (VA: string) => {
     refetchOnWindowFocus: false,
   });
 }
+
+export const useHistoryTransaction = (trxId: string) => {
+  return useQuery({
+    queryKey: ['historyTransactonByTrx', trxId],
+    queryFn: () => Payment.getIdStatus(trxId),
+    staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
+    retry: 1,
+    refetchOnWindowFocus: true,
+  });
+}

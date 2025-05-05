@@ -94,14 +94,26 @@ export const Payment = {
         }
     },
 
-    getAllHistoryVa: async (VA: string) => {
+    getAllHistoryVa: async (idTrx: string) => {
         try {
             const response = await APIAPPS.get(
-                `/v01/member/api/history/transaction-virtualaccount/${VA}`
+                `/v01/member/api/history/transaction-byidtrx/${idTrx}`
             );
             return response.data;
         } catch (error) {
             return error;
+        }
+    },
+
+    getIdStatus: async (trxId: string) => {
+        try {
+        const response = await APIAPPS.get(
+            `/v01/member/api/history/payment-status?trxId=${trxId}`
+        );
+        // console.log(response.data)
+        return response.data.data;
+        } catch (error) {
+            throw error;
         }
     },
 }

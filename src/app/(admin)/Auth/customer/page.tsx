@@ -81,8 +81,8 @@ export default function AuthCustomer() {
 
         const data = encryptData(dataForm);
         const response = await loginMutation(data); 
+        
         const dataDecrypt = decryptData(response.data);
-
         if (dataDecrypt && dataDecrypt.status === 'success') {
              // pakai context
             Cookies.set('refreshToken', dataDecrypt.token);
@@ -106,8 +106,10 @@ export default function AuthCustomer() {
           message = err.message;
         }
         toast.error(message);
+        refreshString();
     }finally{
       setIsLoading(false);
+      refreshString();
     }
   };
 

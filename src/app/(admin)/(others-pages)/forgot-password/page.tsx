@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
-import React from 'react'
+import React, { Suspense } from 'react'
 import ForgotePassword from '../../(customer)/(ui-elements)/ForgotePassword/page';
+import Loading from '@/components/Loading/Loading';
 
 export const metadata: Metadata = {
   title: "Reset Password | SKY Membership",
@@ -10,8 +11,6 @@ export const metadata: Metadata = {
 };
 export default function page() {
   return (
-    <div>
-      <ForgotePassword />
-    </div>
+    <Suspense fallback={<Loading/>}><ForgotePassword/></Suspense>
   );
 }

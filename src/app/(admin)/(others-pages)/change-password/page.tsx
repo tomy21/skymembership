@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import React, { Suspense } from 'react'
 import ChangePassword from '../../(customer)/(ui-elements)/ChangePassword/ChangePassword';
+import Loading from '@/components/Loading/Loading';
 
 
 export const metadata: Metadata = {
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 };
 export default function Page() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Loading/>}>
       <ChangePassword/>
     </Suspense>
   );

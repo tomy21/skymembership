@@ -32,6 +32,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (token && userData) {
       setUser(JSON.parse(userData));
       setIsAuthenticated(true);
+    }else{
+      setIsAuthenticated(false);
+      
     }
   }, []);
 
