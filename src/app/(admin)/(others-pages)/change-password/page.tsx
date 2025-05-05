@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description:
     "Membership Parking SKY PARKING",
 };
-export default function page() {
+export default function Page() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <ChangePassword />
