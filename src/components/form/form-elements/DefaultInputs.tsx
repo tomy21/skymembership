@@ -32,11 +32,10 @@ export default function DefaultInputs() {
           <Label>Select Input</Label>
           <div className="relative">
             <Select
-            options={options}
-            placeholder="Select an option"
-            onChange={handleSelectChange}
-            className="dark:bg-dark-900"
-          />
+              options={options}
+              placeholder="Select an option"
+              onChange={handleSelectChange}
+            />
              <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
               <ChevronDownIcon/>
             </span>
@@ -67,10 +66,10 @@ export default function DefaultInputs() {
             id="date-picker"
             label="Date Picker Input"
             placeholder="Select a date"
-            onChange={(dates, currentDateString) => {
-              // Handle your logic
-              console.log({ dates, currentDateString });
-            }}
+            // onChange={(dates, currentDateString) => {
+            //   // Handle your logic
+            //   console.log({ dates, currentDateString });
+            // }}
           />
         </div>
 

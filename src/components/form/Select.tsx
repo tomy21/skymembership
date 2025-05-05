@@ -37,7 +37,7 @@ const CustomSelectWithImage: React.FC<CustomSelectWithImageProps> = ({
       {/* Selected */}
       <div
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center justify-between border px-4 py-2 rounded-lg cursor-pointer h-11 bg-white"
+        className="flex items-center justify-between border px-4 py-2 rounded-lg cursor-pointer h-11 bg-white dark:bg-dark-900"
       >
         {selected ? (
           <div className="flex items-center gap-2">
