@@ -1,28 +1,11 @@
 version: '3.8'
-
 services:
   app:
-    container_name: 'sky_membership'
     build:
       context: .
       dockerfile: Dockerfile
-    # volumes:
-    #   - .:/app
-    #   - /app/node_modules
     ports:
-      # - "9203:4002"
-      - "7090:4002"
-    environment:
-      - PORT=4002
-      - REACT_APP_API_TOKEN=c6f266f5f06d9bbbb9b1688722211a9f2e7770d0
-      - REACT_APP_URL_APIVALET=https://dev-valetapi.skyparking.online
-      - REACT_APP_URL_APIPAYMENT=https://dev-paymentapi.skyparking.online
-      - REACT_APP_URL_PLATERECOGNICE=https://api.platerecognizer.com/v1/plate-reader/
-    networks:
-      - membership_network
-      
-    command: ["serve", '-s', "build"]
-
-networks:
-  membership_network:
-    driver: bridge
+      - "3000:3000"
+    env_file:
+      - .env
+    restart: always

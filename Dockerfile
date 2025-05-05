@@ -1,26 +1,18 @@
-# Menggunakan image Node.js dari Alpine Linux sebagai base image
-FROM node:20-alpine
-
-# Menetapkan direktori kerja di dalam container
+# Build image
+FROM node:20-alpine AS builder
 WORKDIR /app
-
-# Menyalin file package.json dan yarn.lock ke dalam direktori kerja
-COPY package.json yarn.lock ./
-
-# Menginstall dependencies aplikasi menggunakan Yarn
-RUN yarn install
-
-# Menyalin sisa file aplikasi ke dalam direktori kerja
 COPY . .
-
-# Membangun aplikasi React untuk produksi
+RUN yarn install --frozen-lockfile
 RUN yarn build
 
-# Menginstall global dependency untuk serve
-RUN yarn global add serve
+# Production image
+FROM node:20-alpine AS runner
+WORKDIR /app
+COPY --from=builder /app/.next .next
+COPY --from=builder /app/public public
+COPY --from=builder /app/package.json .
+COPY --from=builder /app/node_modules node_modules
+COPY --from=builder /app/next.config.js .
 
-# Mengekspos port yang akan digunakan
 EXPOSE 4002
-
-# Menetapkan perintah untuk menjalankan aplikasi di dalam container
-CMD ["serve", "-s", "build"]
+CMD ["yarn", "start"]
