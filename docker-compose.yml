@@ -6,6 +6,5 @@ services:
       dockerfile: Dockerfile
     ports:
       - "7090:4002"
-    env_file:
-      - .env
+    
     restart: always
