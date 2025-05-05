@@ -1,60 +1,73 @@
-import { useEffect } from 'react';
-import flatpickr from 'flatpickr';
-import 'flatpickr/dist/flatpickr.css';
-import Label from './Label';
-import { CalenderIcon } from '../../icons';
-import Hook = flatpickr.Options.Hook;
-import DateOption = flatpickr.Options.DateOption;
+import { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { CalenderIcon } from "../../icons";
+import Label from "./Label";
 
 type PropsType = {
   id: string;
-  mode?: "single" | "multiple" | "range" | "time";
-  onChange?: Hook | Hook[];
-  defaultDate?: DateOption;
+  mode?: "single" | "multiple" | "range"; // react-datepicker tidak dukung "time" sebagai mode, tapi bisa diatur khusus
+  onChange?: (date: Date | Date[] | null) => void;
+  defaultDate?: Date | Date[] | null;
   label?: string;
   placeholder?: string;
 };
 
-export default function DatePicker({
+export default function CustomDatePicker({
   id,
-  mode,
+  mode = "single",
   onChange,
-  label,
   defaultDate,
+  label,
   placeholder,
 }: PropsType) {
-  useEffect(() => {
-    const flatPickr = flatpickr(`#${id}`, {
-      mode: mode || "single",
-      static: true,
-      monthSelectorType: "static",
-      dateFormat: "Y-m-d",
-      defaultDate,
-      onChange,
-    });
+  const [selectedDate, setSelectedDate] = useState<Date | Date[] | null>(defaultDate ?? null);
 
-    return () => {
-      if (!Array.isArray(flatPickr)) {
-        flatPickr.destroy();
-      }
-    };
-  }, [mode, onChange, id, defaultDate]);
+  useEffect(() => {
+    setSelectedDate(defaultDate ?? null);
+  }, [defaultDate]);
+
+  const handleChange = (date: Date | Date[] | null) => {
+    setSelectedDate(date);
+    if (onChange) {
+      onChange(date);
+    }
+  };
 
   return (
-    <div>
+    <div className="space-y-1">
       {label && <Label htmlFor={id}>{label}</Label>}
 
-      <div className="relative">
-        <input
+      <div className="relative w-full rounded-lg border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <DatePicker
           id={id}
-          placeholder={placeholder}
-          className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700  dark:focus:border-brand-800"
+          selected={
+            mode === "single" && !Array.isArray(selectedDate)
+              ? (selectedDate as Date)
+              : null
+          }
+          onChange={handleChange}
+          startDate={
+            mode === "range" && Array.isArray(selectedDate)
+              ? selectedDate[0]
+              : undefined
+          }
+          endDate={
+            mode === "range" && Array.isArray(selectedDate)
+              ? selectedDate[1]
+              : undefined
+          }
+          dateFormat="yyyy-MM-dd"
+          className="w-full bg-transparent border-none px-4 py-2.5 pr-12 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:outline-none"
+          placeholderText={placeholder}
         />
 
-        <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
-          <CalenderIcon className="size-6" />
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+          <CalenderIcon className="w-5 h-5" />
         </span>
       </div>
     </div>
+
+
   );
 }
