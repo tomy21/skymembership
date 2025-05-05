@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import React from 'react'
+import React, { Suspense } from 'react'
 import ChangePassword from '../../(customer)/(ui-elements)/ChangePassword/page';
 
 export const metadata: Metadata = {
@@ -9,6 +9,8 @@ export const metadata: Metadata = {
 };
 export default function page() {
   return (
+    <Suspense fallback={<div>Loading...</div>}>
       <ChangePassword />
+    </Suspense>
   );
 }
