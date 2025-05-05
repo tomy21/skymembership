@@ -17,7 +17,8 @@ export default function ChangePassword() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const router = useRouter();
-  const params = useSearchParams();
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
   const {mutateAsync: changePassword} = useChangePassword();
 
   const [mounted, setMounted] = useState(false);
@@ -46,7 +47,7 @@ export default function ChangePassword() {
     setLoading(true);
 
     try {
-        const response = await changePassword({password:newPassword, confirmPassword: confirmPassword, token: params.get('token') || ''});
+        const response = await changePassword({password:newPassword, confirmPassword: confirmPassword, token: token!});
         
         if (response?.status === 'success') {
             setSuccess(true);
