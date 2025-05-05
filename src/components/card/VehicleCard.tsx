@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import CardVehicle from "@/app/(admin)/(customer)/(ui-elements)/card-vehicle/page";
+import CardVehicle from "@/components/card-vehicle/page";
 import { useVehicle, CardHistoryProps } from "@/hooks/useVehicle";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { ClipLoader } from "react-spinners";
