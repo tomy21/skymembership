@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
-import React from 'react'
-import PinVerify from '../../(customer)/(ui-elements)/pin-verifikasi/page';
+import React, { Suspense } from 'react'
+import PinVerify from '../../(customer)/(ui-elements)/pin-verifikasi/PinVerify';
+import ProgressBarProvider from '@/components/ProgressBarProvider';
 
 export const metadata: Metadata = {
   title: "Verifikasi | SKY Parking",
@@ -10,8 +11,10 @@ export const metadata: Metadata = {
 
 export default function page() {
   return (
-    <div>
-      <PinVerify/>
-    </div>
+    <Suspense>
+      <ProgressBarProvider>
+        <PinVerify/>
+      </ProgressBarProvider>
+    </Suspense>
   )
 }

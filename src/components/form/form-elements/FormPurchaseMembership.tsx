@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Select from 'react-select';
 import { useRouter } from 'next/navigation';
 import { useAllLocation } from '@/hooks/useLocation';
@@ -33,7 +33,7 @@ interface ProductType {
 }
 
 export default function BookingForm() {
-  const [location, setLocation] = useState<OptionType | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<OptionType | null>(null);
   const [type, setType] = useState<OptionType | null>(null);
   const [period, setPeriod] = useState<OptionType | null>(null);
   const [product, setProduct] = useState<OptionType | null>(null);
@@ -47,11 +47,12 @@ export default function BookingForm() {
   const [vehicleUsers, setVehicleUsers] = useState<OptionType[]>([]);
 
   const { data: dataLocation } = useAllLocation();
-  const { data: dataVehicle } = useTypeVehicle(location?.value);
-  const { data: dataPeriode } = usePeriode(type?.value, location?.value);
-  const { data: dataProduct } = useProduct(location?.value, type?.value, period?.value);
-  const { data: dataVehicles } = useVehicleActive(type?.value,location?.value );
-  
+  const { data: dataVehicle } = useTypeVehicle(selectedLocation?.value);
+  const { data: dataPeriode } = usePeriode(type?.value, selectedLocation?.value);
+  const { data: dataProduct } = useProduct(selectedLocation?.value, type?.value, period?.value);
+  const { data: dataVehicles } = useVehicleActive(type?.value,selectedLocation?.value );
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
     if (Array.isArray(dataLocation?.data)) {
       const options = dataLocation.data.map((item: LocationType) => ({
@@ -59,9 +60,10 @@ export default function BookingForm() {
         label: item.location_name,
       }));
       setLocationData(options);
+      
     }
 
-    if (location && Array.isArray(dataVehicle?.data)) {
+    if (selectedLocation?.value && Array.isArray(dataVehicle?.data)) {
       const optionsVehicle = dataVehicle.data.map((item: VehicleType) => ({
         value: item.vehicle_type,
         label: item.vehicle_type,
@@ -69,7 +71,7 @@ export default function BookingForm() {
       setVehicleData(optionsVehicle);
     }
 
-    if (location && type && Array.isArray(dataPeriode?.data)) {
+    if (selectedLocation?.value && type && Array.isArray(dataPeriode?.data)) {
       const optionsPeriod = dataPeriode.data.map((item: PeriodType) => ({
         value: item.periode,
         label: item.periode,
@@ -77,7 +79,7 @@ export default function BookingForm() {
       setPeriodData(optionsPeriod);
     }
 
-    if (location && type && period && Array.isArray(dataProduct?.data)) {
+    if (selectedLocation?.value && type && period && Array.isArray(dataProduct?.data)) {
       const optionsProduct = dataProduct.data.map((item: ProductType) => ({
         value: item.id,
         label: item.product_name,
@@ -85,15 +87,15 @@ export default function BookingForm() {
       setProductData(optionsProduct);
     }
 
-    if (type?.value && location?.value && Array.isArray(dataVehicles?.data)) {
+    if (type?.value && selectedLocation?.value && Array.isArray(dataVehicles?.data)) {
       const optionVehicle = dataVehicles.data.map((item: VehicleUserType) => ({
         value: item.plate_number,
         label: item.plate_number.toUpperCase(),
       }));
       setVehicleUsers(optionVehicle);
     }
-
-  }, [dataLocation, location, dataVehicle, type, dataPeriode, period, dataProduct, dataVehicles]);
+    setMounted(true);
+  }, [dataLocation, selectedLocation, dataVehicle, type, dataPeriode, period, dataProduct, dataVehicles]);
 
   useEffect(() => {
     if (product && Array.isArray(dataProduct?.data)) {
@@ -105,12 +107,16 @@ export default function BookingForm() {
   }, [product, dataProduct]);
 
   const router = useRouter();
+  if (!mounted) {
+    // selama SSR dan sebelum mount, tolak render interaktif
+    return null;
+  }
 
   const handleSubmit = () => {
-    if (location && type && period && product && vehicle) {
+    if (selectedLocation && type && period && product && vehicle) {
       const query = new URLSearchParams({
         idProduct: product.value,
-        location: location.label,
+        location: selectedLocation.label,
         type: type.label,
         period: period.label,
         product: product.label,
@@ -123,12 +129,13 @@ export default function BookingForm() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 rounded-lg space-y-5">
+    <Suspense fallback={<div>Loading...</div>}>
+        <div className="max-w-xl mx-auto p-6 rounded-lg space-y-5">
       <Select
         placeholder="Pilih Lokasi..."
         options={locationData ?? []}
-        value={location ?? null}
-        onChange={(val) => setLocation(val)}
+        value={selectedLocation ?? null}
+        onChange={(val) => setSelectedLocation(val)}
         isSearchable
       />
 
@@ -142,7 +149,7 @@ export default function BookingForm() {
           setProduct(null);
           setVehicle(null);
         }}
-        isDisabled={!location}
+        isDisabled={!selectedLocation}
       />
 
       <Select
@@ -186,10 +193,11 @@ export default function BookingForm() {
       <button
         onClick={handleSubmit}
         className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
-        disabled={!location || !type || !period || !product || !vehicle}
+        disabled={!selectedLocation || !type || !period || !product || !vehicle}
       >
         Lanjut ke Pembayaran
       </button>
     </div>
+    </Suspense>
   );
 }

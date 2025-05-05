@@ -64,7 +64,6 @@ export default function ConfirmationForm() {
     }
   }, [searchParams]);
 
-  console.log(searchParams.get("idProduct"));
 
   const getPeriodRange = (period: string) => {
     if (!period) return null;
@@ -103,8 +102,6 @@ export default function ConfirmationForm() {
     setPurchaseData({idProduct: parseInt(detail.idProduct), bank_id: selectedProviders[0].id, plate_number: detail.kendaraan, type: "purchase", provider: selectedProviders[0]});
     setShowModal(true);
   };
-
-  console.log(detail.kendaraan)
 
   const handleConfirm = () => {
     setShowModal(false);

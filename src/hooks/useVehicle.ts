@@ -34,7 +34,7 @@ export const useVehicleActive = (
         limit = 10,
         search = "") => {
   return useQuery({
-    queryKey: ['vehicleDataActive',type, location],
+    queryKey: ['vehicleDataActive',type, locationCode],
     queryFn: () => VehicleListUser.getVehicleUnActiveLocation(type, locationCode, page, limit, search),
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
     retry: 1,

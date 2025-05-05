@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
-import React from 'react'
-import PaymentProcess from '../../(customer)/(ui-elements)/payment-process/page';
+import React, { Suspense } from 'react'
+import PaymentProcess from '../../(customer)/(ui-elements)/payment-process/PaymentProcess';
+import ProgressBarProvider from '@/components/ProgressBarProvider';
 
 export const metadata: Metadata = {
   title: "Payment | SKY Parking",
@@ -10,8 +11,8 @@ export const metadata: Metadata = {
 
 export default function page() {
   return (
-    <div>
-      <PaymentProcess/>
-    </div>
+    <Suspense>
+      <ProgressBarProvider><PaymentProcess /></ProgressBarProvider>
+    </Suspense>
   )
 }

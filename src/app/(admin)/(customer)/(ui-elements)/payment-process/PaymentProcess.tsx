@@ -16,7 +16,7 @@ import { usePurchaseContext } from "@/context/PurchaseContext";
 import { usePaymentByVA } from "@/hooks/usePayment";
 import { IoMdCheckmarkCircle } from "react-icons/io";
 import { jsPDF } from "jspdf";
-import { ScaleLoader } from "react-spinners";
+import Loading from "@/components/Loading/Loading";
 
 
 export default function PaymentProcess() {
@@ -32,12 +32,9 @@ export default function PaymentProcess() {
 
   const paymentHistory = usePaymentByVA(idTransaction);
 
-  if(!idTransaction){
-
-  }
-
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [mounted, setMounted] = useState(false);
   
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -63,6 +60,7 @@ export default function PaymentProcess() {
 
   useEffect(()=>{
     queryClient.invalidateQueries({ queryKey: ["userById"] });
+    setMounted(true);
   },[queryClient]);
 
   // Function to parse nominal number
@@ -146,19 +144,16 @@ export default function PaymentProcess() {
     });
   };
 
+  if (!mounted) {
+    // selama SSR dan sebelum mount, tolak render interaktif
+    return null;
+  }
+
 
   return (
     <div className="min-h-screen bg-white w-full">
       {isLoading && (
-        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50">
-          <ScaleLoader 
-            height={100}
-            width={5}
-            margin={2}
-            color="#bbb"
-            loading={true}
-          />
-        </div>
+        <Loading/>
       )}
       {/* Header Section */}
       <div className="text-center bg-yellow-400 h-72 p-4 rounded-bl-4xl rounded-br-[100px]">

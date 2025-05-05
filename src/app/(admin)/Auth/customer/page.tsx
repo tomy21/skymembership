@@ -34,6 +34,8 @@ export default function AuthCustomer() {
   const { mutateAsync: requestToken } = useRequestActivation();
   const router = useRouter();
 
+  const [mounted, setMounted] = useState(false);
+  
   const refreshString = () => {
     const upperCaseLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const numbers = '0123456789';
@@ -59,10 +61,13 @@ export default function AuthCustomer() {
     setCaptchaStyles(newStyles);
   };
 
+  useEffect(()=>{ setMounted(true);refreshString(); },[]);
+  
+    if (!mounted) {
+      // selama SSR dan sebelum mount, tolak render interaktif
+      return null;
+    }
 
-  useEffect(() => {
-    refreshString();
-  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

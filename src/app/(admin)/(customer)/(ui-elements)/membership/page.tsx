@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
-import React from 'react';
+import React, { Suspense } from 'react';
 import FormPurchaseMembership from '@/components/form/form-elements/FormPurchaseMembership';
 import HeaderPage from '@/components/header-page/page';
+import Loading from '@/components/Loading/Loading';
 
 export const metadata: Metadata = {
   title: "Membership | SKY Membership",
@@ -12,9 +13,11 @@ export const metadata: Metadata = {
 
 export default function Membership() {
   return (
-    <div className='bg-white w-full min-h-screen relative'>
+    <Suspense fallback={<Loading/>}>
+      <div className='bg-white w-full min-h-screen relative'>
         <HeaderPage title="Purcahase Product"/>
         <FormPurchaseMembership/>
-    </div>
+      </div>
+    </Suspense>
   )
 }

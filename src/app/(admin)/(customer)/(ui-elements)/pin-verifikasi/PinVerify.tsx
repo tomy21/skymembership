@@ -176,51 +176,52 @@ export default function PinVerify() {
   ];
 
   return (
-    <div className="w-full min-h-screen overflow-y-auto bg-white">
-        <HeaderPage title="Verifikasi Pin"/>
-        <div className="w-full flex flex-col items-center px-5 mt-10">
-            <h1 className="text-xl font-semibold text-gray-700 mb-6">
-                Masukkan PIN
-            </h1>
 
-            <div className="flex space-x-3 justify-center mb-5">
-                {pin.map((val, idx) => (
-                <div
-                    key={idx}
-                    className={`w-10 h-10 sm:w-14 sm:h-14 border rounded-full text-center text-2xl font-bold flex items-center justify-center ${
-                    idx === activeIndex ? "border-blue-500" : "border-gray-300"
-                    }`}
-                >
-                    {val ? "•" : ""}
+          <div className="w-full min-h-screen overflow-y-auto bg-white">
+            <HeaderPage title="Verifikasi Pin"/>
+            <div className="w-full flex flex-col items-center px-5 mt-10">
+                <h1 className="text-xl font-semibold text-gray-700 mb-6">
+                    Masukkan PIN
+                </h1>
+
+                <div className="flex space-x-3 justify-center mb-5">
+                    {pin.map((val, idx) => (
+                    <div
+                        key={idx}
+                        className={`w-10 h-10 sm:w-14 sm:h-14 border rounded-full text-center text-2xl font-bold flex items-center justify-center ${
+                        idx === activeIndex ? "border-blue-500" : "border-gray-300"
+                        }`}
+                    >
+                        {val ? "•" : ""}
+                    </div>
+                    ))}
                 </div>
-                ))}
+
+                <h1 className="text-md underline text-blue-500">Lupa pin</h1>
+
+                <div className="grid grid-cols-3 gap-x-12 gap-y-5 mt-7 mx-auto">
+                    {keypad.map((key, idx) => (
+                    <button
+                        key={idx}
+                        onClick={() => handleKeyPress(key)}
+                        className="text-lg font-semibold border border-gray-300 rounded-full w-16 h-16 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200"
+                    >
+                        {key === "backspace" ? "⌫" : key}
+                    </button>
+                    ))}
+                </div>
             </div>
 
-            <h1 className="text-md underline text-blue-500">Lupa pin</h1>
-
-            <div className="grid grid-cols-3 gap-x-12 gap-y-5 mt-7 mx-auto">
-                {keypad.map((key, idx) => (
-                <button
-                    key={idx}
-                    onClick={() => handleKeyPress(key)}
-                    className="text-lg font-semibold border border-gray-300 rounded-full w-16 h-16 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200"
-                >
-                    {key === "backspace" ? "⌫" : key}
-                </button>
-                ))}
-            </div>
+            {isLoading && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                <div className="bg-white rounded-xl shadow-lg px-6 py-4 flex flex-col items-center space-y-3">
+                  <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  <p className="text-blue-600 text-sm font-medium">
+                    Process transaction . . . . . 
+                  </p>
+                </div>
+              </div>
+            )}
         </div>
-
-        {isLoading && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-white rounded-xl shadow-lg px-6 py-4 flex flex-col items-center space-y-3">
-              <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              <p className="text-blue-600 text-sm font-medium">
-                Process transaction . . . . . 
-              </p>
-            </div>
-          </div>
-        )}
-    </div>
   );
 }

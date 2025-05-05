@@ -1,4 +1,5 @@
 "use client";
+import ProgressBarProvider from "@/components/ProgressBarProvider";
 import { AuthProvider } from "@/context/AuthContext";
 import { PaymentProvider } from "@/context/PaymentContext";
 import React from "react";
@@ -15,7 +16,7 @@ export default function AdminLayout({
     <div>
       <AuthProvider>
         <PaymentProvider>
-          {children}
+          <ProgressBarProvider>{children}</ProgressBarProvider>
           <Toaster richColors position="top-right" duration={1000} />
         </PaymentProvider>
       </AuthProvider>

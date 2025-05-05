@@ -1,5 +1,6 @@
 "use client";
 import ProtectedLayout from "@/app/(protected)/layout";
+import ProgressBarProvider from "@/components/ProgressBarProvider";
 import React from "react";
 import { Toaster } from "sonner";
 
@@ -13,7 +14,7 @@ export default function CustomerLayout({
   return (
     <div className="min-h-screen xl:flex flex justify-center items-center w-full m-auto bg-white md:w-full sm:w-full md:container sm:container">
       <ProtectedLayout>
-        {children}
+        <ProgressBarProvider>{children}</ProgressBarProvider>
         <Toaster richColors position="top-right" duration={1000} />
       </ProtectedLayout>
     </div>
