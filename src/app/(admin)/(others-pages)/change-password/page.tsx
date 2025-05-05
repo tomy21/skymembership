@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import React, { Suspense } from 'react'
-import ChangePassword from '../../(customer)/(ui-elements)/ChangePassword/page';
+import ChangePassword from '../../(customer)/(ui-elements)/ChangePassword/ChangePassword';
+
 
 export const metadata: Metadata = {
   title: "Change Password | SKY Membership",
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ChangePassword />
+      <ChangePassword/>
     </Suspense>
   );
 }
