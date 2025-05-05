@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import HeaderPage from "../header-page/page";
 import Label from "@/components/form/Label";
 import { ChevronDownIcon } from "@/icons";
 import CustomSelectWithImage from "@/components/form/SelectWithImage";
@@ -13,6 +12,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useProviderByType } from "@/hooks/usePayment";
 import { useTopupContext } from "@/context/TopupContext";
+import HeaderPage from "@/components/header-page/page";
 
 interface Option {
   id: string;

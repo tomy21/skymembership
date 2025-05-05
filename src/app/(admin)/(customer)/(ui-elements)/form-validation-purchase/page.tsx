@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import React from 'react'
-import HeaderPage from '../header-page/page';
 import FormValidationPurchase from '@/components/form/form-elements/FormValidationPurchase';
+import HeaderPage from '@/components/header-page/page';
 
 export const metadata: Metadata = {
   title: "Purchase | SKY Membership",

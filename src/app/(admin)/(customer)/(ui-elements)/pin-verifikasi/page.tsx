@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useState} from "react";
-import HeaderPage from "../header-page/page";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTopupContext } from "@/context/TopupContext";
 import { useCreateVaPurchase, useCreateVaTopup } from "@/hooks/usePayment";
 import { usePaymentContext } from "@/context/PaymentContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePurchaseContext } from "@/context/PurchaseContext";
+import HeaderPage from "@/components/header-page/page";
 
 type TopupPayload = {
   bank_id: string;

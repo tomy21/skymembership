@@ -1,8 +1,8 @@
+import HeaderPage from "@/components/header-page/page";
 import UserInfoCard from "@/components/user-profile/UserInfoCard";
 import UserMetaCard from "@/components/user-profile/UserMetaCard";
 import { Metadata } from "next";
 import React from "react";
-import HeaderPage from "../../(customer)/(ui-elements)/header-page/page";
 
 export const metadata: Metadata = {
   title: "Profile | SKY Parking",

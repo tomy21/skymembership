@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
-import React from 'react'
-import HeaderPage from '../header-page/page';
+import React from 'react';
 import Image from 'next/image';
+import HeaderPage from '@/components/header-page/page';
 
 export const metadata: Metadata = {
   title: "Voucher | SKY Membership",

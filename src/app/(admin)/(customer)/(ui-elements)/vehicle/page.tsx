@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import React from 'react';
-import HeaderPage from '../header-page/page';
 import VehicleCard from '@/components/card/VehicleCard';
 import VehicleAdd from '@/components/modal/VehicleAdd';
+import HeaderPage from '@/components/header-page/page';
 
 export const metadata: Metadata = {
   title: "Vehicle | SKY Membership",
