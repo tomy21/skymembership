@@ -17,12 +17,7 @@ type CardHistoryProps = {
     rfidNo: string;
 };
 
-declare global {
-  interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    NDEFReader: any; // atau bisa pakai proper typing dari @types/wicg-web-nfc kalau tersedia
-  }
-}
+
 
 export default function CardVehicle({
   idcustomer,
@@ -41,6 +36,8 @@ export default function CardVehicle({
   useEffect(() => {
     if ("NDEFReader" in window) {
       setNfcSupported(true);
+    } else {
+      setNfcSupported(false);
     }
   }, []);
 

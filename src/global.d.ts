@@ -2,7 +2,9 @@ export {};
 
 declare global {
   interface Window {
-    NDEFReader: NDEFReader;
+    NDEFReader: {
+      new (): NDEFReader;
+    };
   }
 
   interface NDEFReader {
