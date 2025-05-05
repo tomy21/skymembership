@@ -17,11 +17,6 @@ interface VehicleAddPayload {
   stnk_image: File | null;
 }
 
-interface UpdateRfidPayload {
-  plate_number: string;
-  rfid: string;
-}
-
 export const useVehicle = (page = 1 , limit = 10, search = "") => {
   return useQuery({
     queryKey: ['vehicleData'],
@@ -53,8 +48,14 @@ export const useAddVehicle = () => {
       const formData = new FormData();
       formData.append("vehicle_type", data.vehicle_type);
       formData.append("plate_number", data.plate_number.toUpperCase());
-      formData.append("plate_number_image", data.plate_number_image);
-      formData.append("stnk_image", data?.stnk_image ?? undefined);
+
+      if (data.plate_number_image) {
+        formData.append("plate_number_image", data.plate_number_image);
+      }
+
+      if (data.stnk_image) {
+        formData.append("stnk_image", data.stnk_image);
+      }
 
       return vehicleAdd.addVehicle(formData);
     },
