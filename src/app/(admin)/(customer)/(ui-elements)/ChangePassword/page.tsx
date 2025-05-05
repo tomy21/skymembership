@@ -1,9 +1,7 @@
-"use client"
-
-
+"use client";
 import { useChangePassword } from '@/hooks/useAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaEye, FaEyeSlash, FaLock } from 'react-icons/fa';
 import { ClipLoader } from 'react-spinners';
 import axios from "axios";
@@ -21,6 +19,14 @@ export default function ChangePassword() {
   const router = useRouter();
   const params = useSearchParams();
   const {mutateAsync: changePassword} = useChangePassword();
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(()=>{ setMounted(true); },[]);
+
+  if (!mounted) {
+    // selama SSR dan sebelum mount, tolak render interaktif
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,7 +132,7 @@ export default function ChangePassword() {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              value={newPassword}
+              value={newPassword ?? ""}
               onChange={(e) => { 
                 setNewPassword(e.target.value); 
                 setPasswordStrength(getPasswordStrength(e.target.value));
@@ -158,7 +164,7 @@ export default function ChangePassword() {
             <input
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Konfirmasi Password"
-              value={confirmPassword}
+              value={confirmPassword ?? "-"}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
