@@ -45,13 +45,38 @@ export default function VehicleAdd() {
           setIsOpen(false);
           queryClient.invalidateQueries({ queryKey: ["vehicleData"] });
         },
-        onError: (error) => {
-          console.error("❌ Gagal tambah vehicle:", error);
+        onError: (err) => {
+          setFormData({
+            vehicle_type: "",
+            plate_number: "",
+            plate_number_image: null,
+            stnk_image: null,
+          });
+          setIsLoading(false);
+          let message = 'An error occurred';
+          if (err && typeof err === 'object' && 'response' in err) {
+            const res = err as { response?: { data?: { message?: string } } };
+            message = res.response?.data?.message ?? message;
+          } else if (err instanceof Error) {
+            message = err.message;
+          }
+          toast.error(message);
         },
     });
     } catch (error) {
-      console.log(error)
+      if(error instanceof Error) toast.error(error.message);
+      setIsLoading(false);
     }
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setFormData({
+      vehicle_type: "",
+      plate_number: "",
+      plate_number_image: null,
+      stnk_image: null,
+    });
   };
 
 
@@ -97,7 +122,7 @@ export default function VehicleAdd() {
                   <Dialog.Title className="text-lg font-bold text-gray-900">
                     Add Vehicle
                   </Dialog.Title>
-                  <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-600">
+                  <button onClick={handleClose} className="text-gray-400 hover:text-gray-600">
                     <FiX size={22} />
                   </button>
                 </div>
