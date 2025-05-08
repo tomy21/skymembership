@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useAuth } from '@/context/AuthContext';
 
 
 export default function AuthCustomer() {
@@ -31,6 +32,7 @@ export default function AuthCustomer() {
   
   const { mutateAsync: loginMutation } = useLogin();
   const { mutateAsync: requestToken } = useRequestActivation();
+  const { login } = useAuth();
   const router = useRouter();
 
   const [mounted, setMounted] = useState(false);
@@ -84,8 +86,8 @@ export default function AuthCustomer() {
         const dataDecrypt = decryptData(response.data);
         console.log(dataDecrypt);
         if (dataDecrypt && dataDecrypt.status === 'success') {
-            localStorage.setItem('token', dataDecrypt.token);
             toast.success('Login berhasil!');
+            login(dataDecrypt?.token);
             router.push('/home');
         } else {
             toast.error(dataDecrypt?.message || "Login gagal.");
