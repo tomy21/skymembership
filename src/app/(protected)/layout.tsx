@@ -10,9 +10,11 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     const refreshToken = Cookies.get('refreshToken');
-    const publicRoutes = ['/register', '/forgot-password', '/register-success','/change-password']; // daftar halaman yang tidak perlu login
+    const accessToken = localStorage.getItem('userToken'); // ambil token dari localStorage
 
-    if (!refreshToken && !publicRoutes.includes(pathname)) {
+    const publicRoutes = ['/register', '/forgot-password', '/register-success', '/change-password'];
+
+    if (!refreshToken && !accessToken && !publicRoutes.includes(pathname)) {
       router.push('/');
     }
   }, [router, pathname]);
