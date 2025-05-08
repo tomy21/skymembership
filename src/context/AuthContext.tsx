@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const token = localStorage.getItem('userToken');
     const userData = localStorage.getItem('userData');
-
+    console.log(token, userData);
     if (token && userData) {
       setUser(JSON.parse(userData));
       setIsAuthenticated(true);
