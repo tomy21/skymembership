@@ -44,6 +44,7 @@ export default function ConfirmationForm() {
   const providerOptions = providerData ?? [];
   const methodOptions = [
     { value: "VIRTUAL_ACCOUNT", label: "Virtual Account" },
+    { value: "POINT", label: "Point" },
   ];
 
   useEffect(() => {
@@ -162,7 +163,7 @@ export default function ConfirmationForm() {
               options={providerOptions}
               defaultValue=""
                onChange={(selected) => {
-                  setSelectedProviders((prev) => [...prev, selected]);
+                  setSelectedProviders(() => [selected]);
                 }}
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
@@ -212,7 +213,7 @@ export default function ConfirmationForm() {
               <div className="text-sm mt-4 space-y-3">
                 <div className="flex justify-between border-b border-slate-300 py-1">
                   <span className="text-slate-400">Metode pembayaran</span>
-                  <span className="font-semibold uppercase">{selectedMethod === "VIRTUAL_ACCOUNT" ? "VA" : selectedMethod } {selectedProviders.map((provider) => provider.gateway_partner)}</span>
+                  <span className="font-semibold uppercase">{selectedMethod === "VIRTUAL_ACCOUNT" ? "VA" : selectedMethod } {selectedProviders.map((provider) => provider.gateway_partner === "BAYARIND" ? "BCA" : provider.gateway_partner)}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-300 py-1">
                   <span className="text-slate-400">Biaya admin</span>

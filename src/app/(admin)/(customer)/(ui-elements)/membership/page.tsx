@@ -15,7 +15,7 @@ export default function Membership() {
   return (
     <Suspense fallback={<Loading/>}>
       <div className='bg-white w-full min-h-screen relative'>
-        <HeaderPage title="Purcahase Product"/>
+        <HeaderPage title="Purchase Product"/>
         <FormPurchaseMembership/>
       </div>
     </Suspense>

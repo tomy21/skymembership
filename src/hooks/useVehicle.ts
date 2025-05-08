@@ -1,8 +1,18 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
 import { vehicleAdd, VehicleListUser } from "../../libs/API/VehicleListUser";
 import { AxiosError } from "axios";
 
 export type CardHistoryProps = {
+  type: "payment" | "parking";
+  date: string;
+  product: string;
+  location: string;
+  productName: string;
+  amount: number;
+  status: "paid" | "failed" | "pending" | "masuk" | "keluar";
+  isMember?: boolean;
+  onClick?: () => void;
+  idcustomer: string;
   member_customer_no: string;
   vehicle_type: "MOBIL" | "MOTOR";
   createdAt: string;
@@ -17,15 +27,25 @@ interface VehicleAddPayload {
   stnk_image: File | null;
 }
 
-export const useVehicle = (page = 1 , limit = 10, search = "") => {
-  return useQuery({
-    queryKey: ['vehicleData'],
+type VehicleResponse = {
+  data: CardHistoryProps[];
+  total: number;
+};
+
+export const useVehicle = (
+  page = 1,
+  limit = 10,
+  search = ""
+): UseQueryResult<VehicleResponse, Error> => {
+  return useQuery<VehicleResponse, Error, VehicleResponse>({
+    queryKey: ["vehicleData", page, limit, search],
     queryFn: () => VehicleListUser.getVehicle(page, limit, search),
-    staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
+    staleTime: 1000 * 60 * 5,
     retry: 1,
     refetchOnWindowFocus: false,
+    placeholderData: (previousData) => previousData, // ini pengganti keepPreviousData
   });
-}
+};
 
 export const useVehicleActive = (
         type = "",
@@ -38,6 +58,7 @@ export const useVehicleActive = (
     queryFn: () => VehicleListUser.getVehicleUnActiveLocation(type, locationCode, page, limit, search),
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
     retry: 1,
+    enabled: !!type && !!locationCode,
     refetchOnWindowFocus: false,
   });
 }

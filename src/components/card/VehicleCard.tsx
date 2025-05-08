@@ -5,13 +5,15 @@ import CardVehicle from "@/components/card-vehicle/page";
 import { useVehicle, CardHistoryProps } from "@/hooks/useVehicle";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { ClipLoader } from "react-spinners";
+import { useDebounce } from "use-debounce";
 
 export default function VehicleCard() {
-  const { data: dataVehicle, isLoading, isError } = useVehicle();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [searchText, setSearchText] = useState("");
-
+  const [debouncedSearchText] = useDebounce(searchText, 500);
+  const { data: dataVehicle, isLoading, isError } = useVehicle(currentPage, itemsPerPage, debouncedSearchText);
+  
   // recalc itemsPerPage on resize
   useEffect(() => {
     function updateCount() {
@@ -20,10 +22,18 @@ export default function VehicleCard() {
       const perPage = Math.max(1, Math.floor((window.innerHeight - reserved) / cardHeight));
       setItemsPerPage(perPage);
     }
+    
     updateCount();
     window.addEventListener("resize", updateCount);
     return () => window.removeEventListener("resize", updateCount);
   }, []);
+
+  const handleSearchTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    setSearchText(e.target.value);
+    setCurrentPage(1);
+  };
+  
 
   // Move error and loading checks out of early return to keep hooks on the same level
   if (isError) return <div>Error loading vehicles</div>;
@@ -36,16 +46,10 @@ export default function VehicleCard() {
     </div>
   );
 
-  const all = dataVehicle?.data || [];
+  // const all = dataVehicle?.data || [];
 
-  // 1) filter by searchText
-  const filtered = all.filter((item: CardHistoryProps) =>
-    item.plate_number.toLowerCase().includes(searchText.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const start = (currentPage - 1) * itemsPerPage;
-  const pageData = filtered.slice(start, start + itemsPerPage);
+  const pageData = dataVehicle?.data || [];
+  const totalPages = Math.ceil((dataVehicle?.total || 0) / itemsPerPage);
 
   return (
     <div className="p-5 flex flex-col items-center space-y-4">
@@ -55,7 +59,7 @@ export default function VehicleCard() {
         placeholder="Search by plate number…"
         className="w-full max-w-md p-2 border rounded"
         value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
+        onChange={handleSearchTextChange}
       />
 
       {/* cards */}
@@ -70,13 +74,13 @@ export default function VehicleCard() {
             rfidNo={item.rfid}
           />
         ))}
-        {filtered.length === 0 && (
+        {pageData.length === 0 && (
           <div className="text-center py-10 text-gray-500">No vehicles found.</div>
         )}
       </div>
 
       {/* pagination controls */}
-      {filtered.length > itemsPerPage && (
+      {itemsPerPage && (
         <div className="mt-6 flex items-center space-x-4">
           <button
             className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"

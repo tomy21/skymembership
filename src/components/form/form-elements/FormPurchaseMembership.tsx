@@ -1,117 +1,142 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-import Select from 'react-select';
+import React, { useState, useEffect } from 'react';
+import Select, { GroupBase, OptionsOrGroups } from 'react-select';
 import { useRouter } from 'next/navigation';
-import { useAllLocation } from '@/hooks/useLocation';
+// import { useAllLocation } from '@/hooks/useLocation';
 import { usePeriode, useProduct, useTypeVehicle } from '@/hooks/useProduct';
 import { useVehicleActive } from '@/hooks/useVehicle';
+import { AsyncPaginate } from 'react-select-async-paginate';
+import { Location } from '../../../../libs/API/Location';
 
-type OptionType = { value: string; label: string };
+type OptionType = {
+  value: string;
+  label: string;
+};
 
-interface LocationType {
-  location_code: string;
-  location_name: string;
-}
+// interface LocationRequest {
+//   location_code: string;
+//   location_name: string;
+// }
 
 interface VehicleType {
   vehicle_type: string;
 }
 
-interface PeriodType {
+interface Periode {
   periode: string;
 }
 
-interface VehicleUserType {
-  plate_number: string;
-}
-
-interface ProductType {
+interface Product {
   id: string;
   product_name: string;
   price: number;
 }
 
+interface Vehicle {
+  plate_number: string;
+}
+
 export default function BookingForm() {
+  const router = useRouter();
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // STATE
   const [selectedLocation, setSelectedLocation] = useState<OptionType | null>(null);
+  const [locationValue, setLocationValue] = useState<OptionType | null>(null);
   const [type, setType] = useState<OptionType | null>(null);
   const [period, setPeriod] = useState<OptionType | null>(null);
   const [product, setProduct] = useState<OptionType | null>(null);
   const [vehicle, setVehicle] = useState<OptionType | null>(null);
   const [price, setPrice] = useState<number>(0);
 
-  const [productData, setProductData] = useState<OptionType[]>([]);
-  const [periodData, setPeriodData] = useState<OptionType[]>([]);
-  const [locationData, setLocationData] = useState<OptionType[]>([]);
-  const [vehicleData, setVehicleData] = useState<OptionType[]>([]);
-  const [vehicleUsers, setVehicleUsers] = useState<OptionType[]>([]);
-
-  const { data: dataLocation } = useAllLocation();
+  // HOOK DATA
+  // const { data: dataLocation } = useAllLocation(page, 5, search);
   const { data: dataVehicle } = useTypeVehicle(selectedLocation?.value);
   const { data: dataPeriode } = usePeriode(type?.value, selectedLocation?.value);
   const { data: dataProduct } = useProduct(selectedLocation?.value, type?.value, period?.value);
-  const { data: dataVehicles } = useVehicleActive(type?.value,selectedLocation?.value );
-  const [mounted, setMounted] = useState(false);
+  const { data: dataVehicles } = useVehicleActive(type?.value, selectedLocation?.value);
 
+  // OPTION STATES
+  // const [locationData, setLocationData] = useState<OptionType[]>([]);
+  const [vehicleData, setVehicleData] = useState<OptionType[]>([]);
+  const [periodData, setPeriodData] = useState<OptionType[]>([]);
+  const [productData, setProductData] = useState<OptionType[]>([]);
+  const [vehicleUsers, setVehicleUsers] = useState<OptionType[]>([]);
+
+  // MAPPING LOCATION
+  // useEffect(() => {
+  //   if (Array.isArray(dataLocation?.data)) {
+  //     setLocationData(
+  //       dataLocation.data.map((loc) => ({
+  //         value: loc.location_code,
+  //         label: loc.location_name,
+  //       }))
+  //     );
+  //   }
+  // }, [dataLocation]);
+
+  // MAPPING VEHICLE TYPE
   useEffect(() => {
-    if (Array.isArray(dataLocation?.data)) {
-      const options = dataLocation.data.map((item: LocationType) => ({
-        value: item.location_code,
-        label: item.location_name,
-      }));
-      setLocationData(options);
-      
+    if (Array.isArray(dataVehicle?.data)) {
+      setVehicleData(
+        dataVehicle.data.map((v: VehicleType) => ({
+          value: v.vehicle_type,
+          label: v.vehicle_type,
+        }))
+      );
     }
+    setMounted(true)
+  }, [dataVehicle]);
 
-    if (selectedLocation?.value && Array.isArray(dataVehicle?.data)) {
-      const optionsVehicle = dataVehicle.data.map((item: VehicleType) => ({
-        value: item.vehicle_type,
-        label: item.vehicle_type,
-      }));
-      setVehicleData(optionsVehicle);
+  // MAPPING PERIODE
+  useEffect(() => {
+    if (Array.isArray(dataPeriode?.data)) {
+      setPeriodData(
+        dataPeriode.data.map((p: Periode) => ({
+          value: p.periode,
+          label: p.periode,
+        }))
+      );
     }
+  }, [dataPeriode]);
 
-    if (selectedLocation?.value && type && Array.isArray(dataPeriode?.data)) {
-      const optionsPeriod = dataPeriode.data.map((item: PeriodType) => ({
-        value: item.periode,
-        label: item.periode,
-      }));
-      setPeriodData(optionsPeriod);
+  // MAPPING PRODUCT
+  useEffect(() => {
+    if (Array.isArray(dataProduct?.data)) {
+      setProductData(
+        dataProduct.data.map((p:Product) => ({
+          value: p.id,
+          label: p.product_name,
+        }))
+      );
     }
+  }, [dataProduct]);
 
-    if (selectedLocation?.value && type && period && Array.isArray(dataProduct?.data)) {
-      const optionsProduct = dataProduct.data.map((item: ProductType) => ({
-        value: item.id,
-        label: item.product_name,
-      }));
-      setProductData(optionsProduct);
+  // MAPPING VEHICLE USER
+  useEffect(() => {
+    if (Array.isArray(dataVehicles?.data)) {
+      setVehicleUsers(
+        dataVehicles.data.map((v:Vehicle) => ({
+          value: v.plate_number,
+          label: v.plate_number.toUpperCase(),
+        }))
+      );
     }
+  }, [dataVehicles]);
 
-    if (type?.value && selectedLocation?.value && Array.isArray(dataVehicles?.data)) {
-      const optionVehicle = dataVehicles.data.map((item: VehicleUserType) => ({
-        value: item.plate_number,
-        label: item.plate_number.toUpperCase(),
-      }));
-      setVehicleUsers(optionVehicle);
-    }
-    setMounted(true);
-  }, [dataLocation, selectedLocation, dataVehicle, type, dataPeriode, period, dataProduct, dataVehicles]);
-
+  // SET PRICE WHEN PRODUCT SELECTED
   useEffect(() => {
     if (product && Array.isArray(dataProduct?.data)) {
-      const selected = dataProduct.data.find((item: ProductType) => item.id === product.value);
+      const selected = dataProduct.data.find((p:Product) => p.id === product.value);
       if (selected) {
         setPrice(selected.price);
       }
     }
   }, [product, dataProduct]);
 
-  const router = useRouter();
-  if (!mounted) {
-    // selama SSR dan sebelum mount, tolak render interaktif
-    return null;
-  }
-
+  // SUBMIT
   const handleSubmit = () => {
     if (selectedLocation && type && period && product && vehicle) {
       const query = new URLSearchParams({
@@ -128,21 +153,71 @@ export default function BookingForm() {
     }
   };
 
+  const loadLocationOptions = async (
+    inputValue: string,
+    loadedOptions: OptionsOrGroups<OptionType, GroupBase<OptionType>>,
+    additional: { limit: number } = { limit: 3 }
+  ): Promise<{
+    options: OptionType[];
+    hasMore: boolean;
+    additional: { limit: number };
+  }> => {
+    setIsLoadingMore(true);
+    try {
+      const data = await Location.getAllLocation(1, additional.limit, inputValue);
+
+      const newOptions: OptionType[] = data?.data.map((loc: { location_code: string; location_name: string }) => ({
+        value: loc.location_code,
+        label: loc.location_name,
+      }));
+
+      const hasMore = data?.data.length === additional.limit;
+
+      return {
+        options: newOptions,
+        hasMore,
+        additional: { limit: additional.limit + 3 },
+      };
+    } catch (error) {
+      console.error('Error fetching location data:', error);
+      return {
+        options: [],
+        hasMore: false,
+        additional,
+      };
+    }finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  if (!mounted) {
+    // selama SSR dan sebelum mount, tolak render interaktif
+    return null;
+  }
+
+
+
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-        <div className="max-w-xl mx-auto p-6 rounded-lg space-y-5">
-      <Select
+    <div className="max-w-xl mx-auto p-6 rounded-lg space-y-5">
+      <AsyncPaginate
         placeholder="Pilih Lokasi..."
-        options={locationData ?? []}
-        value={selectedLocation ?? null}
-        onChange={(val) => setSelectedLocation(val)}
+        value={locationValue}
+        loadOptions={loadLocationOptions}
+        onChange={(val) => {
+          setLocationValue(val);
+          setSelectedLocation(val);
+        }}
         isSearchable
+        additional={{limit:3}}
+        isLoading={isLoadingMore}
+        loadingMessage={() => "Memuat lokasi..."}
       />
+
 
       <Select
         placeholder="Tipe Kendaraan..."
-        options={vehicleData ?? []}
-        value={type ?? null}
+        options={vehicleData}
+        value={type}
         onChange={(val) => {
           setType(val);
           setPeriod(null);
@@ -154,8 +229,8 @@ export default function BookingForm() {
 
       <Select
         placeholder="Periode Member..."
-        options={periodData ?? []}
-        value={period ?? null}
+        options={periodData}
+        value={period}
         onChange={(val) => {
           setPeriod(val);
           setProduct(null);
@@ -166,28 +241,25 @@ export default function BookingForm() {
 
       <Select
         placeholder="Product..."
-        options={productData ?? []}
-        value={product ?? null}
+        options={productData}
+        value={product}
         onChange={(val) => {
           setProduct(val);
           setVehicle(null);
         }}
         isDisabled={!period}
       />
+
       <Select
-        placeholder="Vehicle list ..."
-        options={vehicleUsers ?? []}
-        value={vehicle ?? null}
-        onChange={(val) => {
-          setVehicle(val);  // ✅ Yang dipilih adalah kendaraan
-        }}
-        isDisabled={!period}
+        placeholder="Vehicle list..."
+        options={vehicleUsers}
+        value={vehicle}
+        onChange={(val) => setVehicle(val)}
+        isDisabled={!product}
       />
 
-      {/* Jika kendaraan perlu dipilih lagi, bisa tambahkan Select baru untuk itu di sini */}
-
       <div className="text-center text-xl text-green-600 font-semibold">
-        Total: Rp {price && price.toLocaleString('id-ID')}
+        Total: Rp {price.toLocaleString('id-ID')}
       </div>
 
       <button
@@ -198,6 +270,5 @@ export default function BookingForm() {
         Lanjut ke Pembayaran
       </button>
     </div>
-    </Suspense>
   );
 }

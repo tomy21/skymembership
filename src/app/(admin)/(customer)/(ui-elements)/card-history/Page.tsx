@@ -71,7 +71,7 @@ export default function CardHistory({
       </div>
 
       {/* Footer */}
-      <div className="flex justify-between items-center mt-5">
+      <div className="flex justify-between items-center mt-5 space-y-2">
         <span
           className={cn(
             'text-xs font-semibold px-2 py-1 rounded',

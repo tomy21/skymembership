@@ -56,6 +56,12 @@ export default function TopupPage() {
     setShowModal(true);
   };
 
+  const handleModalClose = () => {
+    setSelectedNominal(0);
+    setSelectedMethod("");
+    setSelectedProviders([]);
+  };
+
   return (
     <div className="w-full min-h-screen overflow-y-auto bg-white">
       <HeaderPage title="Topup Point" />
@@ -118,7 +124,7 @@ export default function TopupPage() {
               options={providerOptions}
               defaultValue=""
                onChange={(selected) => {
-                  setSelectedProviders((prev) => [...prev, selected]);
+                  setSelectedProviders(() => [selected]);
                 }}
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
@@ -139,7 +145,7 @@ export default function TopupPage() {
           <Button type="button" onClick={handleTopup} className="w-full">
             Topup Sekarang
           </Button>
-          <Button type="button" className="w-full bg-red-500">
+          <Button onClick={handleModalClose} type="button" className="w-full bg-red-500">
             Batal
           </Button>
         </div>

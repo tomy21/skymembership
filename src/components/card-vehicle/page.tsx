@@ -140,6 +140,13 @@ export default function CardVehicle({
               className="flex items-center space-x-2 bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700"
             >
               <BiRfid size={20} />
+              <input
+                  type="text"
+                  value={rfid}
+                  onChange={(e) => setRfid(e.target.value)}
+                  placeholder="Masukkan RFID manual"
+                  className="w-full border border-gray-300 rounded p-2"
+              />
               <span>Scan via NFC</span>
             </button>
           ) : (

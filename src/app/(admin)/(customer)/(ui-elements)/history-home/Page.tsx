@@ -86,7 +86,7 @@ export default function HistoryHome() {
       {/* Content */}
       <div className="mt-4">
         {activeTab === 'payment' && (
-          <div className="overflow-y-auto overflow-x-hidden aspect-[4/3] space-y-2">
+          <div className="overflow-y-auto overflow-x-hidden aspect-[5/4] space-y-2">
             {data?.data?.length <= 0 ? (
               <div className="flex flex-col items-center justify-center h-full">
                 <Image src="/images/company/empty-box.png" className='opacity-20' alt="empty" width={200} height={200} />

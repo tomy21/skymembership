@@ -51,6 +51,18 @@ export default function PaymentProcess() {
     }
   };
 
+  const getBankLogoHistory = (moduleName: string) => {
+    switch (moduleName.toUpperCase()) {
+      case "BAYARIND_BCA_VIRTUAL_ACCOUNT":
+        return "/images/company/bank/bca_logo.png";
+      case "BANK_NATIONAL_NOBU_VIRTUAL_ACCOUNT":
+        return "/images/company/bank/nobu_logo.png";
+      // Tambahkan yang lain jika perlu
+      default:
+        return "/images/company/bank/logo.png";
+    }
+  };
+
   const handleBackHome = () => {
     queryClient.invalidateQueries({ queryKey: ["userById"] });
     router.push("/home");
@@ -65,6 +77,7 @@ export default function PaymentProcess() {
   const parseNominal = (text: string) => {
     return text.replace(/[^\d]/g, "");
   };
+
 
   const handlePrintPdf = () => {
     setIsLoading(true); // ⏳ Mulai loading
@@ -174,7 +187,7 @@ export default function PaymentProcess() {
         {idTransaction !== '' ? (
             <p className="text-3xl font-bold text-orange-900">Rp. {Number(paymentHistory.data?.data.paid_amount ).toLocaleString("id-ID") || 0}</p>
           ) : (
-            <p className="text-3xl font-bold text-orange-900">Rp. {Number(paymentData!.price + admin_fee ).toLocaleString("id-ID") || 0}</p>
+            <p className="text-3xl font-bold text-orange-900">Rp. {Number(paymentData!.price ).toLocaleString("id-ID") || 0}</p>
           )
         }
         
@@ -215,7 +228,7 @@ export default function PaymentProcess() {
         <div className="flex justify-between items-center w-full mt-5 mb-2">
             <div className="text-sm text-gray-500 font-semibold">Virtual Account</div>
             {idTransaction !== '' ? (
-                ""
+                <Image src={getBankLogoHistory(paymentHistory?.data?.data.module_name ?? "-")} width={50} height={50} alt="bank logo" />
               ) : (
                 <Image src={getBankLogo(topupData?.provider?.gateway_partner ?? purchaseData?.provider?.gateway_partner ?? "-")} width={50} height={50} alt="bank logo" />
               )
@@ -261,10 +274,10 @@ export default function PaymentProcess() {
                 </>
               ) : (
                 <>
-                  <span>Rp. {Number(paymentData!.price + admin_fee ).toLocaleString("id-ID") || 0}</span>
+                  <span>Rp. {Number(paymentData!.price ).toLocaleString("id-ID") || 0}</span>
                   <button
                     className="text-blue-500 text-sm"
-                    onClick={() => copyToClipboard(Number(topupData?.nominal.toString()) + parseNominal(admin_fee.toString()), "Nominal")}
+                    onClick={() => copyToClipboard(Number(paymentData!.price ).toString(), "Nominal")}
                   >
                     📋
                   </button>
@@ -279,7 +292,7 @@ export default function PaymentProcess() {
           {idTransaction !== '' ? (
               <p className="text-sm font-bold text-gray-800">Rp. {Number(paymentHistory.data?.data.paid_amount || 0 + admin_fee ).toLocaleString("id-ID") || 0}</p>
             ) : (
-              <span className="text-sm font-bold text-gray-800">Rp {Number(paymentData!.price + admin_fee ).toLocaleString("id-ID")}</span>
+              <span className="text-sm font-bold text-gray-800">Rp {Number(paymentData!.price ).toLocaleString("id-ID")}</span>
             )
           }
         </div>

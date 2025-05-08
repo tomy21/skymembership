@@ -6,11 +6,11 @@ import 'keen-slider/keen-slider.min.css'
 import Image from 'next/image'
 import React, { useEffect } from 'react'
 import { FaWallet } from 'react-icons/fa'
-import { MdNotifications } from 'react-icons/md'
 import { useRouter } from 'next/navigation'
 import { useCardCustomer, useDetailCustomer } from '@/hooks/useAuth'
 import { ClipLoader } from "react-spinners";
 import ProfileDropdown from '@/components/user-profile/ProfilDropdown'
+import NotificationDropdown from '@/components/header/NotificationDropdown'
 
 interface responseCard {
     cust_id: number,
@@ -38,6 +38,7 @@ export default function HeaderHome() {
     useEffect(() => {
         refetch();
     }, [refetch]);
+
 
     if (isLoading || isLoadingCard) {
         return (
@@ -72,7 +73,7 @@ export default function HeaderHome() {
                         <p className={`text-sm ${data?.data?.is_active === 0 ? "text-red-500" : "text-green-500"}`}>{data?.data?.is_active === 0 ? "Inactive" : "Active"}</p>
                     </div>
                 </div>
-                <MdNotifications size={30}/>
+                <NotificationDropdown/>
             </div>
             <div ref={sliderRef} className="keen-slider w-full mt-4">
             <div ref={sliderRef} className="keen-slider w-full mt-4">

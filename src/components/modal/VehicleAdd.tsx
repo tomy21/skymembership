@@ -44,6 +44,12 @@ export default function VehicleAdd() {
           toast.success("Berhasil menambahkan kendaraan.");
           setIsOpen(false);
           queryClient.invalidateQueries({ queryKey: ["vehicleData"] });
+          setFormData({
+            vehicle_type: "",
+            plate_number: "",
+            plate_number_image: null,
+            stnk_image: null,
+          });
         },
         onError: (err) => {
           setFormData({

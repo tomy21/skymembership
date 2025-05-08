@@ -7,6 +7,8 @@ import { usePaymentContext } from "@/context/PaymentContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePurchaseContext } from "@/context/PurchaseContext";
 import HeaderPage from "@/components/header-page/page";
+// import { CheckCircleIcon } from "@/icons";
+import { FiAlertCircle } from "react-icons/fi";
 
 type TopupPayload = {
   bank_id: string;
@@ -26,6 +28,8 @@ export default function PinVerify() {
   const [pin, setPin] = useState<string[]>(Array(length).fill(""));
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isModal, setIsModal] = useState(false);
+  const [message, setMessage] = useState('');
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -80,8 +84,7 @@ export default function PinVerify() {
           createPurchase(data, {
             onSuccess: (response) => {
               const trx = response.data.transaction_data;
-
-              const paymentDetails = {
+                const paymentDetails = {
                 Id: trx.Id,
                 createdAt: trx.createdAt,
                 expired_date: trx.expired_date,
@@ -105,9 +108,11 @@ export default function PinVerify() {
 
               queryClient.invalidateQueries({ queryKey: ["userById"] });
               router.push("/payment");
-              localStorage.removeItem("purchaseData");
+              localStorage.removeItem("purchaseData");  
             },
             onError: (error) => {
+              setIsModal(true)
+              setMessage(error.message);
               console.error("Topup error:", error);
             },
             onSettled: () => {
@@ -177,7 +182,7 @@ export default function PinVerify() {
   ];
 
   return (
-
+      <>
           <div className="w-full min-h-screen overflow-y-auto bg-white">
             <HeaderPage title="Verifikasi Pin"/>
             <div className="w-full flex flex-col items-center px-5 mt-10">
@@ -224,5 +229,18 @@ export default function PinVerify() {
               </div>
             )}
         </div>
+
+        {isModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-5">
+            <div className="bg-white rounded-xl shadow-lg px-6 py-4 flex flex-col items-center justify-center space-y-3">
+              <FiAlertCircle className="w-8 h-8 text-green-500" />
+              <p className="text-blue-600 text-sm font-medium">
+                Transaksi Gagal !
+              </p>
+              <h1 className="text-sm font-medium text-center">{message}</h1>
+            </div>
+          </div>
+        )}
+        </>
   );
 }

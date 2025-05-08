@@ -7,6 +7,7 @@ export const useTypeVehicle = (locationCode = "") => {
     queryKey: ['TypeVehicle', locationCode],
     queryFn: () => Product.getProductByLicense(locationCode),
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
+    enabled: !!locationCode,
     retry: 1,
     refetchOnWindowFocus: false,
   });
@@ -16,6 +17,7 @@ export const usePeriode = (locationCode = "", type = "") => {
     queryKey: ['PeriodeProduct',type, locationCode],
     queryFn: () => Product.getPeriode(type, locationCode),
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
+    enabled: !!type && !!locationCode,
     retry: 1,
     refetchOnWindowFocus: false,
   });
@@ -25,6 +27,7 @@ export const useProduct = (locationCode = "", type = "", period = "") => {
     queryKey: ['PeriodeProduct', locationCode,type, period],
     queryFn: () => Product.getProduct(locationCode ,type, period),
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
+    enabled: !!type && !!locationCode && !!period,
     retry: 1,
     refetchOnWindowFocus: false,
   });

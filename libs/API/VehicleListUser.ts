@@ -40,7 +40,6 @@ export const VehicleListUser = {
                     },
                 }
             );
-            console.log(response);
             return response.data;
         } catch (error) {
             throw error;

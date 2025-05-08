@@ -31,9 +31,9 @@ export const useProviderByType = (type = "", locationCode = "") => {
     queryKey: ['providerByType', type, locationCode],
     queryFn: () => Provider.getAllByType(type, locationCode),
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
+    enabled: !!type && !!locationCode,
     retry: 1,
     refetchOnWindowFocus: false,
-    enabled: !!type,
   });
 }
 
@@ -51,9 +51,9 @@ export const useCreateVaPurchase = () => {
     mutationFn: async ({ idProduct, data }: CreateVaPurchaseParams) => {
       return await Payment.createVaPuchase({idProduct, data});
     },
-    onError: (error: AxiosError) => {
-      console.error('❌ Purchase Error:', error.response?.data || error.message);
-    },
+    // onError: (error: AxiosError) => {
+    //   return error.response?.data || error.message;
+    // },
   });
 };
 
@@ -61,6 +61,7 @@ export const usePaymentByVA = (VA: string) => {
   return useQuery({
     queryKey: ['historyTransacton', VA],
     queryFn: () => Payment.getAllHistoryVa(VA),
+    enabled: !!VA,
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
     retry: 1,
     refetchOnWindowFocus: false,
@@ -71,6 +72,7 @@ export const useHistoryTransaction = (trxId: string) => {
   return useQuery({
     queryKey: ['historyTransactonByTrx', trxId],
     queryFn: () => Payment.getIdStatus(trxId),
+    enabled: !!trxId,
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
     retry: 1,
     refetchOnWindowFocus: true,
