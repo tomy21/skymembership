@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     password: '',
     rememberMe: false,
   });
+  
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     localStorage.removeItem('userToken');
     localStorage.removeItem('userData');
+    
     setUser({
         username: '',
         password: '',

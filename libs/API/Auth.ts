@@ -9,6 +9,11 @@ export const login = async (data: string) => {
   
   return response.data;
 };
+export const logout = async () => {
+  const response = await APIAPPS.get(`/v01/member/api/auth/logout`);
+  
+  return response.data;
+};
 
 export const Users = {
     getAllUser: async (page = 1, limit = 10, search = "") => {

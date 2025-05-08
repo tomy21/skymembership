@@ -31,7 +31,7 @@ export const useProviderByType = (type = "", locationCode = "") => {
     queryKey: ['providerByType', type, locationCode],
     queryFn: () => Provider.getAllByType(type, locationCode),
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
-    enabled: !!type && !!locationCode,
+    enabled: !!type,
     retry: 1,
     refetchOnWindowFocus: false,
   });

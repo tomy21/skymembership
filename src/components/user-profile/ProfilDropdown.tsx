@@ -1,17 +1,42 @@
 "use client";
 import { useAuth } from '@/context/AuthContext';
+import { useLogout } from '@/hooks/useAuth';
 import { Menu, Transition } from '@headlessui/react';
 import { useRouter } from 'next/navigation';
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { FiUser, FiLogOut } from 'react-icons/fi';
+import Loading from '../Loading/Loading';
+import Cookies from 'js-cookie';
 
 export default function ProfileDropdown() {
   const router = useRouter();
   const {logout} = useAuth();
+  const { mutate: logoutUser } = useLogout();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = () => {
-    logout();
+    setIsLoading(true);
+    logoutUser(undefined, {
+      onSuccess: () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('userData');
+        Cookies.remove('refreshToken');
+        logout();
+        router.push('/');
+        setIsLoading(false);
+      },
+      onError: (error) => {
+        console.error("Logout gagal:", error);
+        setIsLoading(false);
+      },
+    });
+    
     router.push('/');
+  }
+
+  if(isLoading){
+    return <Loading/>
   }
   
   return (

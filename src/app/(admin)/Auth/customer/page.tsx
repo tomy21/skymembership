@@ -12,7 +12,6 @@ import toast from 'react-hot-toast';
 import { decryptData, encryptData } from '@/app/libs/secretSecure';
 import { useLogin, useRequestActivation } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -84,8 +83,7 @@ export default function AuthCustomer() {
         
         const dataDecrypt = decryptData(response.data);
         if (dataDecrypt && dataDecrypt.status === 'success') {
-             // pakai context
-            Cookies.set('refreshToken', dataDecrypt.token);
+            
             toast.success('Login berhasil!');
             router.push('/home');
         } else {

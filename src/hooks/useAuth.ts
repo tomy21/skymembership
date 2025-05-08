@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { login, Users } from "../../libs/API/Auth";
+import { login, logout, Users } from "../../libs/API/Auth";
 
 interface formData {
       fullname: string,
@@ -22,6 +22,11 @@ export const useLogin = () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
     
+  });
+};
+export const useLogout = () => {
+  return useMutation({
+    mutationFn: logout,
   });
 };
 
