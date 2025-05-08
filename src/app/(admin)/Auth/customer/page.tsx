@@ -84,6 +84,7 @@ export default function AuthCustomer() {
         const dataDecrypt = decryptData(response.data);
         console.log(dataDecrypt);
         if (dataDecrypt && dataDecrypt.status === 'success') {
+            localStorage.setItem('token', dataDecrypt.token);
             toast.success('Login berhasil!');
             router.push('/home');
         } else {
