@@ -140,6 +140,7 @@ export default function CardVehicle({
                   <>
                     <ClipLoader size={40} color="#0ea5e9" />
                     <p className="text-sm text-gray-700">Tempelkan kartu member Anda...</p>
+                    <p>{rfid}</p>
                   </>
                 ) : (
                   <>
