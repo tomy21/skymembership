@@ -82,8 +82,8 @@ export default function AuthCustomer() {
         const response = await loginMutation(data); 
         
         const dataDecrypt = decryptData(response.data);
+        console.log(dataDecrypt);
         if (dataDecrypt && dataDecrypt.status === 'success') {
-            
             toast.success('Login berhasil!');
             router.push('/home');
         } else {
