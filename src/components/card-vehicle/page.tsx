@@ -69,9 +69,8 @@ export default function CardVehicle({
 
   useEffect(() => {
     if (rfid !== "" && isModal && nfcSupported) {
-      handleUpdateRFID(); // tidak perlu new Event()
+      handleUpdateRFID();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rfid]);
 
   const handleUpdateRFID = async (e?: React.FormEvent) => {
