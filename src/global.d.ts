@@ -11,10 +11,12 @@ declare global {
     scan: () => Promise<void>;
     onreading: ((event: NDEFReadingEvent) => void) | null;
     onerror: ((event: Event) => void) | null;
+    addEventListener: (type: string, listener: (event: NDEFReadingEvent) => void) => void;
   }
 
   interface NDEFReadingEvent extends Event {
     message: NDEFMessage;
+    serialNumber: string;
   }
 
   interface NDEFMessage {

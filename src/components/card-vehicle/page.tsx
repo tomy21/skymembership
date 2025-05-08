@@ -46,14 +46,25 @@ export default function CardVehicle({
         const ndef = new window.NDEFReader();
         await ndef.scan();
 
-        ndef.onreading = (event: NDEFReadingEvent) => {
+        ndef.addEventListener("reading", (event: NDEFReadingEvent) => {
+          const { message } = event;
+
           const decoder = new TextDecoder();
-          for (const record of event.message.records) {
-            const text = decoder.decode(record.data);
-            console.log("✅ Tag dibaca:", text);
-            setRfid(text); // trigger auto-submit
+          let result = "";
+
+          for (const record of message.records) {
+            if (record.data) {
+              result += decoder.decode(record.data);
+            }
           }
-        };
+
+          if (result) {
+            setRfid(result);
+            setIsModal(true);
+          }
+
+          setIsLoading(false);
+        });
       } catch (error) {
         console.error("Gagal membaca NFC:", error);
         setIsLoading(false);
