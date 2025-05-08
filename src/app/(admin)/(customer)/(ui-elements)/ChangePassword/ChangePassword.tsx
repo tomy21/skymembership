@@ -58,7 +58,7 @@ export default function ChangePassword() {
         if (axios.isAxiosError(err)) {
             
             message = err.response?.data?.message || err.message;
-            console.log(message);
+            
         } else if (err instanceof Error) {
           message = err.message;
         }

@@ -8,7 +8,7 @@ export function middleware(request: NextRequest) {
   const protectedRoutes = ['/*'];
 
   const isProtected = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route));
-  console.log("protected",isProtected);
+  
   if (isProtected && !refreshToken) {
     return NextResponse.redirect(new URL('/', request.url));
   }

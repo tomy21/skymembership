@@ -84,7 +84,7 @@ export default function AuthCustomer() {
         const response = await loginMutation(data); 
         
         const dataDecrypt = decryptData(response.data);
-        console.log(dataDecrypt);
+        
         if (dataDecrypt && dataDecrypt.status === 'success') {
             toast.success('Login berhasil!');
             login(dataDecrypt?.token);
@@ -92,6 +92,7 @@ export default function AuthCustomer() {
         } else {
             toast.error(dataDecrypt?.message || "Login gagal.");
             refreshString();
+            setCaptcha("");
         }
     } catch (err) {
         let message = "Login gagal.";

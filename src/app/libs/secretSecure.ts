@@ -25,7 +25,7 @@ export const decryptData = (encryptedData: string): ResponseData | null => {
     try {
         const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
         const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-        console.log(decryptData);
+        
         // Return data if it matches the expected structure, otherwise return null
         if (decryptedData.message && decryptedData.status && decryptedData.token) {
             return decryptedData as ResponseData;

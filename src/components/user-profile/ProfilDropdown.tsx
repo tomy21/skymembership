@@ -1,36 +1,28 @@
 "use client";
-import { useAuth } from '@/context/AuthContext';
+
 import { useLogout } from '@/hooks/useAuth';
 import { Menu, Transition } from '@headlessui/react';
 import { useRouter } from 'next/navigation';
 import { Fragment, useState } from 'react';
 import { FiUser, FiLogOut } from 'react-icons/fi';
 import Loading from '../Loading/Loading';
+import { QueryClient } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
+
+export const queryClient = new QueryClient();
 
 export default function ProfileDropdown() {
   const router = useRouter();
-  const {logout} = useAuth();
-  const { mutate: logoutUser } = useLogout();
+  const logoutMutation = useLogout();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsLoading(true);
-    logoutUser(undefined, {
-      onSuccess: () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userToken');
-        localStorage.removeItem('userData');
-        Cookies.remove('refreshToken');
-        logout();
-        router.push('/');
-        setIsLoading(false);
-      },
-      onError: (error) => {
-        console.error("Logout gagal:", error);
-        setIsLoading(false);
-      },
-    });
+    await logoutMutation.mutateAsync();
+    localStorage.removeItem("userToken");
+    document.cookie = "refreshToken=; max-age=0; path=/";
+    Cookies.remove('refreshToken');
+    queryClient.clear();
     
     router.push('/');
   }

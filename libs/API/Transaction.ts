@@ -69,7 +69,7 @@ export const Transaction = {
             );
             return response.data;
         } catch (error) {
-            console.log(error);
+            throw error;
         }
     },
     getAllTransactionTopup: async (page=1, limit=10, status="", search="") => {
@@ -87,7 +87,7 @@ export const Transaction = {
             );
             return response.data;
         } catch (error) {
-            console.log(error);
+            throw error;
         }
     },
 
@@ -106,7 +106,7 @@ export const Transaction = {
             );
             return response.data;
         } catch (error) {
-            console.log(error);
+            throw error;
         }
     },
 
@@ -128,7 +128,7 @@ export const Transaction = {
                 fileName,
             };
         } catch (error) {
-            console.log(error);
+            throw error;
         }
     },
 
@@ -146,7 +146,7 @@ export const Transaction = {
 
             return response.data;
         } catch (error) {
-            console.log(error);
+            throw error;
         }
     },
 };

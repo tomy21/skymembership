@@ -1,3 +1,4 @@
+import axios from "axios";
 import { APIAPPS, APISERVICES } from "../ApiServices";
 import { DetailUser } from "./Auth";
 
@@ -89,8 +90,8 @@ export const Payment = {
             );
             return response.data;
         } catch (error) {
-            console.log(error);
-            return error;
+            
+            throw  error;
         }
     },
 
@@ -110,10 +111,52 @@ export const Payment = {
         const response = await APIAPPS.get(
             `/v01/member/api/history/payment-status?trxId=${trxId}`
         );
-        // console.log(response.data)
+        
         return response.data.data;
         } catch (error) {
             throw error;
+        }
+    },
+
+    verifikasiPin: async (pinVerifikasi: string ) => {
+        try {
+            const response = await APIAPPS.post(
+                `/v01/member/api/auth/verifikasi`,
+                {
+                    Pin: pinVerifikasi,
+                }
+            );
+
+            return response.data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response) {
+                    // Server merespons dengan status error (misal 400, 401, 500)
+                    return {
+                    success: false,
+                    message: error.response.data?.message || 'Terjadi kesalahan dari server.',
+                    status: error.response.status
+                    };
+                } else if (error.request) {
+                    // Tidak ada respons dari server
+                    return {
+                    success: false,
+                    message: 'Tidak ada respons dari server.',
+                    };
+                } else {
+                    // Kesalahan dalam konfigurasi permintaan
+                    return {
+                    success: false,
+                    message: error.message || 'Terjadi kesalahan saat menyiapkan permintaan.',
+                    };
+                }
+                } else {
+                // Bukan error dari axios
+                return {
+                    success: false,
+                    message: 'Terjadi kesalahan tak terduga.',
+                };
+            }
         }
     },
 }

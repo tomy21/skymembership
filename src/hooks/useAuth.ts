@@ -20,6 +20,7 @@ export const useLogin = () => {
     mutationFn: (data: string) => login(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ['userById'] });
     },
     
   });
@@ -81,7 +82,7 @@ export const useDetailCustomer = () => {
   return useQuery({
     queryKey: ['userById'],
     queryFn: () => Users.getByUserId(),
-    staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
+    staleTime: 1000 * 60 * 5,
     retry: 1,
     refetchOnWindowFocus: false,
   });

@@ -20,8 +20,8 @@ export default function ForgotPassword() {
     const referralUrl  = window.location.origin;
     setLoading(true);
     // Simulasi request
-    const response = await forgotPassword({email, referralUrl});
-    console.log(response);
+    await forgotPassword({email, referralUrl});
+    
     setTimeout(() => {
       setSubmitted(true);
       setLoading(false);

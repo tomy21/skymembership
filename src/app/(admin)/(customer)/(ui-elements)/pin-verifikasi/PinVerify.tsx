@@ -9,6 +9,8 @@ import { usePurchaseContext } from "@/context/PurchaseContext";
 import HeaderPage from "@/components/header-page/page";
 // import { CheckCircleIcon } from "@/icons";
 import { FiAlertCircle } from "react-icons/fi";
+import { Payment } from "../../../../../../libs/API/Payment";
+import { toast } from "sonner";
 
 type TopupPayload = {
   bank_id: string;
@@ -42,136 +44,168 @@ export default function PinVerify() {
   const type = searchParams.get('type') || '';
 
   const handleKeyPress = (key: string) => {
+    // Handling backspace
     if (key === "backspace") {
-      if (activeIndex === 0 && pin[0] === "") return;
+      if (activeIndex === 0 && pin[0] === "") return; // Jika input pertama kosong, jangan apa-apa
+
+      // Mengubah activeIndex ke input sebelumnya
       const newIndex = activeIndex === 0 ? 0 : activeIndex - 1;
       const newPin = [...pin];
-      newPin[newIndex] = "";
+      newPin[newIndex] = ""; // Mengosongkan nilai input yang sedang aktif
       setPin(newPin);
       setActiveIndex(newIndex);
       return;
     }
 
+    // Handling input selain backspace
     if (activeIndex < length) {
       const newPin = [...pin];
-      newPin[activeIndex] = key;
+      newPin[activeIndex] = key; // Mengupdate input yang sedang aktif
       setPin(newPin);
-      setActiveIndex(activeIndex + 1);
+
+      // Pindah ke input berikutnya jika ada
+      if (activeIndex < length - 1) {
+        setActiveIndex(activeIndex + 1);
+      }
     }
   };
 
+
     useEffect(() => {
-      const isComplete = pin.every((val) => val !== "");
+      const handleVerification = async () => {
+        const isComplete = pin.every((val) => val !== "");
+        if (!isComplete) return;
 
-      if(type === "purchase"){
-        if(isComplete){
-          const bankId = purchaseData.bank_id;
+        try {
+          const result = await Payment.verifikasiPin(String(pin.join("")));
+          console.log("Verifikasi result:", result);
 
-          if(!bankId){
-            console.error("Bank ID is missing");
+          // Jika gagal verifikasi PIN
+          if (result?.status === "fail" || result?.success === false) {
+            toast.error(result.message || "PIN salah");
+            setPin(Array(length).fill(""));
+
+            setTimeout(() => {
+              const input = document.getElementById("pin-0");
+              if (input) input.focus();
+            }, 100);
+            return;
           }
 
-          const data : PurchaseType = {
-            idProduct: String(purchaseData.idProduct),
-            data: {
-              bank_id: bankId,
-              plate_number: purchaseData.plate_number
+          if (type === "purchase") {
+            const bankId = purchaseData.bank_id;
+            if (!bankId) {
+              console.error("Bank ID is missing");
+              return;
             }
-          }
 
-          setIsLoading(true);
-
-          createPurchase(data, {
-            onSuccess: (response) => {
-              const trx = response.data.transaction_data;
-                const paymentDetails = {
-                Id: trx.Id,
-                createdAt: trx.createdAt,
-                expired_date: trx.expired_date,
-                invoice_id: trx.invoice_id,
-                periode: trx.periode,
-                price: Number(trx.price),
-                product_name: trx.product_name,
-                purchase_type: trx.purchase_type,
-                statusPayment: trx.statusPayment,
-                timestamp: trx.timestamp,
-                transactionType: trx.transactionType,
-                trxId: trx.trxId,
-                updatedAt: trx.updatedAt,
-                user_id: trx.user_id,
-                virtual_account: trx.virtual_account,
-                rfid: trx.rfid ?? undefined,
-              };
-
-              setAdminFee(response.data.admin_fee);
-              setPaymentData(paymentDetails);
-
-              queryClient.invalidateQueries({ queryKey: ["userById"] });
-              router.push("/payment");
-              localStorage.removeItem("purchaseData");  
-            },
-            onError: (error) => {
-              setIsModal(true)
-              setMessage(error.message);
-              console.error("Topup error:", error);
-            },
-            onSettled: () => {
-              setIsLoading(false);
-            },
-          });
-        }
-      }else{
-        if (isComplete) {
-        const bank_id = topupData.provider?.id;
-
-        if (!bank_id) {
-          console.error("Bank ID is missing");
-          return;
-        }
-
-        const data: TopupPayload = {
-          bank_id,
-          amount: topupData.nominal,
-        };
-
-        setIsLoading(true);
-
-        createVaTopup(data, {
-          onSuccess: (response) => {
-            const paymentDetails = {
-              Id: response.data.transaction_data.Id,
-              createdAt: response.data.transaction_data.createdAt,
-              expired_date: response.data.transaction_data.expired_date,
-              invoice_id: response.data.transaction_data.invoice_id,
-              periode: response.data.transaction_data.periode,
-              price: Number(response.data.transaction_data.price),
-              product_name: response.data.transaction_data.product_name,
-              purchase_type: response.data.transaction_data.purchase_type,
-              statusPayment: response.data.transaction_data.statusPayment,
-              timestamp: response.data.transaction_data.timestamp,
-              transactionType: response.data.transaction_data.transactionType,
-              trxId: response.data.transaction_data.trxId,
-              updatedAt: response.data.transaction_data.updatedAt,
-              user_id: response.data.transaction_data.user_id,
-              virtual_account: response.data.transaction_data.virtual_account,
-              rfid: response.data.transaction_data.rfid ?? undefined,
+            const data: PurchaseType = {
+              idProduct: String(purchaseData.idProduct),
+              data: {
+                bank_id: bankId,
+                plate_number: purchaseData.plate_number,
+              },
             };
-            setAdminFee(response.data.admin_fee);
-            setPaymentData(paymentDetails); 
-            queryClient.invalidateQueries({ queryKey: ["userById"] });
-            router.push("/payment");
-            localStorage.removeItem("purchaseData");
-          },
-          onError: (error) => {
-            console.error("Topup error:", error);
-          },
-          onSettled: () => {
-            setIsLoading(false);
-          },
-        });
-      }
-      }
-    }, [pin, router, createVaTopup, topupData.provider, topupData.nominal, setPaymentData, setAdminFee, queryClient, createPurchase, type, purchaseData.bank_id, purchaseData.idProduct, purchaseData.plate_number]);
+
+            setIsLoading(true);
+            createPurchase(data, {
+              onSuccess: (response) => {
+                const trx = response.data.transaction_data;
+                const paymentDetails = {
+                  Id: trx.Id,
+                  createdAt: trx.createdAt,
+                  expired_date: trx.expired_date,
+                  invoice_id: trx.invoice_id,
+                  periode: trx.periode,
+                  price: Number(trx.price),
+                  product_name: trx.product_name,
+                  purchase_type: trx.purchase_type,
+                  statusPayment: trx.statusPayment,
+                  timestamp: trx.timestamp,
+                  transactionType: trx.transactionType,
+                  trxId: trx.trxId,
+                  updatedAt: trx.updatedAt,
+                  user_id: trx.user_id,
+                  virtual_account: trx.virtual_account,
+                  rfid: trx.rfid ?? undefined,
+                };
+
+                setAdminFee(response.data.admin_fee);
+                setPaymentData(paymentDetails);
+                queryClient.invalidateQueries({ queryKey: ["userById"] });
+                router.push("/payment");
+                localStorage.removeItem("purchaseData");
+              },
+              onError: (error) => {
+                setIsModal(true);
+                setMessage(error.message);
+                console.error("Purchase error:", error);
+              },
+              onSettled: () => {
+                setIsLoading(false);
+              },
+            });
+          } else {
+            const bank_id = topupData.provider?.id;
+            if (!bank_id) {
+              console.error("Bank ID is missing");
+              return;
+            }
+
+            const data: TopupPayload = {
+              bank_id,
+              amount: topupData.nominal,
+            };
+
+            setIsLoading(true);
+            createVaTopup(data, {
+              onSuccess: (response) => {
+                const trx = response.data.transaction_data;
+                const paymentDetails = {
+                  Id: trx.Id,
+                  createdAt: trx.createdAt,
+                  expired_date: trx.expired_date,
+                  invoice_id: trx.invoice_id,
+                  periode: trx.periode,
+                  price: Number(trx.price),
+                  product_name: trx.product_name,
+                  purchase_type: trx.purchase_type,
+                  statusPayment: trx.statusPayment,
+                  timestamp: trx.timestamp,
+                  transactionType: trx.transactionType,
+                  trxId: trx.trxId,
+                  updatedAt: trx.updatedAt,
+                  user_id: trx.user_id,
+                  virtual_account: trx.virtual_account,
+                  rfid: trx.rfid ?? undefined,
+                };
+
+                setAdminFee(response.data.admin_fee);
+                setPaymentData(paymentDetails);
+                queryClient.invalidateQueries({ queryKey: ["userById"] });
+                router.push("/payment");
+                localStorage.removeItem("purchaseData");
+              },
+              onError: (error) => {
+                setIsModal(true);
+                setMessage(error.message);
+                setPin(Array(length).fill(""));
+                console.error("Topup error:", error);
+              },
+              onSettled: () => {
+                setIsLoading(false);
+              },
+            });
+          }
+        } catch (error) {
+          console.error("Verifikasi PIN error:", error);
+          toast.error("ERR");
+        }
+      };
+
+      handleVerification();
+    }, [createPurchase, createVaTopup, pin, purchaseData.bank_id, purchaseData.idProduct, purchaseData.plate_number, queryClient, router, setAdminFee, setPaymentData, topupData.nominal, topupData.provider?.id, type]);
+
 
 
   const keypad = [
