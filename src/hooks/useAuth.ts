@@ -41,8 +41,10 @@ export const useRegister = () => {
     onError: (error: unknown) => {
       if (error instanceof Error) {
         console.error("Register error:", error.message);
+        throw error.message || error;
       } else {
         console.error("Register error:", error);
+        throw new Error("Unknown error");
       }
     }
   });

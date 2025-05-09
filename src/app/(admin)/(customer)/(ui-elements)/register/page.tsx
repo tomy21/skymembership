@@ -10,7 +10,7 @@ import { useRegister } from "@/hooks/useAuth";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { MdCheckCircleOutline, MdOutlineRefresh } from "react-icons/md";
+import { MdCheckCircleOutline, MdErrorOutline, MdOutlineRefresh } from "react-icons/md";
 import toast from 'react-hot-toast';
 import { ClipLoader } from "react-spinners";
 import { useRouter } from "next/navigation";
@@ -38,10 +38,13 @@ export default function RegisterPage() {
   const [agree, setAgree] = useState(false);
   const [message, setMessage] = useState('');
   const [isModal, setIsModal] = useState(false);
+  const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const {mutate: register} = useRegister();
   const router = useRouter();
+
+  const [mounted, setMounted] = useState(false);  
 
   const refreshString = () => {
       const upperCaseLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -68,8 +71,14 @@ export default function RegisterPage() {
   };
 
   useEffect(() => {
+    setMounted(true);
     refreshString();
   }, []);
+
+  if (!mounted) {
+    // selama SSR dan sebelum mount, tolak render interaktif
+    return null;
+  }
 
   const getPasswordStrength = (password: string) => {
     let score = 0;
@@ -194,9 +203,23 @@ export default function RegisterPage() {
       // Simulasi loading 3 detik
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      await register(formData);
-      setMessage("Silahkan cek email anda untuk aktifasi akun anda.");
-      setIsModal(true);
+      await register(formData, {
+        onSuccess: () => {
+          setMessage("Silahkan cek email anda untuk aktifasi akun anda.");
+          setIsModal(true);
+        },
+        onError: (error: unknown) => {
+          if (error instanceof Error) {
+            setIsError(true);
+            setMessage(error.message);
+            throw error.message || error;
+          } else {
+            console.error("Register error:", error);
+            throw new Error("Unknown error");
+          }
+        }
+      });
+      
 
       setFullName("");
       setUsername("");
@@ -236,7 +259,11 @@ export default function RegisterPage() {
 
   const closeModal = () => {
     setIsModal(false);
-    router.push("/");
+    // router.push("/");
+  }
+  const closeModalError = () => {
+    setIsError(false);
+    // router.push("/");
   }
 
   const handleBack = () => {
@@ -444,6 +471,22 @@ export default function RegisterPage() {
             <button
               className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-6 rounded-full mt-4"
               onClick={closeModal}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isError && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-sm text-center">
+            <MdErrorOutline className="text-red-500 text-4xl mx-auto mb-2" />
+            <h2 className="text-xl font-semibold mb-2">Registrasi gagal.</h2>
+            <p className="text-gray-700">{message}</p>
+            <button
+              className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-full mt-4"
+              onClick={closeModalError}
             >
               OK
             </button>
