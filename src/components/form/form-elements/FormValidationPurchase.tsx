@@ -65,7 +65,12 @@ export default function ConfirmationForm() {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    setSelectedProviders([]);
+  }, [selectedMethod]);
 
+  console.log("selectedProviders", selectedProviders);
+  
   const getPeriodRange = (period: string) => {
     if (!period) return null;
 
@@ -104,11 +109,13 @@ export default function ConfirmationForm() {
     setShowModal(true);
   };
 
+  console.log(selectedMethod)
+
   const handleConfirm = () => {
     setShowModal(false);
     if (searchParams.get('type')) {
       const query = new URLSearchParams({
-        type: "purchase",
+        type: selectedMethod,
       }).toString();
 
       router.push(`/verifikasi?${query}`);
@@ -147,7 +154,10 @@ export default function ConfirmationForm() {
             <Select
               options={methodOptions}
               placeholder="Pilih Metode"
-              onChange={setSelectedMethod}
+              onChange={(value) => {
+                setSelectedMethod(value);
+                setSelectedProviders([]); // Reset provider saat metode berubah
+              }}
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
               <ChevronDownIcon />
@@ -161,7 +171,7 @@ export default function ConfirmationForm() {
           <div className="relative">
             <CustomSelectWithImage
               options={providerOptions}
-              defaultValue=""
+              defaultValue={selectedProviders[0]?.id || undefined}
                onChange={(selected) => {
                   setSelectedProviders(() => [selected]);
                 }}

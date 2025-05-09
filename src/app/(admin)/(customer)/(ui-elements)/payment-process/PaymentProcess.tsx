@@ -33,7 +33,7 @@ export default function PaymentProcess() {
   const [mounted, setMounted] = useState(false);
 
   const paymentHistory = usePaymentByVA(idTransaction);
-  
+  console.log(idTransaction);
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} berhasil disalin!`);

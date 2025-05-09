@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Select, { GroupBase, OptionsOrGroups } from 'react-select';
 import { useRouter } from 'next/navigation';
 // import { useAllLocation } from '@/hooks/useLocation';
@@ -25,6 +25,11 @@ interface VehicleType {
 
 interface Periode {
   periode: string;
+}
+
+interface LocationRequest {
+  location_code: string;
+  location_name: string;
 }
 
 interface Product {
@@ -64,6 +69,7 @@ export default function BookingForm() {
   const [periodData, setPeriodData] = useState<OptionType[]>([]);
   const [productData, setProductData] = useState<OptionType[]>([]);
   const [vehicleUsers, setVehicleUsers] = useState<OptionType[]>([]);
+  const defaultAdditional = useMemo(() => ({ page: 1, limit: 5 }), []);
 
   // MAPPING LOCATION
   // useEffect(() => {
@@ -153,20 +159,20 @@ export default function BookingForm() {
     }
   };
 
-  const loadLocationOptions = async (
+  const loadLocationOptions = useCallback(async (
     inputValue: string,
     loadedOptions: OptionsOrGroups<OptionType, GroupBase<OptionType>>,
-    additional: { limit: number } = { limit: 3 }
+    additional: { page: number; limit: number } = { page: 1, limit: 5 }
   ): Promise<{
     options: OptionType[];
     hasMore: boolean;
-    additional: { limit: number };
+    additional: { page: number, limit: number }
   }> => {
     setIsLoadingMore(true);
     try {
-      const data = await Location.getAllLocation(1, additional.limit, inputValue);
+      const data = await Location.getAllLocation(additional.page, additional.limit, inputValue);
 
-      const newOptions: OptionType[] = data?.data.map((loc: { location_code: string; location_name: string }) => ({
+      const newOptions: OptionType[] = (data?.data as LocationRequest[]).map((loc) => ({
         value: loc.location_code,
         label: loc.location_name,
       }));
@@ -176,7 +182,10 @@ export default function BookingForm() {
       return {
         options: newOptions,
         hasMore,
-        additional: { limit: additional.limit + 3 },
+        additional: {
+          page: additional.page + 1,
+          limit: additional.limit,
+        },
       };
     } catch (error) {
       console.error('Error fetching location data:', error);
@@ -185,10 +194,11 @@ export default function BookingForm() {
         hasMore: false,
         additional,
       };
-    }finally {
+    } finally {
       setIsLoadingMore(false);
     }
-  };
+  }, []);
+
 
   if (!mounted) {
     // selama SSR dan sebelum mount, tolak render interaktif
@@ -208,7 +218,7 @@ export default function BookingForm() {
           setSelectedLocation(val);
         }}
         isSearchable
-        additional={{limit:3}}
+        additional={defaultAdditional}
         isLoading={isLoadingMore}
         loadingMessage={() => "Memuat lokasi..."}
       />

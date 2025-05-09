@@ -2,7 +2,7 @@
 import React, { useEffect, useState} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTopupContext } from "@/context/TopupContext";
-import { useCreateVaPurchase, useCreateVaTopup } from "@/hooks/usePayment";
+import { useCreatePurchaseByPoint, useCreateVaPurchase, useCreateVaTopup } from "@/hooks/usePayment";
 import { usePaymentContext } from "@/context/PaymentContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePurchaseContext } from "@/context/PurchaseContext";
@@ -40,6 +40,7 @@ export default function PinVerify() {
   const { setPaymentData, setAdminFee } = usePaymentContext();
   const {mutate: createVaTopup} = useCreateVaTopup();
   const {mutate: createPurchase} = useCreateVaPurchase();
+  const {mutate: createPurchasePoint} = useCreatePurchaseByPoint();
   const searchParams = useSearchParams();
   const type = searchParams.get('type') || '';
 
@@ -70,15 +71,16 @@ export default function PinVerify() {
     }
   };
 
-
+  console.log(topupData)
     useEffect(() => {
       const handleVerification = async () => {
         const isComplete = pin.every((val) => val !== "");
         if (!isComplete) return;
 
         try {
+          setIsLoading(true);
           const result = await Payment.verifikasiPin(String(pin.join("")));
-
+          console.log(topupData?.type);
           // Jika gagal verifikasi PIN
           if (result?.status === "fail" || result?.success === false) {
             toast.error(result.message || "PIN salah");
@@ -91,13 +93,13 @@ export default function PinVerify() {
             return;
           }
 
-          if (type === "purchase") {
+          if (type === "VIRTUAL_ACCOUNT") {
             const bankId = purchaseData.bank_id;
             if (!bankId) {
               console.error("Bank ID is missing");
               return;
             }
-
+            
             const data: PurchaseType = {
               idProduct: String(purchaseData.idProduct),
               data: {
@@ -105,10 +107,12 @@ export default function PinVerify() {
                 plate_number: purchaseData.plate_number,
               },
             };
+            console.log(data);
 
-            setIsLoading(true);
+            
             createPurchase(data, {
               onSuccess: (response) => {
+                console.log(response);
                 const trx = response.data.transaction_data;
                 const paymentDetails = {
                   Id: trx.Id,
@@ -143,20 +147,24 @@ export default function PinVerify() {
                 setIsLoading(false);
               },
             });
-          } else {
-            const bank_id = topupData.provider?.id;
-            if (!bank_id) {
+          }
+          
+          if(type === "POINT") {
+            const bankId = purchaseData.bank_id;
+            if (!bankId) {
               console.error("Bank ID is missing");
               return;
             }
 
-            const data: TopupPayload = {
-              bank_id,
-              amount: topupData.nominal,
+            const data: PurchaseType = {
+              idProduct: String(purchaseData.idProduct),
+              data: {
+                bank_id: bankId,
+                plate_number: purchaseData.plate_number,
+              },
             };
 
-            setIsLoading(true);
-            createVaTopup(data, {
+            createPurchasePoint(data, {
               onSuccess: (response) => {
                 const trx = response.data.transaction_data;
                 const paymentDetails = {
@@ -195,7 +203,62 @@ export default function PinVerify() {
               },
             });
           }
+          
+          if(type === "topup") {
+            const bank_id = topupData.provider?.id;
+            if (!bank_id) {
+              console.error("Bank ID is missing");
+              return;
+            }
+            console.log(bank_id);
+            const data: TopupPayload = {
+              bank_id,
+              amount: topupData.nominal,
+            };
+            
+            createVaTopup(data, {
+              onSuccess: (response) => {
+                console.log(response);
+                const trx = response.data.transaction_data;
+                const paymentDetails = {
+                  Id: trx.Id,
+                  createdAt: trx.createdAt,
+                  expired_date: trx.expired_date,
+                  invoice_id: trx.invoice_id,
+                  periode: trx.periode,
+                  price: Number(trx.price),
+                  product_name: trx.product_name,
+                  purchase_type: trx.purchase_type,
+                  statusPayment: trx.statusPayment,
+                  timestamp: trx.timestamp,
+                  transactionType: trx.transactionType,
+                  trxId: trx.trxId,
+                  updatedAt: trx.updatedAt,
+                  user_id: trx.user_id,
+                  virtual_account: trx.virtual_account,
+                  rfid: trx.rfid ?? undefined,
+                };
+
+                setAdminFee(response.data.admin_fee);
+                setPaymentData(paymentDetails);
+                queryClient.invalidateQueries({ queryKey: ["userById"] });
+                router.push("/payment");
+                localStorage.removeItem("purchaseData");
+              },
+              onError: (error) => {
+                setIsModal(true);
+                setMessage(error.message);
+                setPin(Array(length).fill(""));
+                setActiveIndex(0);
+              },
+              onSettled: () => {
+                setIsLoading(false);
+              },
+            });
+          }
+          setIsLoading(false);
         } catch (error) {
+          setIsLoading(false);
           console.error("Verifikasi PIN error:", error);
           setPin(Array(length).fill(""));
           setActiveIndex(0);
@@ -204,7 +267,7 @@ export default function PinVerify() {
       };
 
       handleVerification();
-    }, [createPurchase, createVaTopup, pin, purchaseData.bank_id, purchaseData.idProduct, purchaseData.plate_number, queryClient, router, setAdminFee, setPaymentData, topupData.nominal, topupData.provider?.id, type]);
+    }, [createPurchase, createPurchasePoint, createVaTopup, pin, purchaseData.bank_id, purchaseData.idProduct, purchaseData.plate_number, queryClient, router, setAdminFee, setPaymentData, topupData.nominal, topupData.provider?.id, topupData?.type, type]);
 
 
 

@@ -88,6 +88,28 @@ export const Payment = {
                     },
                 }
             );
+            console.log(response);
+            return response.data;
+        } catch (error) {
+            
+            throw  error;
+        }
+    },
+    createVaPuchaseByPoint: async ({ idProduct, data }: CreateVaPurchaseParams) => {
+        try {
+            const token = await DetailUser.getToken();
+
+            const response = await APISERVICES.post(
+                `/v1/productPurchase/purchasePoints/${idProduct}`,
+                data,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token.token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            console.log(response);
             return response.data;
         } catch (error) {
             

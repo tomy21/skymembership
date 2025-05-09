@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { FaChevronDown } from "react-icons/fa";
 
@@ -27,12 +27,18 @@ const CustomSelectWithImage: React.FC<CustomSelectWithImageProps> = ({
     options.find((o) => o.id === defaultValue) || null
   );
   const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const handleSelect = (option: Option) => {
     setSelected(option);
     onChange(option);
     setIsOpen(false);
   };
+
+  useEffect(() => {
+  const found = options.find((o) => o.id === defaultValue) || null;
+    setSelected(found);
+  }, [defaultValue, options]);
   
   const getBankLogo = (gateway: string) => {
     switch (gateway) {
@@ -46,8 +52,21 @@ const CustomSelectWithImage: React.FC<CustomSelectWithImageProps> = ({
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="relative w-full">
+    <div ref={wrapperRef} className="relative w-full">
       {/* Selected */}
       <div
         onClick={() => setIsOpen((prev) => !prev)}

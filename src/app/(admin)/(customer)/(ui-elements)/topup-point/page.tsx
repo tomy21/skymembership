@@ -63,6 +63,8 @@ export default function TopupPage() {
     setSelectedProviders([]);
   };
 
+  
+
   return (
     <div className="w-full min-h-screen overflow-y-auto bg-white">
       <HeaderPage title="Topup Point" />
@@ -209,7 +211,7 @@ export default function TopupPage() {
               </div>
 
               <div className="mt-5 space-y-2">
-                <Button onClick={() => router.push("/verifikasi")} className="w-full">Lanjutkan</Button>
+                <Button onClick={() => router.push("/verifikasi?type=topup")} className="w-full">Lanjutkan</Button>
                 <Button onClick={() => setShowModal(false)} className="w-full bg-red-500">
                   Batal
                 </Button>

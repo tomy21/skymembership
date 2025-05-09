@@ -56,6 +56,16 @@ export const useCreateVaPurchase = () => {
     // },
   });
 };
+export const useCreatePurchaseByPoint = () => {
+  return useMutation({
+    mutationFn: async ({ idProduct, data }: CreateVaPurchaseParams) => {
+      return await Payment.createVaPuchaseByPoint({idProduct, data});
+    },
+    // onError: (error: AxiosError) => {
+    //   return error.response?.data || error.message;
+    // },
+  });
+};
 
 export const usePaymentByVA = (VA: string) => {
   return useQuery({

@@ -307,7 +307,7 @@ export default function RegisterPage() {
 
         <div className="relative">
           <label className="block font-semibold">Phone Number</label>
-          <span className="absolute top-4/6 pr-3 border-r-2 left-3 -translate-y-1/2 text-gray-500 text-sm">+62</span>
+          <span className={`absolute top-1/2 left-3 ${errors.phone ? "-translate-y-[100%]" : "translate-y-1/5"} pr-3 border-r-2 text-gray-500 text-sm`}>+62</span>
           <Input
             type="number"
             name="phone"
@@ -317,12 +317,13 @@ export default function RegisterPage() {
               setPhone('+62' + numeric);
             }}
             maxLength={16}
-            className="pl-16 input"
+            className="pl-16 input h-10"
             placeholder="8123456789"
             defaultValue={phone.replace('+62', '')}
           />
           {errors.phone && <p className="text-sm text-red-500 mt-1">{errors.phone}</p>}
         </div>
+
 
         <div>
           <label className="block font-semibold">Gender</label>
