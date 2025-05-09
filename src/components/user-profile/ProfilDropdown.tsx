@@ -11,7 +11,7 @@ import Cookies from 'js-cookie';
 
 export const queryClient = new QueryClient();
 
-export default function ProfileDropdown() {
+export default function ProfileDropdown({initial}: {initial: string}) {
   const router = useRouter();
   const logoutMutation = useLogout();
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +35,7 @@ export default function ProfileDropdown() {
     <Menu as="div" className="relative inline-block text-left">
       <div>
         <Menu.Button className="flex justify-center items-center rounded-full w-10 h-10 bg-white shadow-md hover:ring-2 ring-blue-500 transition">
-          <span className="font-bold text-gray-700">TS</span>
+          <span className="font-bold text-gray-700">{initial}</span>
         </Menu.Button>
       </div>
 

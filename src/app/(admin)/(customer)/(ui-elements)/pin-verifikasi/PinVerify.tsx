@@ -78,13 +78,12 @@ export default function PinVerify() {
 
         try {
           const result = await Payment.verifikasiPin(String(pin.join("")));
-          console.log("Verifikasi result:", result);
 
           // Jika gagal verifikasi PIN
           if (result?.status === "fail" || result?.success === false) {
             toast.error(result.message || "PIN salah");
             setPin(Array(length).fill(""));
-
+            setActiveIndex(0);
             setTimeout(() => {
               const input = document.getElementById("pin-0");
               if (input) input.focus();
@@ -139,7 +138,6 @@ export default function PinVerify() {
               onError: (error) => {
                 setIsModal(true);
                 setMessage(error.message);
-                console.error("Purchase error:", error);
               },
               onSettled: () => {
                 setIsLoading(false);
@@ -190,7 +188,7 @@ export default function PinVerify() {
                 setIsModal(true);
                 setMessage(error.message);
                 setPin(Array(length).fill(""));
-                console.error("Topup error:", error);
+                setActiveIndex(0);
               },
               onSettled: () => {
                 setIsLoading(false);
@@ -199,7 +197,9 @@ export default function PinVerify() {
           }
         } catch (error) {
           console.error("Verifikasi PIN error:", error);
-          toast.error("ERR");
+          setPin(Array(length).fill(""));
+          setActiveIndex(0);
+          toast.error("Terjadi kesalah mohon ulangi kembali");
         }
       };
 

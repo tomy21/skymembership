@@ -73,6 +73,13 @@ export default function AuthCustomer() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    if(captcha !== inputCaptcha) {
+      toast.error("Captcha tidak sama.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
         const dataForm = {
             identifier: emailOrUsername,

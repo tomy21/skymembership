@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePurchaseContext } from "@/context/PurchaseContext";
 import { usePaymentByVA } from "@/hooks/usePayment";
-import { IoMdCheckmarkCircle } from "react-icons/io";
+import { IoMdCheckmarkCircle, IoMdCloseCircleOutline } from "react-icons/io";
 import { jsPDF } from "jspdf";
 import Loading from "@/components/Loading/Loading";
 
@@ -176,6 +176,8 @@ export default function PaymentProcess() {
           {idTransaction !== '' ? (
             paymentHistory.data?.data.status_transaction === "COMPLETED" ? (
               <IoMdCheckmarkCircle size={60} className="text-green-500" />
+            ) : paymentHistory.data?.data.status_transaction === "FAILED" ? (
+              <IoMdCloseCircleOutline size={60} className="text-red-500" />
             ) : (
               <TbClockExclamation size={60} className="text-yellow-500" />
             )
@@ -183,7 +185,19 @@ export default function PaymentProcess() {
             <TbClockExclamation size={60} className="text-yellow-500" />
           )}
         </div>
-        <h2 className="text-lg font-medium text-orange-800">Pesanan Berhasil Dibuat</h2>
+        <h2 className="text-lg font-medium text-orange-800">
+          {idTransaction !== '' ? (
+            paymentHistory.data?.data.status_transaction === "COMPLETED" ? (
+              "Transaksi sudah di bayarkan"
+            ) : paymentHistory.data?.data.status_transaction === "FAILED" ? (
+              "Transaksi di batalkan oleh sistem"
+            ) : (
+              "Pesanan berhasil dibuat"
+            )
+          ) : (
+            "Pesanan berhasil dibuat"
+          )}
+        </h2>
         {idTransaction !== '' ? (
             <p className="text-3xl font-bold text-orange-900">Rp. {Number(paymentHistory.data?.data.paid_amount ).toLocaleString("id-ID") || 0}</p>
           ) : (
@@ -191,10 +205,12 @@ export default function PaymentProcess() {
           )
         }
         
-        <div className="bg-orange-200 text-orange-900 p-3 rounded-lg mt-2">
+        <div className={`${paymentHistory.data?.data.status_transaction === "FAILED" ? '' : 'bg-orange-200'} text-orange-900 p-3 rounded-lg mt-2`}>
           {idTransaction !== '' ? (
             paymentHistory.data?.data.status_transaction === "COMPLETED" ? (
-              <p className="text-sm">Terimakasih pesanan anda sudah terbayar</p>
+              "Transaksi sudah di bayarkan"
+            ) : paymentHistory.data?.data.status_transaction === "FAILED" ? (
+              ""
             ) : (
               <>
                 <p className="text-sm">Silahkan lakukan pembayaran sebelum</p>
@@ -239,12 +255,17 @@ export default function PaymentProcess() {
           {idTransaction !== '' ? (
                 <>
                   <span className="text-sm font-mono">{paymentHistory.data?.data.virtual_account_number}</span>
-                  <button
+                  {paymentHistory.data?.data.status_transaction === "FAILED" ? (
+                    ""
+                  ):(
+                    <button
                       className="text-blue-500 text-sm"
                       onClick={() => copyToClipboard(paymentHistory.data?.data.virtual_account_number ?? "-", "Virtual Account")}
                     >
                       📋
                     </button>
+                  )}
+                  
                 </>
               ) : (
                 <>
@@ -265,12 +286,17 @@ export default function PaymentProcess() {
           {idTransaction !== '' ? (
                 <>
                   <span className="text-sm font-mono">Rp. {Number(paymentHistory.data?.data.paid_amount || 0 ).toLocaleString("id-ID") || 0}</span>
-                  <button
+                  {paymentHistory.data?.data.status_transaction === "FAILED" ? (
+                    ""
+                  ):(
+                    <button
                     className="text-blue-500 text-sm"
                     onClick={() => copyToClipboard(Number(topupData!.nominal.toString()) + parseNominal(admin_fee.toString()), "Nominal")}
                   >
                     📋
                   </button>
+                  )}
+                  
                 </>
               ) : (
                 <>

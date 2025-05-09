@@ -39,6 +39,16 @@ export default function HeaderHome() {
         refetch();
     }, [refetch]);
 
+    const getInitials = (fullname : string) => {
+        if (!fullname) return "";
+
+        const names = fullname.trim().split(" ");
+        const first = names[0]?.charAt(0).toUpperCase() || "";
+        const second = names[1]?.charAt(0).toUpperCase() || "";
+
+        return first + second;
+    }
+
 
     if (isLoading || isLoadingCard) {
         return (
@@ -61,15 +71,15 @@ export default function HeaderHome() {
             </div>
         )
     }
-
+    
   return (
     <>
         <header className='flex flex-col justify-start items-center w-full bg-yellow-400 aspect-[4/3] py-2 px-3 relative'>
             <div className="flex justify-between items-center w-full">
                 <div className="flex flex-row justify-center items-center space-x-3">
-                    <ProfileDropdown/>
+                    <ProfileDropdown initial={getInitials(data?.data?.fullname)}/>
                     <div className="flex flex-col justify-start items-start">
-                        <h1 className='text-sm font-semibold'>{data?.data?.username}</h1>
+                        <h1 className='text-sm font-semibold'>{data?.data?.fullname}</h1>
                         <p className={`text-sm ${data?.data?.is_active === 0 ? "text-red-500" : "text-green-500"}`}>{data?.data?.is_active === 0 ? "Inactive" : "Active"}</p>
                     </div>
                 </div>

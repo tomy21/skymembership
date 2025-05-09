@@ -43,6 +43,7 @@ export default function TopupPage() {
       toast.error("Nominal minimal 10.000");
       return;
     }
+
     if (!selectedMethod) {
       toast.warning("Pilih metode pembayaran");
       return;
@@ -142,7 +143,7 @@ export default function TopupPage() {
         </div>
 
         <div className="w-full px-5 space-y-2 mt-7">
-          <Button type="button" onClick={handleTopup} className="w-full">
+          <Button type="button" onClick={handleTopup} className="w-full" disabled={!isChecked || !selectedMethod || !selectedNominal || !selectedProviders}>
             Topup Sekarang
           </Button>
           <Button onClick={handleModalClose} type="button" className="w-full bg-red-500">
