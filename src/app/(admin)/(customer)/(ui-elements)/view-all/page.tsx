@@ -5,7 +5,7 @@ import HistoryAll from "../history-all/page";
 import HeaderPage from "@/components/header-page/page";
 
 export const metadata: Metadata = {
-  title: "Lokasi | SKY Membership",
+  title: "History | SKY Membership",
   description: "Aplikasi membership SKY Parking",
 };
 

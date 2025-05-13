@@ -23,8 +23,47 @@ export default function VehicleAdd() {
   const { mutateAsync: createVehicle } = useAddVehicle();
   const queryClient = useQueryClient();
 
+  const formatPlateNumber = (value: string) => {
+    // Hapus semua karakter selain huruf dan angka
+    const cleaned = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  
+    // Ambil 2 karakter pertama untuk huruf
+    const part1 = cleaned.slice(0, 2);
+    // Ambil 4 karakter berikutnya untuk angka
+    const part2 = cleaned.slice(2, 6);
+    // Ambil 3 karakter berikutnya untuk huruf
+    const part3 = cleaned.slice(6, 9);
+  
+    // Validasi format huruf dan angka
+    if (part1.length > 0 && !/^[A-Z]{2}$/.test(part1)) {
+      return value; // Jika format bagian 1 salah, biarkan input tetap seperti itu
+    }
+  
+    if (part2.length > 0 && !/^\d{4}$/.test(part2)) {
+      return value; // Jika format bagian 2 salah, biarkan input tetap seperti itu
+    }
+  
+    if (part3.length > 0 && !/^[A-Z]{3}$/.test(part3)) {
+      return value; // Jika format bagian 3 salah, biarkan input tetap seperti itu
+    }
+  
+    let result = part1;
+    if (part2) result += " " + part2;
+    if (part3) result += " " + part3;
+  
+    return result;
+  };
+  
+  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+
+    if(name === "plate_number") {
+      setFormData((f) => ({ ...f, [name]: formatPlateNumber(value) }));
+      return;
+    }
+
     setFormData((f) => ({ ...f, [name]: value }));
   };
 
@@ -157,6 +196,8 @@ export default function VehicleAdd() {
                       name="plate_number"
                       value={formData.plate_number}
                       onChange={handleChange}
+                      placeholder="XX 1234 XXX"
+                      maxLength={11} // XX 1234 XXX = 11 karakter termasuk spasi
                       className="mt-1 w-full border border-gray-400 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 uppercase"
                       required
                     />

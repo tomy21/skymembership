@@ -5,6 +5,9 @@ import CardHistory from '../card-history/Page'
 import { useHistoryParking, useHistoryPayment } from '@/hooks/useTransaction'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { dataCustomer } from '../../../../../../libs/API/ExportData'
+import { toast } from 'sonner'
+import Loading from '@/components/Loading/Loading'
 
 interface responseHistoryPayment {
   createdAt: string
@@ -45,6 +48,10 @@ export default function HistoryAll() {
   const [activeTab, setActiveTab] = useState('payment')
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [modalPayment, setModalPayment] = useState(false)
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [isLoading, setIsLoading] = useState(false);
   const itemsPerPage = 5
 
   const { data } = useHistoryPayment()
@@ -88,9 +95,58 @@ export default function HistoryAll() {
   }
 
   const handleExport = () => {
-    const exportData = activeTab === 'payment' ? filteredPayment : filteredParking
+    // const exportData = activeTab === 'payment' ? filteredPayment : filteredParking
+
+    if(activeTab === "payment"){
+      setModalPayment(true)
+    }
+
+    if(activeTab === "parking"){
+      setModalPayment(false)
+    }
     
-    alert(`Exported ${exportData?.length} item(s) from "${activeTab}"`)
+    // alert(`Exported ${exportData?.length} item(s) from "${activeTab}"`)
+  }
+
+  const handleSubmitExport = async () => {
+    if (!startDate || !endDate) return;
+
+    setIsLoading(true);
+  
+    const result = await dataCustomer.exportDataPayment(startDate, endDate);
+
+    if (result.error) {
+      toast.error(result.message);
+      setIsLoading(false);
+      setStartDate('');
+      setEndDate('');
+      return;
+    }
+
+    // download file
+    const url = window.URL.createObjectURL(result.blob || new Blob());
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", result.fileName || "export.xlsx");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setIsLoading(false);
+    setModalPayment(false);
+    setStartDate('');
+    setEndDate('');
+  };
+
+  const handleCancel = () => {
+    setModalPayment(false);
+    setStartDate('');
+    setEndDate('');
+  }
+
+  if(isLoading){
+    return (
+      <Loading/>
+    )
   }
 
   return (
@@ -215,6 +271,57 @@ export default function HistoryAll() {
             </button>
           </div>
         )}
+
+        {modalPayment && (
+          <div className="fixed top-0 left-0 w-full h-full bg-black/50 z-[999] flex items-center justify-center">
+            <div className="bg-white w-[90%] max-w-md rounded-2xl p-6 shadow-lg space-y-4">
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">Export Filter</h2>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Start Date</label>
+                  <input
+                    type="date"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">End Date</label>
+                  <input
+                    type="date"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  onClick={handleCancel}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmitExport}
+                  disabled={!startDate || !endDate}
+                  className={`px-4 py-2 rounded-lg text-white ${
+                    startDate && endDate
+                      ? 'bg-blue-600 hover:bg-blue-700'
+                      : 'bg-blue-300 cursor-not-allowed'
+                  }`}
+                >
+                  Export
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )

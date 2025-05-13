@@ -242,7 +242,7 @@ export default function PaymentProcess() {
         </div>
 
         <div className="flex justify-between items-center w-full mt-5 mb-2">
-            <div className="text-sm text-gray-500 font-semibold">Virtual Account</div>
+            <div className="text-sm text-gray-500 font-semibold">{purchaseData?.provider?.gateway_partner ?? topupData?.provider?.gateway_partner}</div>
             {idTransaction !== '' ? (
                 <Image src={getBankLogoHistory(paymentHistory?.data?.data.module_name ?? "-")} width={50} height={50} alt="bank logo" />
               ) : (

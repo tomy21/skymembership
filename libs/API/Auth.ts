@@ -61,11 +61,10 @@ export const Users = {
             );
             return response.data;
         } catch (error) {
-            const serverError = error || {
-                message: 'Unknown error',
-            };
-            console.warn('Server validation error:', serverError);
-            return serverError;
+            const err = error as AxiosError<{ message: string }>;
+
+            const message = err.response?.data?.message || 'Unknown error';
+            throw new Error(message);
         }
     },
 
@@ -82,9 +81,7 @@ export const Users = {
             return response.data;
         } catch (error) {
             const err = error as AxiosError<{ message: string }>;
-
-            const message = err.response?.data?.message || 'Unknown error';
-            throw new Error(message);
+            return err;
         }
     },
 

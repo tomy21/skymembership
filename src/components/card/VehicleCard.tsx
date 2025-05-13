@@ -6,6 +6,7 @@ import { useVehicle, CardHistoryProps } from "@/hooks/useVehicle";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { ClipLoader } from "react-spinners";
 import { useDebounce } from "use-debounce";
+import Image from "next/image";
 
 export default function VehicleCard() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -75,7 +76,15 @@ export default function VehicleCard() {
           />
         ))}
         {pageData.length === 0 && (
-          <div className="text-center py-10 text-gray-500">No vehicles found.</div>
+          <div className="text-center py-10 text-gray-500 flex flex-col items-center justify-center">
+            <Image
+              src="/images/company/vehicles.png"
+              alt="No Data"
+              width={300}
+              height={300}
+            />
+            <p className="mt-4">No data found.</p>
+          </div>
         )}
       </div>
 

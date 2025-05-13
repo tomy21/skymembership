@@ -71,7 +71,6 @@ export default function PinVerify() {
     }
   };
 
-  console.log(topupData)
     useEffect(() => {
       const handleVerification = async () => {
         const isComplete = pin.every((val) => val !== "");
@@ -300,7 +299,7 @@ export default function PinVerify() {
                     ))}
                 </div>
 
-                <h1 className="text-md underline text-blue-500">Lupa pin</h1>
+                {/* <h1 className="text-md underline text-blue-500">Lupa pin</h1> */}
 
                 <div className="grid grid-cols-3 gap-x-12 gap-y-5 mt-7 mx-auto">
                     {keypad.map((key, idx) => (

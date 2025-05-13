@@ -259,7 +259,7 @@ export default function RegisterPage() {
 
   const closeModal = () => {
     setIsModal(false);
-    // router.push("/");
+    router.push("/");
   }
   const closeModalError = () => {
     setIsError(false);

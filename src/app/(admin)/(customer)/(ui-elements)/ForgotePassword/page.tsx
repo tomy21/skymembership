@@ -2,7 +2,7 @@
 
 import { useForgotPassword } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaEnvelope } from 'react-icons/fa';
 import { ClipLoader } from 'react-spinners';
 
@@ -10,9 +10,19 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [mounted, setMounted] = useState(false); 
 
   const router = useRouter();
-  const {mutateAsync: forgotPassword} = useForgotPassword();
+  const forgotPassword = useForgotPassword();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    // selama SSR dan sebelum mount, tolak render interaktif
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,12 +30,19 @@ export default function ForgotPassword() {
     const referralUrl  = window.location.origin;
     setLoading(true);
     // Simulasi request
-    await forgotPassword({email, referralUrl});
-    
-    setTimeout(() => {
-      setSubmitted(true);
+    try{
+      forgotPassword.mutate({email, referralUrl},{
+        onSuccess: () => {
+          setSubmitted(true);
+          setLoading(false);
+        },
+      });
+    } catch (error) {
+      console.log(error);
       setLoading(false);
-    }, 2000);
+    }finally{
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,6 +52,12 @@ export default function ForgotPassword() {
         <p className="text-center text-gray-500 mb-6">
           Masukkan email untuk menerima link reset password.
         </p>
+
+        {forgotPassword.isError && (
+          <p className="text-red-500 mt-2">
+            {forgotPassword.error?.message ?? "Terjadi kesalahan"}
+          </p>
+        )}
 
         {submitted ? (
           <div className="text-green-600 text-center font-medium">

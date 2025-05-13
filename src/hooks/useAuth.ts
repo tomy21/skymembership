@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { login, logout, Users } from "../../libs/API/Auth";
+import { AxiosError } from "axios";
 
 interface formData {
       fullname: string,
@@ -62,13 +63,25 @@ export const useRequestActivation = () => {
 
 export const useForgotPassword = () => {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({email, referralUrl}: {email: string, referralUrl: string}) => Users.requestResetPassword(email, referralUrl),
+
+  return useMutation<
+    {email: string, referralUrl: string}, // response type from API, bisa kamu ubah sesuai kebutuhan
+    AxiosError<{ message: string }>, // 🟢 error type
+    { email: string; referralUrl: string } // 🟡 variables type
+  >({
+    mutationFn: ({ email, referralUrl }) =>
+      Users.requestResetPassword(email, referralUrl),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users-request-reset-password"] });
     },
+    onError: (error) => {
+      // ✅ Tangani error di sini untuk mencegah throw ke global error boundary
+      console.warn("Handled error:", error.message);
+      // Optional: tampilkan toast atau logging lain
+    },
   });
 };
+
 
 export const useChangePassword = () => {
   const queryClient = useQueryClient();
