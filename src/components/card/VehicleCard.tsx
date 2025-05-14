@@ -47,21 +47,23 @@ export default function VehicleCard() {
     </div>
   );
 
-  // const all = dataVehicle?.data || [];
-
   const pageData = dataVehicle?.data || [];
-  const totalPages = Math.ceil((dataVehicle?.total || 0) / itemsPerPage);
+  const totalPages = dataVehicle?.total ? Math.ceil(dataVehicle.total / itemsPerPage) : 1;
+
 
   return (
     <div className="p-5 flex flex-col items-center space-y-4">
       {/* Search box */}
-      <input
-        type="text"
-        placeholder="Search by plate number…"
-        className="w-full max-w-md p-2 border rounded"
-        value={searchText}
-        onChange={handleSearchTextChange}
-      />
+      { pageData.length > 0 && totalPages > 1 && (
+          <input
+          type="text"
+          placeholder="Search by plate number…"
+          className="w-full max-w-md p-2 border rounded"
+          value={searchText}
+          onChange={handleSearchTextChange}
+        />
+      )}
+      
 
       {/* cards */}
       <div className="w-full flex flex-col space-y-4">
@@ -76,12 +78,13 @@ export default function VehicleCard() {
           />
         ))}
         {pageData.length === 0 && (
-          <div className="text-center py-10 text-gray-500 flex flex-col items-center justify-center">
+          <div className="text-center py-10 text-gray-500 flex flex-col items-center justify-center opacity-50">
             <Image
               src="/images/company/vehicles.png"
               alt="No Data"
-              width={300}
-              height={300}
+              width={200}
+              height={200}
+              className=""
             />
             <p className="mt-4">No data found.</p>
           </div>
@@ -89,14 +92,14 @@ export default function VehicleCard() {
       </div>
 
       {/* pagination controls */}
-      {itemsPerPage && (
+      {pageData.length > 0 && totalPages > 1 && (
         <div className="mt-6 flex items-center space-x-4">
           <button
             className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
           >
-            <FaArrowLeft/>
+            <FaArrowLeft />
           </button>
           <span>
             Page {currentPage} / {totalPages}
@@ -106,7 +109,7 @@ export default function VehicleCard() {
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
           >
-            <FaArrowRight/>
+            <FaArrowRight />
           </button>
         </div>
       )}

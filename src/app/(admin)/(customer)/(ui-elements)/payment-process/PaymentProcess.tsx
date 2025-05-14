@@ -33,7 +33,7 @@ export default function PaymentProcess() {
   const [mounted, setMounted] = useState(false);
 
   const paymentHistory = usePaymentByVA(idTransaction);
-  console.log(idTransaction);
+  
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} berhasil disalin!`);
@@ -164,7 +164,8 @@ export default function PaymentProcess() {
     router.push("/payment?idTransaction=" + paymentData?.trxId);
   }
 
-
+  console.log(paymentHistory.data);
+  console.log(Number(paymentHistory.data?.data.price).toLocaleString("id-ID"));
   return (
     <div className="min-h-screen bg-white w-full">
       {isLoading && (
@@ -174,7 +175,7 @@ export default function PaymentProcess() {
       <div className="text-center bg-yellow-400 h-72 p-4 rounded-bl-4xl rounded-br-[100px]">
         <div className="w-20 h-20 mx-auto rounded-full bg-white flex items-center justify-center font-bold mb-4">
           {idTransaction !== '' ? (
-            paymentHistory.data?.data.status_transaction === "COMPLETED" ? (
+            paymentHistory.data?.data.status_transaction || paymentHistory.data?.data.statusPayment === "COMPLETED" || "PAID" ? (
               <IoMdCheckmarkCircle size={60} className="text-green-500" />
             ) : paymentHistory.data?.data.status_transaction === "FAILED" ? (
               <IoMdCloseCircleOutline size={60} className="text-red-500" />
@@ -187,7 +188,7 @@ export default function PaymentProcess() {
         </div>
         <h2 className="text-lg font-medium text-orange-800">
           {idTransaction !== '' ? (
-            paymentHistory.data?.data.status_transaction === "COMPLETED" ? (
+            paymentHistory.data?.data.status_transaction || paymentHistory.data?.data.statusPayment === "COMPLETED" || "PAID" ? (
               "Transaksi sudah di bayarkan"
             ) : paymentHistory.data?.data.status_transaction === "FAILED" ? (
               "Transaksi di batalkan oleh sistem"
@@ -199,7 +200,11 @@ export default function PaymentProcess() {
           )}
         </h2>
         {idTransaction !== '' ? (
-            <p className="text-3xl font-bold text-orange-900">Rp. {Number(paymentHistory.data?.data.paid_amount ).toLocaleString("id-ID") || 0}</p>
+            <p className="text-3xl font-bold text-orange-900">
+              Rp. {(paymentHistory.data?.data.paid_amount != null && paymentHistory.data?.data.paid_amount !== 0)
+                ? Number(paymentHistory.data.data.paid_amount).toLocaleString("id-ID")
+                : Number(paymentHistory.data?.data.price || 0).toLocaleString("id-ID")}
+            </p>
           ) : (
             <p className="text-3xl font-bold text-orange-900">Rp. {Number(paymentData!.price ).toLocaleString("id-ID") || 0}</p>
           )
@@ -207,7 +212,7 @@ export default function PaymentProcess() {
         
         <div className={`${paymentHistory.data?.data.status_transaction === "FAILED" ? '' : 'bg-orange-200'} text-orange-900 p-3 rounded-lg mt-2`}>
           {idTransaction !== '' ? (
-            paymentHistory.data?.data.status_transaction === "COMPLETED" ? (
+            paymentHistory.data?.data.status_transaction || paymentHistory.data?.data.statusPayment === "COMPLETED" || "PAID" ? (
               "Transaksi sudah di bayarkan"
             ) : paymentHistory.data?.data.status_transaction === "FAILED" ? (
               ""
@@ -242,7 +247,7 @@ export default function PaymentProcess() {
         </div>
 
         <div className="flex justify-between items-center w-full mt-5 mb-2">
-            <div className="text-sm text-gray-500 font-semibold">{purchaseData?.provider?.gateway_partner ?? topupData?.provider?.gateway_partner}</div>
+            <div className="text-sm text-gray-500 font-semibold">{purchaseData?.provider?.gateway_partner ?? topupData?.provider?.gateway_partner ?? paymentHistory.data?.data.transactionType }</div>
             {idTransaction !== '' ? (
                 <Image src={getBankLogoHistory(paymentHistory?.data?.data.module_name ?? "-")} width={50} height={50} alt="bank logo" />
               ) : (
@@ -251,11 +256,14 @@ export default function PaymentProcess() {
             }
             
         </div>
-        <div className="flex justify-between items-center mb-4">
+        {paymentHistory.data?.data ? (
+          ""
+        ):(
+          <div className="flex justify-between items-center mb-4">
           {idTransaction !== '' ? (
                 <>
                   <span className="text-sm font-mono">{paymentHistory.data?.data.virtual_account_number}</span>
-                  {paymentHistory.data?.data.status_transaction === "FAILED" ? (
+                  {paymentHistory.data?.data.status_transaction  === "FAILED" ? (
                     ""
                   ):(
                     <button
@@ -280,21 +288,30 @@ export default function PaymentProcess() {
               )
           }
         </div>
+        )}
 
         <div className="text-sm text-gray-500 font-semibold mb-1">Total Tagihan</div>
         <div className="flex justify-between items-center text-base font-bold text-gray-900 mb-4">
           {idTransaction !== '' ? (
                 <>
-                  <span className="text-sm font-mono">Rp. {Number(paymentHistory.data?.data.paid_amount || 0 ).toLocaleString("id-ID") || 0}</span>
+                  <span className="text-sm font-mono">
+                    Rp. {(paymentHistory.data?.data.paid_amount != null && paymentHistory.data?.data.paid_amount !== 0)
+                      ? Number(paymentHistory.data.data.paid_amount).toLocaleString("id-ID")
+                      : Number(paymentHistory.data?.data.price || 0).toLocaleString("id-ID")}
+                  </span>
                   {paymentHistory.data?.data.status_transaction === "FAILED" ? (
                     ""
                   ):(
-                    <button
-                    className="text-blue-500 text-sm"
-                    onClick={() => copyToClipboard(Number(topupData!.nominal.toString()) + parseNominal(admin_fee.toString()), "Nominal")}
-                  >
-                    📋
-                  </button>
+                    paymentHistory.data?.data ? (
+                      ""
+                    ): (
+                      <button
+                      className="text-blue-500 text-sm"
+                      onClick={() => copyToClipboard(Number(topupData!.nominal.toString()) + parseNominal(admin_fee.toString()), "Nominal")}
+                    >
+                      📋
+                    </button>
+                    )
                   )}
                   
                 </>
@@ -316,7 +333,11 @@ export default function PaymentProcess() {
         <div className="flex justify-between items-center border-t pt-2 mt-2">
           <span className="text-sm text-gray-600 font-semibold">Jumlah Pembayaran</span>
           {idTransaction !== '' ? (
-              <p className="text-sm font-bold text-gray-800">Rp. {Number(paymentHistory.data?.data.paid_amount || 0 + admin_fee ).toLocaleString("id-ID") || 0}</p>
+              <p className="text-sm font-bold text-gray-800">
+                Rp. {(paymentHistory.data?.data.paid_amount != null && paymentHistory.data?.data.paid_amount !== 0)
+                ? Number(paymentHistory.data.data.paid_amount).toLocaleString("id-ID")
+                : Number(paymentHistory.data?.data.price || 0).toLocaleString("id-ID")}
+              </p>
             ) : (
               <span className="text-sm font-bold text-gray-800">Rp {Number(paymentData!.price ).toLocaleString("id-ID")}</span>
             )

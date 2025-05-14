@@ -20,6 +20,7 @@ export default function ProfileDropdown({initial}: {initial: string}) {
     setIsLoading(true);
     await logoutMutation.mutateAsync();
     localStorage.removeItem("userToken");
+    localStorage.removeItem("user");
     document.cookie = "refreshToken=; max-age=0; path=/";
     Cookies.remove('refreshToken');
     queryClient.clear();

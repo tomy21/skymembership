@@ -89,6 +89,7 @@ export default function PinVerify() {
               const input = document.getElementById("pin-0");
               if (input) input.focus();
             }, 100);
+            setIsLoading(false);
             return;
           }
 
@@ -209,7 +210,7 @@ export default function PinVerify() {
               console.error("Bank ID is missing");
               return;
             }
-            console.log(bank_id);
+            
             const data: TopupPayload = {
               bank_id,
               amount: topupData.nominal,
@@ -243,10 +244,12 @@ export default function PinVerify() {
                 queryClient.invalidateQueries({ queryKey: ["userById"] });
                 router.push("/payment");
                 localStorage.removeItem("purchaseData");
+                setIsLoading(false);
               },
               onError: (error) => {
                 setIsModal(true);
                 setMessage(error.message);
+                setIsLoading(false);
                 setPin(Array(length).fill(""));
                 setActiveIndex(0);
               },

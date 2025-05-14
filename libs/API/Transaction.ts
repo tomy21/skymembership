@@ -26,7 +26,7 @@ export const Transaction = {
         }
     },
 
-    getAllTransactionByUser: async (page=1, limit=1, search="") => {
+    getAllTransactionByUser: async (page=1, limit=5, search="") => {
         try {
             const response = await APIAPPS.get(
                 `/v01/member/api/history/transaction-byuser`,

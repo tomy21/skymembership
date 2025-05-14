@@ -95,7 +95,7 @@ export default function AuthCustomer() {
         if (dataDecrypt && dataDecrypt.status === 'success') {
             toast.success('Login berhasil!');
             login(dataDecrypt?.token);
-            router.push('/home');
+            
         } else {
             toast.error(dataDecrypt?.message || "Login gagal.");
             refreshString();
@@ -117,7 +117,11 @@ export default function AuthCustomer() {
         toast.error(message);
         refreshString();
     }finally{
-      setIsLoading(false);
+      
+      setTimeout(() => {
+        setIsLoading(false);
+        router.push("/home");
+      }, 500);
       refreshString();
     }
   };

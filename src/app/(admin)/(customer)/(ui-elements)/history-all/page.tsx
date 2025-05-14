@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { dataCustomer } from '../../../../../../libs/API/ExportData'
 import { toast } from 'sonner'
 import Loading from '@/components/Loading/Loading'
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 
 interface responseHistoryPayment {
   createdAt: string
@@ -52,9 +53,9 @@ export default function HistoryAll() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [isLoading, setIsLoading] = useState(false);
-  const itemsPerPage = 5
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
-  const { data } = useHistoryPayment()
+  const { data: paymentHistory } = useHistoryPayment(currentPage, itemsPerPage, search)
   const { data: parkingHistory } = useHistoryParking()
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
@@ -64,20 +65,26 @@ export default function HistoryAll() {
     { id: 'parking', label: 'Parking' },
   ]
 
-  const filteredPayment = data?.data?.filter((item: responseHistoryPayment) =>
-    item.product_name.toLowerCase().includes(search.toLowerCase()) ||
-    item.purchase_type.toLowerCase().includes(search.toLowerCase())
-  )
+  useEffect(() => {
+      function updateCount() {
+        const cardHeight = 160;
+        const reserved = 240;
+        const perPage = Math.max(1, Math.floor((window.innerHeight - reserved) / cardHeight));
+        setItemsPerPage(perPage);
+      }
+      
+      updateCount();
+      window.addEventListener("resize", updateCount);
+      return () => window.removeEventListener("resize", updateCount);
+    }, []);
 
-  const filteredParking = parkingHistory?.data?.filter((item: responseHistoryParking) =>
-    item.plate_number?.toLowerCase().includes(search.toLowerCase()) ||
-    item.location_name?.toLowerCase().includes(search.toLowerCase())
-  )
+    const pageDataPayment = paymentHistory?.data || [];
+    const pageDataParking = parkingHistory?.data || [];
+    const totalPagesPayment = paymentHistory?.pagination.totalPages 
+    const totalPagesParking = parkingHistory?.totalPages 
 
-  const activeData = activeTab === 'payment' ? filteredPayment : filteredParking
-  const pageCount = Math.ceil((activeData?.length || 0) / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
+  const activeData = activeTab === 'payment' ? pageDataPayment : pageDataParking
+  const pageCount = activeTab === 'payment' ? totalPagesPayment : totalPagesParking
 
   useEffect(() => {
     setCurrentPage(1)
@@ -189,9 +196,7 @@ export default function HistoryAll() {
       <div className="flex flex-col h-[70vh] space-y-4">
         <div className="flex-1 overflow-y-auto pr-1 space-y-2">
           {activeData?.length ? (
-            activeData
-              .slice(startIndex, endIndex)
-              .map((item: responseHistoryPayment | responseHistoryParking, index: number) => {
+            activeData.map((item: responseHistoryPayment | responseHistoryParking, index: number) => {
                 const isPayment = (item as responseHistoryPayment).purchase_type !== undefined;
 
                 return isPayment ? (
@@ -242,32 +247,24 @@ export default function HistoryAll() {
         </div>
 
         {/* Pagination */}
-        {activeData?.length > itemsPerPage && (
-          <div className="flex justify-center items-center space-x-2">
+        {pageCount > 1 && (
+          <div className="mt-6 flex items-center justify-center space-x-4">
             <button
+              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              className="px-3 py-1 border rounded disabled:opacity-40"
             >
-              Prev
+              <FaArrowLeft />
             </button>
-            {Array.from({ length: pageCount }, (_, i) => i + 1).map((num) => (
-              <button
-                key={num}
-                onClick={() => setCurrentPage(num)}
-                className={`px-3 py-1 border rounded ${
-                  num === currentPage ? 'bg-yellow-500 text-white' : 'hover:bg-gray-100'
-                }`}
-              >
-                {num}
-              </button>
-            ))}
+            <span>
+              Page {currentPage} / {pageCount}
+            </span>
             <button
+              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+              onClick={() => setCurrentPage((p) => Math.min(pageCount, p + 1))}
               disabled={currentPage === pageCount}
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, pageCount))}
-              className="px-3 py-1 border rounded disabled:opacity-40"
             >
-              Next
+              <FaArrowRight />
             </button>
           </div>
         )}

@@ -11,7 +11,7 @@ export const login = async (data: string) => {
 };
 export const logout = async () => {
   const response = await APIAPPS.get(`/v01/member/api/auth/logout`);
-  console.log(response);
+  
   return response.data;
 };
 
@@ -294,16 +294,4 @@ export const DetailUser =  {
             return error;
         }
     },
-}
-
-
-export async function selfdestroy() {
-
-    try {
-        
-        
-    } catch (error) {
-        return error;
-    }
-
 }
