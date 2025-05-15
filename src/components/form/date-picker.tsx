@@ -60,6 +60,7 @@ export default function CustomDatePicker({
               : undefined
           }
           dateFormat="yyyy-MM-dd"
+          maxDate={new Date()} // <- ini yang penting, batasi tanggal maksimum ke hari ini
           className="w-full border-none bg-transparent px-4 py-2.5 pr-12 text-sm text-gray-800 placeholder-gray-400 focus:outline-none dark:text-white"
           placeholderText={placeholder}
         />
