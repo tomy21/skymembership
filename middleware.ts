@@ -1,16 +1,18 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const refreshToken = request.cookies.get('refreshToken');
+  const refreshToken = request.cookies.get("refreshToken");
 
   // URL yang ingin kamu proteksi
-  const protectedRoutes = ['/*'];
+  const protectedRoutes = ["/*"];
 
-  const isProtected = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route));
-  
+  const isProtected = protectedRoutes.some((route) =>
+    request.nextUrl.pathname.startsWith(route),
+  );
+
   if (isProtected && !refreshToken) {
-    return NextResponse.redirect(new URL('/', request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();
@@ -18,5 +20,5 @@ export function middleware(request: NextRequest) {
 
 // Tentukan route mana saja yang middleware-nya aktif
 export const config = {
-  matcher: ['/:path*'], // sesuaikan
+  matcher: ["/:path*"], // sesuaikan
 };

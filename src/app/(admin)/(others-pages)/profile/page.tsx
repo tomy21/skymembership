@@ -7,14 +7,13 @@ import React, { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Profile | SKY Parking",
-  description:
-    "Parking Membership SKY PARKING",
+  description: "Parking Membership SKY PARKING",
 };
 
 export default function Profile() {
   return (
-    <div className='bg-white w-full min-h-screen'>
-      <Suspense fallback={<Loading/>}>
+    <div className="min-h-screen w-full bg-white">
+      <Suspense fallback={<Loading />}>
         <HeaderPage title="Profile" />
         <UserMetaCard />
         <UserInfoCard />

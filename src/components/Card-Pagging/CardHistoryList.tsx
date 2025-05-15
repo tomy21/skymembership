@@ -1,8 +1,8 @@
 // CardHistoryList.tsx
 
-import React, { useState } from 'react';
-import { CardHistoryProps } from '@/hooks/useVehicle';
-import CardHistory from '@/app/(admin)/(customer)/(ui-elements)/card-history/Page';
+import React, { useState } from "react";
+import { CardHistoryProps } from "@/hooks/useVehicle";
+import CardHistory from "@/app/(admin)/(customer)/(ui-elements)/card-history/Page";
 
 type CardHistoryListProps = {
   data: CardHistoryProps[];
@@ -18,7 +18,7 @@ export default function CardHistoryList({
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const paginatedData = data.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   return (
@@ -29,11 +29,11 @@ export default function CardHistoryList({
       ))}
 
       {/* Pagination Controls */}
-      <div className="flex justify-center space-x-2 mt-4">
+      <div className="mt-4 flex justify-center space-x-2">
         <button
           onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
           disabled={currentPage === 1}
-          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+          className="rounded bg-gray-200 px-3 py-1 disabled:opacity-50"
         >
           Prev
         </button>
@@ -41,8 +41,8 @@ export default function CardHistoryList({
           <button
             key={i}
             onClick={() => setCurrentPage(i + 1)}
-            className={`px-3 py-1 rounded ${
-              currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'
+            className={`rounded px-3 py-1 ${
+              currentPage === i + 1 ? "bg-blue-600 text-white" : "bg-gray-200"
             }`}
           >
             {i + 1}
@@ -51,7 +51,7 @@ export default function CardHistoryList({
         <button
           onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
           disabled={currentPage === totalPages}
-          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+          className="rounded bg-gray-200 px-3 py-1 disabled:opacity-50"
         >
           Next
         </button>

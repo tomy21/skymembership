@@ -1,7 +1,6 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -12,27 +11,25 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('userToken');
-  
+    const token = localStorage.getItem("userToken");
+
     if (token) {
       setIsAuthenticated(true);
-    }else{
+    } else {
       setIsAuthenticated(false);
-      
     }
   }, []);
 
   const login = (token: string) => {
-    localStorage.setItem('userToken', token);
+    localStorage.setItem("userToken", token);
     setIsAuthenticated(true);
   };
 
   const logout = () => {
-    localStorage.removeItem('userToken');
+    localStorage.removeItem("userToken");
     setIsAuthenticated(false);
   };
 
@@ -46,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

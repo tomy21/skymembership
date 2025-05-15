@@ -16,26 +16,26 @@ type CreateVaPurchaseParams = {
   data: PurcasePayload;
 };
 
-export const useHistoryPayment = (page = 1 , limit = 10) => {
+export const useHistoryPayment = (page = 1, limit = 10) => {
   return useQuery({
-    queryKey: ['allProvider'],
+    queryKey: ["allProvider"],
     queryFn: () => Provider.getAll(page, limit),
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
     retry: 1,
     refetchOnWindowFocus: false,
   });
-}
+};
 
 export const useProviderByType = (type = "", locationCode = "") => {
   return useQuery({
-    queryKey: ['providerByType', type, locationCode],
+    queryKey: ["providerByType", type, locationCode],
     queryFn: () => Provider.getAllByType(type, locationCode),
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
     enabled: !!type,
     retry: 1,
     refetchOnWindowFocus: false,
   });
-}
+};
 
 export const useCreateVaTopup = () => {
   return useMutation({
@@ -49,7 +49,7 @@ export const useCreateVaTopup = () => {
 export const useCreateVaPurchase = () => {
   return useMutation({
     mutationFn: async ({ idProduct, data }: CreateVaPurchaseParams) => {
-      return await Payment.createVaPuchase({idProduct, data});
+      return await Payment.createVaPuchase({ idProduct, data });
     },
     // onError: (error: AxiosError) => {
     //   return error.response?.data || error.message;
@@ -59,7 +59,7 @@ export const useCreateVaPurchase = () => {
 export const useCreatePurchaseByPoint = () => {
   return useMutation({
     mutationFn: async ({ idProduct, data }: CreateVaPurchaseParams) => {
-      return await Payment.createVaPuchaseByPoint({idProduct, data});
+      return await Payment.createVaPuchaseByPoint({ idProduct, data });
     },
     // onError: (error: AxiosError) => {
     //   return error.response?.data || error.message;
@@ -69,22 +69,22 @@ export const useCreatePurchaseByPoint = () => {
 
 export const usePaymentByVA = (VA: string) => {
   return useQuery({
-    queryKey: ['historyTransacton', VA],
+    queryKey: ["historyTransacton", VA],
     queryFn: () => Payment.getAllHistoryVa(VA),
     enabled: !!VA,
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
     retry: 1,
     refetchOnWindowFocus: false,
   });
-}
+};
 
 export const useHistoryTransaction = (trxId: string) => {
   return useQuery({
-    queryKey: ['historyTransactonByTrx', trxId],
+    queryKey: ["historyTransactonByTrx", trxId],
     queryFn: () => Payment.getIdStatus(trxId),
     enabled: !!trxId,
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
     retry: 1,
     refetchOnWindowFocus: true,
   });
-}
+};

@@ -1,4 +1,3 @@
-
 import { Metadata } from "next";
 import React from "react";
 import CardLocation from "@/components/CardLocation";
@@ -11,9 +10,9 @@ export const metadata: Metadata = {
 
 export default function Lokasi() {
   return (
-    <div className="bg-white w-full min-h-screen relative">
+    <div className="relative min-h-screen w-full bg-white">
       <HeaderPage title="Lokasi Member" />
-      <CardLocation/>
+      <CardLocation />
     </div>
   );
 }

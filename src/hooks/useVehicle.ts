@@ -35,7 +35,7 @@ type VehicleResponse = {
 export const useVehicle = (
   page = 1,
   limit = 10,
-  search = ""
+  search = "",
 ): UseQueryResult<VehicleResponse, Error> => {
   return useQuery<VehicleResponse, Error, VehicleResponse>({
     queryKey: ["vehicleData", page, limit, search],
@@ -48,20 +48,28 @@ export const useVehicle = (
 };
 
 export const useVehicleActive = (
-        type = "",
-        locationCode = "",
-        page = 1,
-        limit = 10,
-        search = "") => {
+  type = "",
+  locationCode = "",
+  page = 1,
+  limit = 10,
+  search = "",
+) => {
   return useQuery({
-    queryKey: ['vehicleDataActive',type, locationCode],
-    queryFn: () => VehicleListUser.getVehicleUnActiveLocation(type, locationCode, page, limit, search),
+    queryKey: ["vehicleDataActive", type, locationCode],
+    queryFn: () =>
+      VehicleListUser.getVehicleUnActiveLocation(
+        type,
+        locationCode,
+        page,
+        limit,
+        search,
+      ),
     staleTime: 1000 * 60 * 5, // 5 menit, biar gak fetch terus
     retry: 1,
     enabled: !!type && !!locationCode,
     refetchOnWindowFocus: false,
   });
-}
+};
 
 export const useAddVehicle = () => {
   return useMutation({
@@ -81,18 +89,30 @@ export const useAddVehicle = () => {
       return vehicleAdd.addVehicle(formData);
     },
     onError: (error: AxiosError) => {
-      console.error("❌ Add Vehicle Error:", error.response?.data || error.message);
+      console.error(
+        "❌ Add Vehicle Error:",
+        error.response?.data || error.message,
+      );
     },
   });
 };
 
 export const useUpdateRFID = () => {
   return useMutation({
-    mutationFn: async ({plate_number, RFID_Number}: {plate_number: string, RFID_Number: string}) => {
+    mutationFn: async ({
+      plate_number,
+      RFID_Number,
+    }: {
+      plate_number: string;
+      RFID_Number: string;
+    }) => {
       return vehicleAdd.udpatedRFID(plate_number, RFID_Number);
     },
     onError: (error: AxiosError) => {
-      console.error("❌ Update RFID Error:", error.response?.data || error.message);
+      console.error(
+        "❌ Update RFID Error:",
+        error.response?.data || error.message,
+      );
     },
   });
 };

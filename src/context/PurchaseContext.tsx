@@ -1,6 +1,12 @@
 // context/TopupContext.tsx
 "use client";
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 
 interface Option {
   id: string;
@@ -10,8 +16,8 @@ interface Option {
 
 interface PurchaseData {
   idProduct: number;
-  bank_id: string,
-  plate_number: string,
+  bank_id: string;
+  plate_number: string;
   type: string;
   provider: Option | null;
 }
@@ -21,7 +27,9 @@ interface PurchaseContextType {
   setPurchaseData: (data: Partial<PurchaseData>) => void;
 }
 
-const PurchaseContext = createContext<PurchaseContextType | undefined>(undefined);
+const PurchaseContext = createContext<PurchaseContextType | undefined>(
+  undefined,
+);
 
 const defaultData: PurchaseData = {
   idProduct: 0,
@@ -50,7 +58,7 @@ export const PurchaseProvider = ({ children }: { children: ReactNode }) => {
   const setPurchaseData = (data: Partial<PurchaseData>) => {
     setPurchaseState((prev) => ({ ...prev, ...data }));
   };
-  
+
   return (
     <PurchaseContext.Provider value={{ purchaseData, setPurchaseData }}>
       {children}

@@ -7,7 +7,7 @@ import { FaPlus } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
 import { useAddVehicle } from "@/hooks/useVehicle";
 import { ClipLoader } from "react-spinners";
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function VehicleAdd() {
@@ -26,40 +26,40 @@ export default function VehicleAdd() {
   const formatPlateNumber = (value: string) => {
     // Hapus semua karakter selain huruf dan angka
     const cleaned = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-  
+
     // Ambil 2 karakter pertama untuk huruf
     const part1 = cleaned.slice(0, 2);
     // Ambil 4 karakter berikutnya untuk angka
     const part2 = cleaned.slice(2, 6);
     // Ambil 3 karakter berikutnya untuk huruf
     const part3 = cleaned.slice(6, 9);
-  
+
     // Validasi format huruf dan angka
     if (part1.length > 0 && !/^[A-Z]{2}$/.test(part1)) {
       return value; // Jika format bagian 1 salah, biarkan input tetap seperti itu
     }
-  
+
     if (part2.length > 0 && !/^\d{4}$/.test(part2)) {
       return value; // Jika format bagian 2 salah, biarkan input tetap seperti itu
     }
-  
+
     if (part3.length > 0 && !/^[A-Z]{3}$/.test(part3)) {
       return value; // Jika format bagian 3 salah, biarkan input tetap seperti itu
     }
-  
+
     let result = part1;
     if (part2) result += " " + part2;
     if (part3) result += " " + part3;
-  
+
     return result;
   };
-  
-  
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
 
-    if(name === "plate_number") {
+    if (name === "plate_number") {
       setFormData((f) => ({ ...f, [name]: formatPlateNumber(value) }));
       return;
     }
@@ -98,8 +98,8 @@ export default function VehicleAdd() {
             stnk_image: null,
           });
           setIsLoading(false);
-          let message = 'An error occurred';
-          if (err && typeof err === 'object' && 'response' in err) {
+          let message = "An error occurred";
+          if (err && typeof err === "object" && "response" in err) {
             const res = err as { response?: { data?: { message?: string } } };
             message = res.response?.data?.message ?? message;
           } else if (err instanceof Error) {
@@ -107,9 +107,9 @@ export default function VehicleAdd() {
           }
           toast.error(message);
         },
-    });
+      });
     } catch (error) {
-      if(error instanceof Error) toast.error(error.message);
+      if (error instanceof Error) toast.error(error.message);
       setIsLoading(false);
     }
   };
@@ -124,50 +124,60 @@ export default function VehicleAdd() {
     });
   };
 
-
-    if(isLoading){
-        return (
-            <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/50">
-              <div className="flex flex-col items-center justify-center p-6">
-                <ClipLoader size={50} color="#3b82f6" />
-                <p className="mt-4 text-gray-700">Memproses...</p>
-              </div>
-            </div>
-        )
-    }
+  if (isLoading) {
+    return (
+      <div className="fixed top-0 left-0 flex h-full w-full items-center justify-center bg-black/50">
+        <div className="flex flex-col items-center justify-center p-6">
+          <ClipLoader size={50} color="#3b82f6" />
+          <p className="mt-4 text-gray-700">Memproses...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <>
       {/* Floating Button */}
       <div
         onClick={() => setIsOpen(true)}
-        className="w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center text-white absolute bottom-24 right-5 cursor-pointer shadow-lg"
+        className="absolute right-5 bottom-24 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-blue-500 text-white shadow-lg"
       >
         <FaPlus size={20} />
       </div>
 
       {/* Modal */}
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={() => setIsOpen(false)}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={() => setIsOpen(false)}
+        >
           <div className="fixed inset-0 bg-black/50" />
 
           <div className="fixed inset-0 flex items-center justify-center p-4">
             <Transition.Child
               as={Fragment}
-              enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95"
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="w-full max-w-md p-6 bg-white rounded-2xl shadow-lg space-y-4"
+                className="w-full max-w-md space-y-4 rounded-2xl bg-white p-6 shadow-lg"
               >
                 {/* Title and Close Button */}
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <Dialog.Title className="text-lg font-bold text-gray-900">
                     Add Vehicle
                   </Dialog.Title>
-                  <button onClick={handleClose} className="text-gray-400 hover:text-gray-600">
+                  <button
+                    onClick={handleClose}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
                     <FiX size={22} />
                   </button>
                 </div>
@@ -175,13 +185,16 @@ export default function VehicleAdd() {
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Vehicle Type</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Vehicle Type
+                    </label>
                     <select
                       name="vehicle_type"
                       id="vehicle_type"
                       value={formData.vehicle_type} // <--- tambahkan ini
                       onChange={handleChange}
-                      className="mt-1 w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2"
+                      className="mt-1 w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      required
                     >
                       <option value="">-- Pilih Jenis Kendaraan --</option>
                       <option value="MOBIL">MOBIL</option>
@@ -190,7 +203,9 @@ export default function VehicleAdd() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Plate Number</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Plate Number
+                    </label>
                     <input
                       type="text"
                       name="plate_number"
@@ -198,13 +213,15 @@ export default function VehicleAdd() {
                       onChange={handleChange}
                       placeholder="XX 1234 XXX"
                       maxLength={11} // XX 1234 XXX = 11 karakter termasuk spasi
-                      className="mt-1 w-full border border-gray-400 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 uppercase"
+                      className="mt-1 w-full rounded-md border border-gray-400 p-2 uppercase shadow-sm focus:border-blue-500 focus:ring-blue-500"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Plate Number Image</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Plate Number Image
+                    </label>
                     <input
                       type="file"
                       name="plate_number_image"
@@ -217,7 +234,9 @@ export default function VehicleAdd() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">STNK Image</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      STNK Image
+                    </label>
                     <input
                       type="file"
                       name="stnk_image"
@@ -232,7 +251,7 @@ export default function VehicleAdd() {
                   <div>
                     <button
                       type="submit"
-                      className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+                      className="w-full rounded-md bg-blue-600 py-2 text-white transition hover:bg-blue-700"
                     >
                       Submit
                     </button>

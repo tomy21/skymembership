@@ -10,17 +10,24 @@ interface AccordionItemProps {
   onClick: () => void;
 }
 
-const AccordionItem: FC<AccordionItemProps> = ({ title, content, isOpen, onClick }) => {
+const AccordionItem: FC<AccordionItemProps> = ({
+  title,
+  content,
+  isOpen,
+  onClick,
+}) => {
   return (
-    <div className="border border-gray-200 rounded-md mb-2">
+    <div className="mb-2 rounded-md border border-gray-200">
       <button
-        className="w-full text-left py-4 px-6 bg-white flex justify-between items-center"
+        className="flex w-full items-center justify-between bg-white px-6 py-4 text-left"
         onClick={onClick}
       >
         <span className="font-medium">{title}</span>
         <span>{isOpen ? <IoIosArrowDropup /> : <IoIosArrowDropdown />}</span>
       </button>
-      {isOpen && <div className="px-6 py-4 bg-gray-50 text-gray-600">{content}</div>}
+      {isOpen && (
+        <div className="bg-gray-50 px-6 py-4 text-gray-600">{content}</div>
+      )}
     </div>
   );
 };
@@ -69,7 +76,7 @@ const Accordion: FC = () => {
   ];
 
   return (
-    <div className="w-full max-w-md mx-auto text-sm text-gray-500 mt-4">
+    <div className="mx-auto mt-4 w-full max-w-md text-sm text-gray-500">
       {items.map((item, index) => (
         <AccordionItem
           key={index}

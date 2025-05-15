@@ -21,7 +21,9 @@ export default function CustomDatePicker({
   label,
   placeholder,
 }: PropsType) {
-  const [selectedDate, setSelectedDate] = useState<Date | Date[] | null>(defaultDate ?? null);
+  const [selectedDate, setSelectedDate] = useState<Date | Date[] | null>(
+    defaultDate ?? null,
+  );
 
   useEffect(() => {
     setSelectedDate(defaultDate ?? null);
@@ -58,16 +60,14 @@ export default function CustomDatePicker({
               : undefined
           }
           dateFormat="yyyy-MM-dd"
-          className="w-full bg-transparent border-none px-4 py-2.5 pr-12 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:outline-none"
+          className="w-full border-none bg-transparent px-4 py-2.5 pr-12 text-sm text-gray-800 placeholder-gray-400 focus:outline-none dark:text-white"
           placeholderText={placeholder}
         />
 
-        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
-          <CalenderIcon className="w-5 h-5" />
+        <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+          <CalenderIcon className="h-5 w-5" />
         </span>
       </div>
     </div>
-
-
   );
 }

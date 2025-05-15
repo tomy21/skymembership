@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import Select, { GroupBase, OptionsOrGroups } from 'react-select';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import Select, { GroupBase, OptionsOrGroups } from "react-select";
+import { useRouter } from "next/navigation";
 // import { useAllLocation } from '@/hooks/useLocation';
-import { usePeriode, useProduct, useTypeVehicle } from '@/hooks/useProduct';
-import { useVehicleActive } from '@/hooks/useVehicle';
-import { AsyncPaginate } from 'react-select-async-paginate';
-import { Location } from '../../../../libs/API/Location';
+import { usePeriode, useProduct, useTypeVehicle } from "@/hooks/useProduct";
+import { useVehicleActive } from "@/hooks/useVehicle";
+import { AsyncPaginate } from "react-select-async-paginate";
+import { Location } from "../../../../libs/API/Location";
 
 type OptionType = {
   value: string;
@@ -48,7 +48,9 @@ export default function BookingForm() {
   const [mounted, setMounted] = useState(false);
 
   // STATE
-  const [selectedLocation, setSelectedLocation] = useState<OptionType | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<OptionType | null>(
+    null,
+  );
   const [locationValue, setLocationValue] = useState<OptionType | null>(null);
   const [type, setType] = useState<OptionType | null>(null);
   const [period, setPeriod] = useState<OptionType | null>(null);
@@ -59,9 +61,19 @@ export default function BookingForm() {
   // HOOK DATA
   // const { data: dataLocation } = useAllLocation(page, 5, search);
   const { data: dataVehicle } = useTypeVehicle(selectedLocation?.value);
-  const { data: dataPeriode } = usePeriode(type?.value, selectedLocation?.value);
-  const { data: dataProduct } = useProduct(selectedLocation?.value, type?.value, period?.value);
-  const { data: dataVehicles } = useVehicleActive(type?.value, selectedLocation?.value);
+  const { data: dataPeriode } = usePeriode(
+    type?.value,
+    selectedLocation?.value,
+  );
+  const { data: dataProduct } = useProduct(
+    selectedLocation?.value,
+    type?.value,
+    period?.value,
+  );
+  const { data: dataVehicles } = useVehicleActive(
+    type?.value,
+    selectedLocation?.value,
+  );
 
   // OPTION STATES
   // const [locationData, setLocationData] = useState<OptionType[]>([]);
@@ -90,10 +102,10 @@ export default function BookingForm() {
         dataVehicle.data.map((v: VehicleType) => ({
           value: v.vehicle_type,
           label: v.vehicle_type,
-        }))
+        })),
       );
     }
-    setMounted(true)
+    setMounted(true);
   }, [dataVehicle]);
 
   // MAPPING PERIODE
@@ -103,7 +115,7 @@ export default function BookingForm() {
         dataPeriode.data.map((p: Periode) => ({
           value: p.periode,
           label: p.periode,
-        }))
+        })),
       );
     }
   }, [dataPeriode]);
@@ -112,10 +124,10 @@ export default function BookingForm() {
   useEffect(() => {
     if (Array.isArray(dataProduct?.data)) {
       setProductData(
-        dataProduct.data.map((p:Product) => ({
+        dataProduct.data.map((p: Product) => ({
           value: p.id,
           label: p.product_name,
-        }))
+        })),
       );
     }
   }, [dataProduct]);
@@ -124,10 +136,10 @@ export default function BookingForm() {
   useEffect(() => {
     if (Array.isArray(dataVehicles?.data)) {
       setVehicleUsers(
-        dataVehicles.data.map((v:Vehicle) => ({
+        dataVehicles.data.map((v: Vehicle) => ({
           value: v.plate_number,
           label: v.plate_number.toUpperCase(),
-        }))
+        })),
       );
     }
   }, [dataVehicles]);
@@ -135,7 +147,9 @@ export default function BookingForm() {
   // SET PRICE WHEN PRODUCT SELECTED
   useEffect(() => {
     if (product && Array.isArray(dataProduct?.data)) {
-      const selected = dataProduct.data.find((p:Product) => p.id === product.value);
+      const selected = dataProduct.data.find(
+        (p: Product) => p.id === product.value,
+      );
       if (selected) {
         setPrice(selected.price);
       }
@@ -159,56 +173,62 @@ export default function BookingForm() {
     }
   };
 
-  const loadLocationOptions = useCallback(async (
-    inputValue: string,
-    loadedOptions: OptionsOrGroups<OptionType, GroupBase<OptionType>>,
-    additional: { page: number; limit: number } = { page: 1, limit: 5 }
-  ): Promise<{
-    options: OptionType[];
-    hasMore: boolean;
-    additional: { page: number, limit: number }
-  }> => {
-    setIsLoadingMore(true);
-    try {
-      const data = await Location.getAllLocation(additional.page, additional.limit, inputValue);
+  const loadLocationOptions = useCallback(
+    async (
+      inputValue: string,
+      loadedOptions: OptionsOrGroups<OptionType, GroupBase<OptionType>>,
+      additional: { page: number; limit: number } = { page: 1, limit: 5 },
+    ): Promise<{
+      options: OptionType[];
+      hasMore: boolean;
+      additional: { page: number; limit: number };
+    }> => {
+      setIsLoadingMore(true);
+      try {
+        const data = await Location.getAllLocation(
+          additional.page,
+          additional.limit,
+          inputValue,
+        );
 
-      const newOptions: OptionType[] = (data?.data as LocationRequest[]).map((loc) => ({
-        value: loc.location_code,
-        label: loc.location_name,
-      }));
+        const newOptions: OptionType[] = (data?.data as LocationRequest[]).map(
+          (loc) => ({
+            value: loc.location_code,
+            label: loc.location_name,
+          }),
+        );
 
-      const hasMore = data?.data.length === additional.limit;
+        const hasMore = data?.data.length === additional.limit;
 
-      return {
-        options: newOptions,
-        hasMore,
-        additional: {
-          page: additional.page + 1,
-          limit: additional.limit,
-        },
-      };
-    } catch (error) {
-      console.error('Error fetching location data:', error);
-      return {
-        options: [],
-        hasMore: false,
-        additional,
-      };
-    } finally {
-      setIsLoadingMore(false);
-    }
-  }, []);
-
+        return {
+          options: newOptions,
+          hasMore,
+          additional: {
+            page: additional.page + 1,
+            limit: additional.limit,
+          },
+        };
+      } catch (error) {
+        console.error("Error fetching location data:", error);
+        return {
+          options: [],
+          hasMore: false,
+          additional,
+        };
+      } finally {
+        setIsLoadingMore(false);
+      }
+    },
+    [],
+  );
 
   if (!mounted) {
     // selama SSR dan sebelum mount, tolak render interaktif
     return null;
   }
 
-
-
   return (
-    <div className="max-w-xl mx-auto p-6 rounded-lg space-y-5">
+    <div className="mx-auto max-w-xl space-y-5 rounded-lg p-6">
       <AsyncPaginate
         placeholder="Pilih Lokasi..."
         value={locationValue}
@@ -222,7 +242,6 @@ export default function BookingForm() {
         isLoading={isLoadingMore}
         loadingMessage={() => "Memuat lokasi..."}
       />
-
 
       <Select
         placeholder="Tipe Kendaraan..."
@@ -268,13 +287,13 @@ export default function BookingForm() {
         isDisabled={!product}
       />
 
-      <div className="text-center text-xl text-green-600 font-semibold">
-        Total: Rp {price.toLocaleString('id-ID')}
+      <div className="text-center text-xl font-semibold text-green-600">
+        Total: Rp {price.toLocaleString("id-ID")}
       </div>
 
       <button
         onClick={handleSubmit}
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
+        className="w-full rounded bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:bg-gray-400"
         disabled={!selectedLocation || !type || !period || !product || !vehicle}
       >
         Lanjut ke Pembayaran

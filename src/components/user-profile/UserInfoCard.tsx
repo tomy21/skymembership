@@ -3,13 +3,13 @@ import React from "react";
 import { useDetailCustomer } from "@/hooks/useAuth";
 
 export default function UserInfoCard() {
-  const {data} = useDetailCustomer();
-  
+  const { data } = useDetailCustomer();
+
   return (
-    <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+    <div className="rounded-2xl border border-gray-200 p-5 lg:p-6 dark:border-gray-800">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
+          <h4 className="text-lg font-semibold text-gray-800 lg:mb-6 dark:text-white/90">
             Personal Information
           </h4>
 

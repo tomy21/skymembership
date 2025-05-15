@@ -25,13 +25,13 @@ export default function ConfirmationForm() {
   const [selectedProviders, setSelectedProviders] = useState<Option[]>([]);
   const [periodeTanggal, setPeriodeTanggal] = useState<string | null>(null);
   const [detail, setDetail] = useState({
-    idProduct: '',
-    lokasi: '',
-    tipe: '',
-    periode: '',
-    produk: '',
-    kendaraan: '',
-    harga: '',
+    idProduct: "",
+    lokasi: "",
+    tipe: "",
+    periode: "",
+    produk: "",
+    kendaraan: "",
+    harga: "",
   });
 
   const { data: providerData } = useProviderByType(selectedMethod || undefined);
@@ -49,13 +49,13 @@ export default function ConfirmationForm() {
 
   useEffect(() => {
     if (searchParams) {
-      const lokasi = searchParams.get('location') || '';
-      const tipe = searchParams.get('type') || '';
-      const periode = searchParams.get('period') || '';
-      const produk = searchParams.get('product') || '';
-      const kendaraan = searchParams.get('vehicle') || '';
-      const harga = searchParams.get('price') || '';
-      const idProduct = searchParams.get('idProduct') || '';
+      const lokasi = searchParams.get("location") || "";
+      const tipe = searchParams.get("type") || "";
+      const periode = searchParams.get("period") || "";
+      const produk = searchParams.get("product") || "";
+      const kendaraan = searchParams.get("vehicle") || "";
+      const harga = searchParams.get("price") || "";
+      const idProduct = searchParams.get("idProduct") || "";
 
       setDetail({ lokasi, tipe, periode, produk, kendaraan, harga, idProduct });
 
@@ -70,7 +70,7 @@ export default function ConfirmationForm() {
   }, [selectedMethod]);
 
   console.log("selectedProviders", selectedProviders);
-  
+
   const getPeriodRange = (period: string) => {
     if (!period) return null;
 
@@ -85,10 +85,10 @@ export default function ConfirmationForm() {
     nextDate.setMonth(today.getMonth() + months);
 
     const format = (date: Date) => {
-      return date.toLocaleDateString('id-ID', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
+      return date.toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
       });
     };
 
@@ -104,16 +104,22 @@ export default function ConfirmationForm() {
       toast.warning("Pilih provider");
       return;
     }
-    
-    setPurchaseData({idProduct: parseInt(detail.idProduct), bank_id: selectedProviders[0].id, plate_number: detail.kendaraan, type: "purchase", provider: selectedProviders[0]});
+
+    setPurchaseData({
+      idProduct: parseInt(detail.idProduct),
+      bank_id: selectedProviders[0].id,
+      plate_number: detail.kendaraan,
+      type: "purchase",
+      provider: selectedProviders[0],
+    });
     setShowModal(true);
   };
 
-  console.log(selectedMethod)
+  console.log(selectedMethod);
 
   const handleConfirm = () => {
     setShowModal(false);
-    if (searchParams.get('type')) {
+    if (searchParams.get("type")) {
       const query = new URLSearchParams({
         type: selectedMethod,
       }).toString();
@@ -123,8 +129,8 @@ export default function ConfirmationForm() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white rounded-2xl space-y-6">
-      <div className="rounded-xl border border-gray-200 p-5 shadow-sm bg-gray-50 space-y-3">
+    <div className="mx-auto max-w-xl space-y-6 rounded-2xl bg-white p-6">
+      <div className="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-5 shadow-sm">
         <div className="flex justify-between">
           {/* <span className="text-gray-600">Lokasi</span> */}
           <span className="font-medium text-gray-900">{detail.lokasi}</span>
@@ -142,7 +148,9 @@ export default function ConfirmationForm() {
         {periodeTanggal && (
           <div className="flex justify-between">
             <span className="text-sm text-gray-600">Periode:</span>
-            <span className="text-sm font-medium text-gray-900">{periodeTanggal}</span>
+            <span className="text-sm font-medium text-gray-900">
+              {periodeTanggal}
+            </span>
           </div>
         )}
       </div>
@@ -159,7 +167,7 @@ export default function ConfirmationForm() {
                 setSelectedProviders([]); // Reset provider saat metode berubah
               }}
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+            <span className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500">
               <ChevronDownIcon />
             </span>
           </div>
@@ -167,26 +175,25 @@ export default function ConfirmationForm() {
 
         {selectedMethod && (
           <div className="w-full">
-          <Label>Provider</Label>
-          <div className="relative">
-            <CustomSelectWithImage
-              options={providerOptions}
-              defaultValue={selectedProviders[0]?.id || undefined}
-               onChange={(selected) => {
+            <Label>Provider</Label>
+            <div className="relative">
+              <CustomSelectWithImage
+                options={providerOptions}
+                defaultValue={selectedProviders[0]?.id || undefined}
+                onChange={(selected) => {
                   setSelectedProviders(() => [selected]);
                 }}
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
-              <ChevronDownIcon />
-            </span>
+              />
+              <span className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500">
+                <ChevronDownIcon />
+              </span>
+            </div>
           </div>
-        </div>
         )}
 
         <Button
-
           onClick={handleSubmit}
-          className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 transition-all"
+          className="mt-4 w-full bg-emerald-600 transition-all hover:bg-emerald-700"
         >
           Bayar Sekarang
         </Button>
@@ -195,35 +202,44 @@ export default function ConfirmationForm() {
       <AnimatePresence>
         {showModal && (
           <motion.div
-            className="fixed inset-0 bg-black/40 z-50 flex justify-center items-end"
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowModal(false)}
           >
             <motion.div
-              className="bg-white rounded-t-2xl w-full p-5 shadow-lg"
+              className="w-full rounded-t-2xl bg-white p-5 shadow-lg"
               initial={{ y: 500 }}
               animate={{ y: 0 }}
               exit={{ y: 500 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="w-full flex justify-center mb-4">
-                <div className="w-16 h-1 bg-gray-300 rounded-full" />
+              <div className="mb-4 flex w-full justify-center">
+                <div className="h-1 w-16 rounded-full bg-gray-300" />
               </div>
 
               <h2 className="text-center text-lg font-medium text-gray-700">
                 Total pembayaran
               </h2>
-              <h1 className="text-center text-3xl font-bold my-2">
+              <h1 className="my-2 text-center text-3xl font-bold">
                 IDR {(parseInt(detail.harga) + 5000).toLocaleString("id-ID")}
               </h1>
 
-              <div className="text-sm mt-4 space-y-3">
+              <div className="mt-4 space-y-3 text-sm">
                 <div className="flex justify-between border-b border-slate-300 py-1">
                   <span className="text-slate-400">Metode pembayaran</span>
-                  <span className="font-semibold uppercase">{selectedMethod === "VIRTUAL_ACCOUNT" ? "VA" : selectedMethod } {selectedProviders.map((provider) => provider.gateway_partner === "BAYARIND" ? "BCA" : provider.gateway_partner)}</span>
+                  <span className="font-semibold uppercase">
+                    {selectedMethod === "VIRTUAL_ACCOUNT"
+                      ? "VA"
+                      : selectedMethod}{" "}
+                    {selectedProviders.map((provider) =>
+                      provider.gateway_partner === "BAYARIND"
+                        ? "BCA"
+                        : provider.gateway_partner,
+                    )}
+                  </span>
                 </div>
                 <div className="flex justify-between border-b border-slate-300 py-1">
                   <span className="text-slate-400">Biaya admin</span>
@@ -248,8 +264,13 @@ export default function ConfirmationForm() {
               </div>
 
               <div className="mt-5 space-y-2">
-                <Button onClick={handleConfirm} className="w-full">Lanjutkan</Button>
-                <Button onClick={() => setShowModal(false)} className="w-full bg-red-500">
+                <Button onClick={handleConfirm} className="w-full">
+                  Lanjutkan
+                </Button>
+                <Button
+                  onClick={() => setShowModal(false)}
+                  className="w-full bg-red-500"
+                >
                   Batal
                 </Button>
               </div>

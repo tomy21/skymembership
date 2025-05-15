@@ -1,4 +1,3 @@
-
 import { Metadata } from "next";
 import React from "react";
 import HistoryAll from "../history-all/page";
@@ -10,11 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default function Lokasi() {
-
   return (
-    <div className="bg-white w-full min-h-screen relative">
+    <div className="relative min-h-screen w-full bg-white">
       <HeaderPage title="View All History" />
-      <HistoryAll/>
+      <HistoryAll />
     </div>
   );
 }

@@ -27,17 +27,17 @@ export default function TopupPage() {
   const [selectedProviders, setSelectedProviders] = useState<Option[]>([]);
   const [showModal, setShowModal] = useState(false);
   const { data: providerData } = useProviderByType(selectedMethod || undefined);
-  
+
   const router = useRouter();
   const { setTopupData } = useTopupContext();
-  
+
   const providerOptions = providerData ?? [];
   const methodOptions = [
     { value: "VIRTUAL_ACCOUNT", label: "Virtual Account" },
   ];
 
   const nominals = [300000, 100000, 70000, 50000, 10000];
-  
+
   const handleTopup = () => {
     if (!selectedNominal || selectedNominal < 10000) {
       toast.error("Nominal minimal 10.000");
@@ -53,7 +53,12 @@ export default function TopupPage() {
       return;
     }
 
-    setTopupData({ nominal: selectedNominal, type: "topup", method: selectedMethod, provider: selectedProviders[0] });
+    setTopupData({
+      nominal: selectedNominal,
+      type: "topup",
+      method: selectedMethod,
+      provider: selectedProviders[0],
+    });
     setShowModal(true);
   };
 
@@ -63,16 +68,14 @@ export default function TopupPage() {
     setSelectedProviders([]);
   };
 
-  
-
   return (
-    <div className="w-full min-h-screen overflow-y-auto bg-white">
+    <div className="min-h-screen w-full overflow-y-auto bg-white">
       <HeaderPage title="Topup Point" />
 
-      <div className="flex flex-col justify-center items-start w-full mt-5">
-        <h1 className="text-xl text-slate-400 mx-auto">Nominal Top Up</h1>
-        <div className="flex flex-row justify-center items-start mt-3">
-          <h1 className="text-2xl text-slate-400 font-medium">Rp</h1>
+      <div className="mt-5 flex w-full flex-col items-start justify-center">
+        <h1 className="mx-auto text-xl text-slate-400">Nominal Top Up</h1>
+        <div className="mt-3 flex flex-row items-start justify-center">
+          <h1 className="text-2xl font-medium text-slate-400">Rp</h1>
           <input
             type="text"
             inputMode="numeric"
@@ -87,25 +90,25 @@ export default function TopupPage() {
                 setSelectedNominal(0);
               }
             }}
-            className="text-4xl font-medium bg-transparent focus:outline-none text-center w-[60%]"
+            className="w-[60%] bg-transparent text-center text-4xl font-medium focus:outline-none"
           />
         </div>
 
-        <div className="grid grid-cols-5 gap-3 mt-10 mx-auto">
+        <div className="mx-auto mt-10 grid grid-cols-5 gap-3">
           {nominals.map((nominal) => (
             <button
               key={nominal}
               onClick={() => setSelectedNominal(nominal)}
-              className={`p-2 rounded-md text-center font-semibold bg-gray-200`}
+              className={`rounded-md bg-gray-200 p-2 text-center font-semibold`}
             >
               {nominal / 1000}K
             </button>
           ))}
         </div>
 
-        <div className="border-b border-slate-300 my-7 w-full"></div>
+        <div className="my-7 w-full border-b border-slate-300"></div>
 
-        <div className="w-full px-5 mb-5">
+        <div className="mb-5 w-full px-5">
           <Label>Metode Pembayaran</Label>
           <div className="relative">
             <Select
@@ -113,7 +116,7 @@ export default function TopupPage() {
               placeholder="Pilih Metode"
               onChange={setSelectedMethod}
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+            <span className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500">
               <ChevronDownIcon />
             </span>
           </div>
@@ -121,34 +124,48 @@ export default function TopupPage() {
 
         {selectedMethod && (
           <div className="w-full px-5">
-          <Label>Provider</Label>
-          <div className="relative">
-            <CustomSelectWithImage
-              options={providerOptions}
-              defaultValue=""
-               onChange={(selected) => {
+            <Label>Provider</Label>
+            <div className="relative">
+              <CustomSelectWithImage
+                options={providerOptions}
+                defaultValue=""
+                onChange={(selected) => {
                   setSelectedProviders(() => [selected]);
                 }}
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
-              <ChevronDownIcon />
-            </span>
+              />
+              <span className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500">
+                <ChevronDownIcon />
+              </span>
+            </div>
           </div>
-        </div>
         )}
 
-        <div className="flex justify-start items-center gap-3 mt-3 w-full px-5">
+        <div className="mt-3 flex w-full items-center justify-start gap-3 px-5">
           <Checkbox checked={isChecked} onChange={setIsChecked} />
           <span className="block text-sm font-medium text-gray-700 dark:text-gray-400">
             Saya menyetujui syarat dan ketentuan
           </span>
         </div>
 
-        <div className="w-full px-5 space-y-2 mt-7">
-          <Button type="button" onClick={handleTopup} className="w-full" disabled={!isChecked || !selectedMethod || !selectedNominal || !selectedProviders}>
+        <div className="mt-7 w-full space-y-2 px-5">
+          <Button
+            type="button"
+            onClick={handleTopup}
+            className="w-full"
+            disabled={
+              !isChecked ||
+              !selectedMethod ||
+              !selectedNominal ||
+              !selectedProviders
+            }
+          >
             Topup Sekarang
           </Button>
-          <Button onClick={handleModalClose} type="button" className="w-full bg-red-500">
+          <Button
+            onClick={handleModalClose}
+            type="button"
+            className="w-full bg-red-500"
+          >
             Batal
           </Button>
         </div>
@@ -158,35 +175,44 @@ export default function TopupPage() {
       <AnimatePresence>
         {showModal && (
           <motion.div
-            className="fixed inset-0 bg-black/40 z-50 flex justify-center items-end"
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowModal(false)}
           >
             <motion.div
-              className="bg-white rounded-t-2xl w-full p-5 shadow-lg"
+              className="w-full rounded-t-2xl bg-white p-5 shadow-lg"
               initial={{ y: 500 }}
               animate={{ y: 0 }}
               exit={{ y: 500 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="w-full flex justify-center mb-4">
-                <div className="w-16 h-1 bg-gray-300 rounded-full" />
+              <div className="mb-4 flex w-full justify-center">
+                <div className="h-1 w-16 rounded-full bg-gray-300" />
               </div>
 
               <h2 className="text-center text-lg font-medium text-gray-700">
                 Total pembayaran
               </h2>
-              <h1 className="text-center text-3xl font-bold my-2">
+              <h1 className="my-2 text-center text-3xl font-bold">
                 IDR {(selectedNominal + 5000).toLocaleString("id-ID")}
               </h1>
 
-              <div className="text-sm mt-4 space-y-3">
+              <div className="mt-4 space-y-3 text-sm">
                 <div className="flex justify-between border-b border-slate-300 py-1">
                   <span className="text-slate-400">Metode pembayaran</span>
-                  <span className="font-semibold uppercase">{selectedMethod === "VIRTUAL_ACCOUNT" ? "VA" : selectedMethod } {selectedProviders.map((provider) => provider.gateway_partner === "BAYARIND" ? "BCA" : provider.gateway_partner)}</span>
+                  <span className="font-semibold uppercase">
+                    {selectedMethod === "VIRTUAL_ACCOUNT"
+                      ? "VA"
+                      : selectedMethod}{" "}
+                    {selectedProviders.map((provider) =>
+                      provider.gateway_partner === "BAYARIND"
+                        ? "BCA"
+                        : provider.gateway_partner,
+                    )}
+                  </span>
                 </div>
                 <div className="flex justify-between border-b border-slate-300 py-1">
                   <span className="text-slate-400">Biaya admin</span>
@@ -211,8 +237,16 @@ export default function TopupPage() {
               </div>
 
               <div className="mt-5 space-y-2">
-                <Button onClick={() => router.push("/verifikasi?type=topup")} className="w-full">Lanjutkan</Button>
-                <Button onClick={() => setShowModal(false)} className="w-full bg-red-500">
+                <Button
+                  onClick={() => router.push("/verifikasi?type=topup")}
+                  className="w-full"
+                >
+                  Lanjutkan
+                </Button>
+                <Button
+                  onClick={() => setShowModal(false)}
+                  className="w-full bg-red-500"
+                >
                   Batal
                 </Button>
               </div>

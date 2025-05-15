@@ -21,7 +21,7 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   className = "",
   disabled = false,
-  type = 'submit' ,
+  type = "submit",
 }) => {
   // Size Classes
   const sizeClasses = {
@@ -40,7 +40,7 @@ const Button: React.FC<ButtonProps> = ({
   return (
     <button
       type={type}
-      className={`inline-flex items-center justify-center font-medium gap-2 rounded-lg transition ${className} ${
+      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition ${className} ${
         sizeClasses[size]
       } ${variantClasses[variant]} ${
         disabled ? "cursor-not-allowed opacity-50" : ""
