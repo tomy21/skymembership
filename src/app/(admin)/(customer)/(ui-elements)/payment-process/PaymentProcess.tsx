@@ -379,36 +379,27 @@ export default function PaymentProcess() {
             <div className="mb-4 flex items-center justify-between">
               {idTransaction !== "" ? (
                 <>
-                  <span className="font-mono text-sm">
-                    {paymentHistory.data?.data.virtual_account_number}
-                  </span>
                   {paymentHistory.data?.data.status_transaction ===
                   "PENDING" ? (
-                    <button
-                      className="text-sm text-blue-500"
-                      onClick={() =>
-                        copyToClipboard(
-                          paymentHistory.data?.data.virtual_account_number ??
-                            "-",
-                          "Virtual Account",
-                        )
-                      }
-                    >
-                      📋
-                    </button>
+                    <>
+                      <span className="font-mono text-sm">
+                        {paymentHistory.data?.data.virtual_account_number}
+                      </span>
+                      <button
+                        className="text-sm text-blue-500"
+                        onClick={() =>
+                          copyToClipboard(
+                            paymentHistory.data?.data.virtual_account_number ??
+                              "-",
+                            "Virtual Account",
+                          )
+                        }
+                      >
+                        📋
+                      </button>
+                    </>
                   ) : (
-                    <button
-                      className="text-sm text-blue-500"
-                      onClick={() =>
-                        copyToClipboard(
-                          paymentHistory.data?.data.virtual_account_number ??
-                            "-",
-                          "Virtual Account",
-                        )
-                      }
-                    >
-                      📋
-                    </button>
+                    ""
                   )}
                 </>
               ) : (
