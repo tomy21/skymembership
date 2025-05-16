@@ -179,6 +179,8 @@ export default function PaymentProcess() {
     router.push("/payment?idTransaction=" + paymentData?.trxId);
   };
 
+  console.log(paymentHistory);
+
   return (
     <div className="min-h-screen w-full bg-white">
       {isLoading && <Loading />}
@@ -192,6 +194,8 @@ export default function PaymentProcess() {
               <IoMdCheckmarkCircle size={60} className="text-green-500" />
             ) : paymentHistory.data?.data.status_transaction === "FAILED" ? (
               <IoMdCloseCircleOutline size={60} className="text-red-500" />
+            ) : paymentHistory.data?.data.status_transaction === "PENDING" ? (
+              <TbClockExclamation size={60} className="text-yellow-500" />
             ) : (
               <TbClockExclamation size={60} className="text-yellow-500" />
             )
@@ -224,7 +228,9 @@ export default function PaymentProcess() {
           </p>
         ) : (
           <p className="text-3xl font-bold text-orange-900">
-            Rp. {Number(paymentData!.price).toLocaleString("id-ID") || 0}
+            Rp.{" "}
+            {Number(paymentData!.price + admin_fee).toLocaleString("id-ID") ||
+              0}
           </p>
         )}
 
@@ -404,13 +410,16 @@ export default function PaymentProcess() {
             ) : (
               <>
                 <span>
-                  Rp. {Number(paymentData!.price).toLocaleString("id-ID") || 0}
+                  Rp.{" "}
+                  {Number(paymentData!.price + admin_fee).toLocaleString(
+                    "id-ID",
+                  ) || 0}
                 </span>
                 <button
                   className="text-sm text-blue-500"
                   onClick={() =>
                     copyToClipboard(
-                      Number(paymentData!.price).toString(),
+                      Number(paymentData!.price + admin_fee).toString(),
                       "Nominal",
                     )
                   }
@@ -439,7 +448,8 @@ export default function PaymentProcess() {
               </p>
             ) : (
               <span className="text-sm font-bold text-gray-800">
-                Rp {Number(paymentData!.price).toLocaleString("id-ID")}
+                Rp{" "}
+                {Number(paymentData!.price + admin_fee).toLocaleString("id-ID")}
               </span>
             )}
           </div>
