@@ -377,7 +377,8 @@ export default function PaymentProcess() {
 
           {paymentHistory.data?.data ? (
             <div className="mb-4 flex items-center justify-between">
-              {idTransaction !== "" ? (
+              {idTransaction !== "" &&
+              paymentHistory.data?.data.statusPayment === "PAID" ? (
                 <>
                   <span className="font-mono text-sm">
                     {paymentHistory.data?.data.virtual_account_number}
