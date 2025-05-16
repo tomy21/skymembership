@@ -187,32 +187,69 @@ export default function PaymentProcess() {
       {/* Header Section */}
       <div className="h-72 rounded-br-[100px] rounded-bl-4xl bg-yellow-400 p-4 text-center">
         <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white font-bold">
-          {idTransaction !== "" ? (
-            paymentHistory.data?.data.status_transaction ||
-            paymentHistory.data?.data.statusPayment === "COMPLETED" ||
-            "PAID" ? (
-              <IoMdCheckmarkCircle size={60} className="text-green-500" />
-            ) : paymentHistory.data?.data.status_transaction === "FAILED" ? (
-              <IoMdCloseCircleOutline size={60} className="text-red-500" />
-            ) : paymentHistory.data?.data.status_transaction === "PENDING" ? (
-              <TbClockExclamation size={60} className="text-yellow-500" />
-            ) : (
-              <TbClockExclamation size={60} className="text-yellow-500" />
-            )
-          ) : (
-            <TbClockExclamation size={60} className="text-yellow-500" />
-          )}
+          {(() => {
+            if (idTransaction === "") {
+              return (
+                <TbClockExclamation size={60} className="text-yellow-500" />
+              );
+            }
+
+            const statusTransaction =
+              paymentHistory.data?.data.status_transaction;
+            const statusPayment = paymentHistory.data?.data.statusPayment;
+
+            if (statusTransaction === "FAILED") {
+              return (
+                <IoMdCloseCircleOutline size={60} className="text-red-500" />
+              );
+            }
+
+            if (
+              statusTransaction === "COMPLETED" ||
+              statusPayment === "COMPLETED" ||
+              statusTransaction === "PAID" ||
+              statusPayment === "PAID"
+            ) {
+              return (
+                <IoMdCheckmarkCircle size={60} className="text-green-500" />
+              );
+            }
+
+            if (statusTransaction === "PENDING") {
+              return (
+                <TbClockExclamation size={60} className="text-yellow-500" />
+              );
+            }
+
+            // Default
+            return <TbClockExclamation size={60} className="text-yellow-500" />;
+          })()}
         </div>
         <h2 className="text-lg font-medium text-orange-800">
-          {idTransaction !== ""
-            ? paymentHistory.data?.data.status_transaction ||
-              paymentHistory.data?.data.statusPayment === "COMPLETED" ||
-              "PAID"
-              ? "Transaksi sudah di bayarkan"
-              : paymentHistory.data?.data.status_transaction === "FAILED"
-                ? "Transaksi di batalkan oleh sistem"
-                : "Pesanan berhasil dibuat"
-            : "Pesanan berhasil dibuat"}
+          {(() => {
+            if (idTransaction === "") {
+              return "Pesanan berhasil dibuat";
+            }
+
+            const statusTransaction =
+              paymentHistory.data?.data.status_transaction;
+            const statusPayment = paymentHistory.data?.data.statusPayment;
+
+            if (
+              statusTransaction === "COMPLETED" ||
+              statusPayment === "COMPLETED" ||
+              statusTransaction === "PAID" ||
+              statusPayment === "PAID"
+            ) {
+              return "Transaksi sudah di bayarkan";
+            }
+
+            if (statusTransaction === "FAILED") {
+              return "Transaksi di batalkan oleh sistem";
+            }
+
+            return "Pesanan berhasil dibuat";
+          })()}
         </h2>
         {idTransaction !== "" ? (
           <p className="text-3xl font-bold text-orange-900">
@@ -235,45 +272,59 @@ export default function PaymentProcess() {
         )}
 
         <div
-          className={`${paymentHistory.data?.data.status_transaction === "FAILED" ? "" : "bg-orange-200"} mt-2 rounded-lg p-3 text-orange-900`}
+          className={`${
+            paymentHistory.data?.data.status_transaction === "FAILED"
+              ? ""
+              : "bg-orange-200"
+          } mt-2 rounded-lg p-3 text-orange-900`}
         >
-          {idTransaction !== "" ? (
-            paymentHistory.data?.data.status_transaction ||
-            paymentHistory.data?.data.statusPayment === "COMPLETED" ||
-            "PAID" ? (
-              "Transaksi sudah di bayarkan"
-            ) : paymentHistory.data?.data.status_transaction === "FAILED" ? (
-              ""
-            ) : (
-              <>
-                <p className="text-sm">Silahkan lakukan pembayaran sebelum</p>
-                <p className="text-base font-semibold">
-                  {paymentHistory?.data?.data?.expired_date &&
-                    format(
-                      new Date(paymentHistory?.data?.data?.expired_date),
-                      "dd MMMM yyyy, HH:mm",
-                      {
+          {(() => {
+            if (idTransaction !== "") {
+              const statusTransaction =
+                paymentHistory.data?.data.status_transaction;
+              const statusPayment = paymentHistory.data?.data.statusPayment;
+              const expiredDate = paymentHistory.data?.data?.expired_date;
+
+              if (
+                statusTransaction === "COMPLETED" ||
+                statusTransaction === "PAID" ||
+                statusPayment === "COMPLETED" ||
+                statusPayment === "PAID"
+              ) {
+                return "Transaksi sudah di bayarkan";
+              }
+
+              if (statusTransaction === "FAILED") {
+                return null; // Tidak render apa-apa
+              }
+
+              return (
+                <>
+                  <p className="text-sm">Silahkan lakukan pembayaran sebelum</p>
+                  <p className="text-base font-semibold">
+                    {expiredDate &&
+                      format(new Date(expiredDate), "dd MMMM yyyy, HH:mm", {
                         locale: id,
-                      },
-                    )}
-                </p>
-              </>
-            )
-          ) : (
-            <>
-              <p className="text-sm">Selesaikan pembayaran sebelum</p>
-              <p className="text-base font-semibold">
-                {paymentData?.expired_date &&
-                  format(
-                    new Date(paymentData.expired_date),
-                    "dd MMMM yyyy, HH:mm",
-                    {
-                      locale: id,
-                    },
-                  )}
-              </p>
-            </>
-          )}
+                      })}
+                  </p>
+                </>
+              );
+            } else {
+              const expiredDate = paymentData?.expired_date;
+
+              return (
+                <>
+                  <p className="text-sm">Selesaikan pembayaran sebelum</p>
+                  <p className="text-base font-semibold">
+                    {expiredDate &&
+                      format(new Date(expiredDate), "dd MMMM yyyy, HH:mm", {
+                        locale: id,
+                      })}
+                  </p>
+                </>
+              );
+            }
+          })()}
         </div>
       </div>
 
