@@ -384,7 +384,18 @@ export default function PaymentProcess() {
                   </span>
                   {paymentHistory.data?.data.status_transaction ===
                   "PENDING" ? (
-                    ""
+                    <button
+                      className="text-sm text-blue-500"
+                      onClick={() =>
+                        copyToClipboard(
+                          paymentHistory.data?.data.virtual_account_number ??
+                            "-",
+                          "Virtual Account",
+                        )
+                      }
+                    >
+                      📋
+                    </button>
                   ) : (
                     <button
                       className="text-sm text-blue-500"
