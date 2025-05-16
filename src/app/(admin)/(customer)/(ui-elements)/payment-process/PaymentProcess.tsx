@@ -179,8 +179,6 @@ export default function PaymentProcess() {
     router.push("/payment?idTransaction=" + paymentData?.trxId);
   };
 
-  console.log(paymentHistory);
-
   return (
     <div className="min-h-screen w-full bg-white">
       {isLoading && <Loading />}
