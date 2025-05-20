@@ -47,19 +47,11 @@ export default function CardVehicle({
         await ndef.scan();
 
         ndef.addEventListener("reading", (event: NDEFReadingEvent) => {
-          const { message } = event;
+          const { serialNumber } = event;
 
-          const decoder = new TextDecoder();
-          let result = "";
-
-          for (const record of message.records) {
-            if (record.data) {
-              result += decoder.decode(record.data);
-            }
-          }
-
-          if (result) {
-            setRfid(result);
+          if (serialNumber) {
+            const formattedRfid = serialNumber.replace(/:/g, "").toUpperCase();
+            setRfid(formattedRfid);
             setIsModal(true);
           }
 
@@ -170,11 +162,9 @@ export default function CardVehicle({
                     <p className="text-sm text-gray-700">
                       Tempelkan kartu member Anda...
                     </p>
-                    <p>{rfid}</p>
                   </>
                 ) : (
                   <>
-                    <p>{rfid}</p>
                     <p className="text-sm text-gray-700">
                       Siap untuk scan NFC...
                     </p>
