@@ -23,6 +23,18 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  async rewrites() {
+    if (!process.env.NEXT_PUBLIC_API_URL_USERS) {
+      throw new Error("API_URL environment variable is not defined");
+    }
+    return [
+      {
+        source: "/proxy/auth/:path*",
+        destination: `${process.env.NEXT_PUBLIC_API_URL_USERS}/v1/api/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

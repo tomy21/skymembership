@@ -5,7 +5,7 @@ import { DropdownItem } from "../ui/dropdown/DropdownItem";
 
 export default function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const [notifying, setNotifying] = useState(true);
+  // const [notifying, setNotifying] = useState(true);
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -17,7 +17,7 @@ export default function NotificationDropdown() {
 
   const handleClick = () => {
     toggleDropdown();
-    setNotifying(false);
+    // setNotifying(false);
   };
   return (
     <div className="relative">
@@ -25,13 +25,13 @@ export default function NotificationDropdown() {
         className="dropdown-toggle relative flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
         onClick={handleClick}
       >
-        <span
+        {/* <span
           className={`absolute top-0.5 right-0 z-10 h-2 w-2 rounded-full bg-orange-400 ${
             !notifying ? "hidden" : "flex"
           }`}
         >
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75"></span>
-        </span>
+        </span> */}
         <svg
           className="fill-current"
           width="20"

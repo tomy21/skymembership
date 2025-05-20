@@ -16,7 +16,7 @@ import toast from "react-hot-toast";
 import { ClipLoader } from "react-spinners";
 import { useRouter } from "next/navigation";
 import TextArea from "@/components/form/input/TextArea";
-import CustomDatePicker from "../date-picker";
+// import CustomDatePicker from "../date-picker";
 
 export default function RegisterPage() {
   const [captcha, setCaptcha] = useState("");
@@ -262,17 +262,6 @@ export default function RegisterPage() {
     }
   };
 
-  const handleDateChange = (date: Date | Date[] | null) => {
-    if (Array.isArray(date)) {
-      setBirthdate(date.toLocaleString().toString());
-    } else if (date instanceof Date) {
-      setBirthdate(date.toLocaleString().toString());
-    } else {
-      // Null (input kosong)
-      return;
-    }
-  };
-
   const closeModal = () => {
     setIsModal(false);
     router.push("/");
@@ -485,12 +474,13 @@ export default function RegisterPage() {
 
         <div>
           <label className="block font-semibold">Birthdate</label>
-          <CustomDatePicker
-            id="birthdateEvent"
-            mode="single"
-            onChange={handleDateChange}
-            placeholder="Pilih tanggal"
-            defaultDate={birthdate ? new Date(birthdate) : undefined}
+          <input
+            type="date"
+            name="birthdate"
+            id="birthdate"
+            onChange={(e) => setBirthdate(e.target.value)}
+            className="w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            defaultValue={birthdate}
           />
 
           {errors.birthdate && (
@@ -500,8 +490,6 @@ export default function RegisterPage() {
 
         <div>
           <label className="block font-semibold">Address</label>
-          {/* <textarea name="address" id="address" value={address} onChange={(e) => setAddress(e.target.value)} cols={43} rows={5} className="border border-slate-400 rounded-md p-2" placeholder="Enter your address">
-            </textarea> */}
           <TextArea
             name="address"
             value={address}
