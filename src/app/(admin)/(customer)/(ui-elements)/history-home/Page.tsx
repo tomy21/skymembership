@@ -46,7 +46,6 @@ interface responseHistoryParking {
 export default function HistoryHome() {
   const [activeTab, setActiveTab] = useState("payment");
   const { isAuthenticated, isLoadingAuth } = useAuth();
-  console.log("isAuthenticated", isAuthenticated);
   const { data, refetch } = useHistoryPayment(isAuthenticated);
   const { data: parkingHistory } = useHistoryParking(isAuthenticated);
   // const [modalDetail, setModalDetail] = useState(false);

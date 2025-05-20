@@ -88,7 +88,7 @@ export const Payment = {
           },
         },
       );
-      console.log(response);
+
       return response.data;
     } catch (error) {
       throw error;
@@ -111,7 +111,7 @@ export const Payment = {
           },
         },
       );
-      console.log(response);
+
       return response.data;
     } catch (error) {
       throw error;
@@ -123,7 +123,7 @@ export const Payment = {
       const response = await APIAPPS.get(
         `/v01/member/api/history/transaction-byidtrx/${idTrx}`,
       );
-      console.log(response.data);
+
       return response.data;
     } catch (error) {
       return error;
