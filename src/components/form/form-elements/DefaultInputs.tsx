@@ -10,7 +10,7 @@ import {
   EyeIcon,
   TimeIcon,
 } from "../../../icons";
-import DatePicker from "@/components/form/date-picker";
+// import DatePicker from "@/components/form/date-picker";
 
 export default function DefaultInputs() {
   const [showPassword, setShowPassword] = useState(false);
@@ -67,7 +67,7 @@ export default function DefaultInputs() {
         </div>
 
         <div>
-          <DatePicker
+          {/* <DatePicker
             id="date-picker"
             label="Date Picker Input"
             placeholder="Select a date"
@@ -75,7 +75,7 @@ export default function DefaultInputs() {
             //   // Handle your logic
             //   console.log({ dates, currentDateString });
             // }}
-          />
+          /> */}
         </div>
 
         <div>
