@@ -165,6 +165,7 @@ export default function CardVehicle({
                   </>
                 ) : (
                   <>
+                    <p>{rfid}</p>
                     <p className="text-sm text-gray-700">
                       Siap untuk scan NFC...
                     </p>
