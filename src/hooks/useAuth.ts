@@ -18,7 +18,7 @@ interface formData {
 export const useLogin = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: string) => login(data),
+    mutationFn: (data: string) => login({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["userById"] });

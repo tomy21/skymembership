@@ -8,6 +8,7 @@ import { FiUser, FiLogOut } from "react-icons/fi";
 import Loading from "../Loading/Loading";
 import { QueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
+import { useAuth } from "@/context/AuthContext";
 
 export const queryClient = new QueryClient();
 
@@ -15,16 +16,25 @@ export default function ProfileDropdown({ initial }: { initial: string }) {
   const router = useRouter();
   const logoutMutation = useLogout();
   const [isLoading, setIsLoading] = useState(false);
+  const { isAuthenticated, logout } = useAuth();
 
   const handleLogout = async () => {
     setIsLoading(true);
     await logoutMutation.mutateAsync();
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("user");
+
+    // Hapus cookie/token lainnya
     document.cookie = "refreshToken=; max-age=0; path=/";
     Cookies.remove("refreshToken");
+
+    // Hapus data react-query
+    queryClient.removeQueries({ queryKey: ["historyPayment"] });
+    queryClient.removeQueries({ queryKey: ["historyParking"] });
     queryClient.clear();
 
+    // 🔑 Ini yang penting — update state context
+    logout(); // <-- ini akan set isAuthenticated jadi false
+
+    console.log("isAuthenticated", isAuthenticated);
     router.push("/");
   };
 

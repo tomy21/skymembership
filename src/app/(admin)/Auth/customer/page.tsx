@@ -97,6 +97,7 @@ export default function AuthCustomer() {
 
       const data = encryptData(dataForm);
       const response = await loginMutation(data);
+
       const dataDecrypt = decryptData(response.data);
 
       if (dataDecrypt && dataDecrypt.status === "success") {

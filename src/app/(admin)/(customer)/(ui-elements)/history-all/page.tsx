@@ -9,6 +9,7 @@ import { dataCustomer } from "../../../../../../libs/API/ExportData";
 import { toast } from "sonner";
 import Loading from "@/components/Loading/Loading";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { useAuth } from "@/context/AuthContext";
 
 interface responseHistoryPayment {
   createdAt: string;
@@ -54,13 +55,15 @@ export default function HistoryAll() {
   const [endDate, setEndDate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(5);
+  const { isAuthenticated } = useAuth();
 
   const { data: paymentHistory } = useHistoryPayment(
+    isAuthenticated,
     currentPage,
     itemsPerPage,
     search,
   );
-  const { data: parkingHistory } = useHistoryParking();
+  const { data: parkingHistory } = useHistoryParking(isAuthenticated);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
