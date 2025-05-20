@@ -87,11 +87,11 @@ export default function CardVehicle({
 
       if (response.status === true) {
         setIsModal(false);
-        setRfid("");
+        // setRfid("");
         toast.success(response.message);
         queryClient.invalidateQueries({ queryKey: ["vehicleData"] });
       } else {
-        setRfid("");
+        // setRfid("");
         toast.error(response.response.data.message);
       }
     } catch (error) {
