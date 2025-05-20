@@ -12,6 +12,7 @@ import Label from "../Label";
 import { ChevronDownIcon } from "@/icons";
 import { toast } from "sonner";
 import { usePurchaseContext } from "@/context/PurchaseContext";
+import { useDetailCustomer } from "@/hooks/useAuth";
 
 interface Option {
   id: string;
@@ -35,6 +36,7 @@ export default function ConfirmationForm() {
   });
 
   const { data: providerData } = useProviderByType(selectedMethod || undefined);
+  const { data } = useDetailCustomer();
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -68,8 +70,6 @@ export default function ConfirmationForm() {
   useEffect(() => {
     setSelectedProviders([]);
   }, [selectedMethod]);
-
-  console.log("selectedProviders", selectedProviders);
 
   const getPeriodRange = (period: string) => {
     if (!period) return null;
@@ -115,10 +115,13 @@ export default function ConfirmationForm() {
     setShowModal(true);
   };
 
-  console.log(selectedMethod);
-
   const handleConfirm = () => {
     setShowModal(false);
+    if (data.data.points < parseInt(detail.harga)) {
+      toast.warning("Oops...! Point tidak mencukupi");
+      return;
+    }
+
     if (searchParams.get("type")) {
       const query = new URLSearchParams({
         type: selectedMethod,

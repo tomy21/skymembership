@@ -1,11 +1,11 @@
 import { APIAPPS, APISERVICES } from "../ApiServices";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 
 export const login = async (data: string) => {
-  const response = await APIAPPS.post(`/v01/member/api/auth/login`, {
+  const response = await axios.post("/proxy/auth/login", {
     data,
   });
-
+  console.log(response);
   return response.data;
 };
 export const logout = async () => {
