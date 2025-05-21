@@ -114,7 +114,6 @@ export default function PinVerify() {
 
           createPurchase(data, {
             onSuccess: (response) => {
-              console.log(response);
               const trx = response.data.transaction_data;
               const paymentDetails = {
                 Id: trx.Id,
@@ -137,6 +136,9 @@ export default function PinVerify() {
 
               setAdminFee(response.data.admin_fee);
               setPaymentData(paymentDetails);
+              toast.success(
+                "Berhasil melakukan pembelian, silahkan ambil kartu anda ke petugas.",
+              );
               queryClient.invalidateQueries({ queryKey: ["userById"] });
               router.push("/payment");
               localStorage.removeItem("purchaseData");

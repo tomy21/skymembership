@@ -231,7 +231,7 @@ export default function ConfirmationForm() {
               <h1 className="my-2 text-center text-3xl font-bold">
                 IDR{" "}
                 {selectedMethod === "POINT"
-                  ? parseInt(detail.harga)
+                  ? parseInt(detail.harga).toLocaleString("id-ID")
                   : (parseInt(detail.harga) + 5000).toLocaleString("id-ID")}
               </h1>
 

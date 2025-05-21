@@ -36,8 +36,6 @@ export default function PaymentProcess() {
     navigator.clipboard.writeText(text);
     toast.success(`${label} berhasil disalin!`);
   };
-
-  console.log(topupData, "topupData");
   const getBankLogo = (gateway: string) => {
     switch (gateway.toUpperCase()) {
       case "BANK_NATIONAL_NOBU_VIRTUAL_ACCOUNT":
