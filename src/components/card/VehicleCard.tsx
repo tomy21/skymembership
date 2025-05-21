@@ -17,6 +17,7 @@ export default function VehicleCard() {
     data: dataVehicle,
     isLoading,
     isError,
+    refetch,
   } = useVehicle(currentPage, itemsPerPage, debouncedSearchText);
 
   // recalc itemsPerPage on resize
@@ -30,11 +31,11 @@ export default function VehicleCard() {
       );
       setItemsPerPage(perPage);
     }
-
+    refetch();
     updateCount();
     window.addEventListener("resize", updateCount);
     return () => window.removeEventListener("resize", updateCount);
-  }, []);
+  }, [refetch]);
 
   const handleSearchTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
