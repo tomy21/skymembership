@@ -227,7 +227,10 @@ export default function ConfirmationForm() {
                 Total pembayaran
               </h2>
               <h1 className="my-2 text-center text-3xl font-bold">
-                IDR {(parseInt(detail.harga) + 5000).toLocaleString("id-ID")}
+                IDR{" "}
+                {selectedMethod === "POINT"
+                  ? parseInt(detail.harga)
+                  : (parseInt(detail.harga) + 5000).toLocaleString("id-ID")}
               </h1>
 
               <div className="mt-4 space-y-3 text-sm">
@@ -244,10 +247,12 @@ export default function ConfirmationForm() {
                     )}
                   </span>
                 </div>
-                <div className="flex justify-between border-b border-slate-300 py-1">
-                  <span className="text-slate-400">Biaya admin</span>
-                  <span className="font-semibold">IDR 5.000</span>
-                </div>
+                {selectedMethod === "VIRTUAL_ACCOUNT" && (
+                  <div className="flex justify-between border-b border-slate-300 py-1">
+                    <span className="text-slate-400">Biaya admin</span>
+                    <span className="font-semibold">IDR 5.000</span>
+                  </div>
+                )}
                 {/* <div className="flex justify-between border-b border-slate-300 py-1">
                   <span className="text-slate-400">Total points</span>
                   <span className="font-semibold">

@@ -37,11 +37,16 @@ export default function PaymentProcess() {
     toast.success(`${label} berhasil disalin!`);
   };
 
+  console.log(topupData, "topupData");
   const getBankLogo = (gateway: string) => {
     switch (gateway.toUpperCase()) {
-      case "BAYARIND":
+      case "BANK_NATIONAL_NOBU_VIRTUAL_ACCOUNT":
         return "/images/company/bank/bca_logo.png";
       case "NOBU":
+        return "/images/company/bank/nobu_logo.png";
+      case "BAYARIND":
+        return "/images/company/bank/bca_logo.png";
+      case "BANK_NATIONAL_NOBU_VIRTUAL_ACCOUNT":
         return "/images/company/bank/nobu_logo.png";
       // Tambahkan yang lain jika perlu
       default:
@@ -58,6 +63,22 @@ export default function PaymentProcess() {
       // Tambahkan yang lain jika perlu
       default:
         return "/images/company/bank/logo.png";
+    }
+  };
+
+  const getBankName = (moduleName: string) => {
+    switch (moduleName.toUpperCase()) {
+      case "BAYARIND_BCA_VIRTUAL_ACCOUNT":
+        return "BCA Virtual Account";
+      case "BANK_NATIONAL_NOBU_VIRTUAL_ACCOUNT":
+        return "NOBU Virtual Account";
+      case "BAYARIND":
+        return "BCA Virtual Account";
+      case "NOBU":
+        return "NOBU Virtual Account";
+      // Tambahkan yang lain jika perlu
+      default:
+        return "Point Sky Membership";
     }
   };
 
@@ -121,13 +142,21 @@ export default function PaymentProcess() {
           doc.setFontSize(13);
           doc.setFont("Helvetica", "normal");
           const details = [
-            { label: "Invoice ID", value: payment?.data.invoice_number ?? "-" },
-            { label: "Status", value: payment?.data.status_transaction ?? "-" },
+            {
+              label: "Invoice ID",
+              value:
+                payment?.data.invoice_number ??
+                paymentHistory?.data?.data?.invoice_id,
+            },
+            {
+              label: "Status",
+              value:
+                payment?.data.status_transaction ??
+                paymentHistory?.data?.data?.statusPayment,
+            },
             {
               label: "Amount Paid",
-              value:
-                `Rp ${payment?.data.paid_amount?.toLocaleString("id-ID")}` ||
-                "Rp 0",
+              value: `Rp ${payment?.data.paid_amount?.toLocaleString("id-ID") ?? paymentHistory?.data.data.price?.toLocaleString("id-ID")}`,
             },
             {
               label: "Date",
@@ -137,8 +166,11 @@ export default function PaymentProcess() {
               }),
             },
             {
-              label: "Virtual Account",
-              value: payment?.data.virtual_account_number ?? "-",
+              label: payment?.data.virtual_account_number
+                ? "Number Virtual Account"
+                : "Methode Pembayaran",
+              value:
+                payment?.data.virtual_account_number ?? "Point Sky Membership",
             },
           ];
 
@@ -157,7 +189,7 @@ export default function PaymentProcess() {
 
           // ⏳ Save PDF baru setelah semua selesai
           doc.save(
-            `payment-receipt-${payment?.data.invoice_number ?? "unknown"}.pdf`,
+            `payment-receipt-${payment?.data.invoice_number ?? paymentHistory?.data?.data?.invoice_id}.pdf`,
           );
 
           // ✅ SELESAI, matikan loading
@@ -340,16 +372,21 @@ export default function PaymentProcess() {
 
           <div className="mt-5 mb-2 flex w-full items-center justify-between">
             <div className="text-sm font-semibold text-gray-500">
-              {purchaseData?.provider?.gateway_partner
-                ? purchaseData.provider.gateway_partner
-                : topupData?.provider?.gateway_partner
-                  ? topupData.provider.gateway_partner
-                  : paymentHistory?.data?.data?.payment_using
-                    ? paymentHistory.data.data.payment_using
-                    : paymentHistory?.data?.data?.transactionType
-                      ? paymentHistory.data.data.transactionType
-                      : "-"}
+              {idTransaction !== "" ? (
+                <p>
+                  {getBankName(paymentHistory?.data?.data.module_name ?? "-")}
+                </p>
+              ) : (
+                <p>
+                  {getBankName(
+                    topupData?.provider?.gateway_partner ??
+                      purchaseData?.provider?.gateway_partner ??
+                      "-",
+                  )}
+                </p>
+              )}
             </div>
+
             {idTransaction !== "" ? (
               <Image
                 src={getBankLogoHistory(
