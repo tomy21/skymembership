@@ -55,9 +55,10 @@ export default function CardHistory({
       {/* Header */}
       <div className="mb-7 flex items-start justify-between">
         <span className="text-xs text-gray-500">
-          {format(new Date(date), "dd MMMM yyyy, HH:mm", {
-            locale: id,
-          })}
+          {date !== "-" &&
+            format(new Date(date), "dd MMMM yyyy, HH:mm", {
+              locale: id,
+            })}
         </span>
         <span className="rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-600 capitalize">
           {product}
