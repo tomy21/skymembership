@@ -120,7 +120,7 @@ export default function HistoryAll() {
     }
 
     if (activeTab === "parking") {
-      setModalPayment(false);
+      setModalPayment(true);
     }
 
     // alert(`Exported ${exportData?.length} item(s) from "${activeTab}"`)
@@ -131,28 +131,56 @@ export default function HistoryAll() {
 
     setIsLoading(true);
 
-    const result = await dataCustomer.exportDataPayment(startDate, endDate);
+    if (activeTab === "payment") {
+      const result = await dataCustomer.exportDataPayment(startDate, endDate);
 
-    if (result.error) {
-      toast.error(result.message);
+      if (result.error) {
+        toast.error(result.message);
+        setIsLoading(false);
+        setStartDate("");
+        setEndDate("");
+        return;
+      }
+
+      // download file
+      const url = window.URL.createObjectURL(result.blob || new Blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", result.fileName || "export.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
       setIsLoading(false);
+      setModalPayment(false);
       setStartDate("");
       setEndDate("");
-      return;
-    }
+    } else if (activeTab === "parking") {
+      const result = await dataCustomer.exportDataTransaction(
+        startDate,
+        endDate,
+      );
 
-    // download file
-    const url = window.URL.createObjectURL(result.blob || new Blob());
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", result.fileName || "export.xlsx");
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setIsLoading(false);
-    setModalPayment(false);
-    setStartDate("");
-    setEndDate("");
+      if (result.error) {
+        toast.error(result.message);
+        setIsLoading(false);
+        setStartDate("");
+        setEndDate("");
+        return;
+      }
+
+      // download file
+      const url = window.URL.createObjectURL(result.blob || new Blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", result.fileName || "export.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setIsLoading(false);
+      setModalPayment(false);
+      setStartDate("");
+      setEndDate("");
+    }
   };
 
   const handleCancel = () => {
