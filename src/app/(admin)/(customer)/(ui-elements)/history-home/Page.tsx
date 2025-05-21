@@ -46,8 +46,9 @@ interface responseHistoryParking {
 export default function HistoryHome() {
   const [activeTab, setActiveTab] = useState("payment");
   const { isAuthenticated, isLoadingAuth } = useAuth();
-  const { data, refetch } = useHistoryPayment(isAuthenticated);
-  const { data: parkingHistory } = useHistoryParking(isAuthenticated);
+  const { data, refetch: refetchPayment } = useHistoryPayment(isAuthenticated);
+  const { data: parkingHistory, refetch: refetchHistory } =
+    useHistoryParking(isAuthenticated);
   // const [modalDetail, setModalDetail] = useState(false);
   const router = useRouter();
   const tabs = [
@@ -63,8 +64,9 @@ export default function HistoryHome() {
     if (!isLoadingAuth && !isAuthenticated) {
       router.push("/");
     }
-    refetch();
-  }, [isAuthenticated, isLoadingAuth, router, refetch]);
+    refetchPayment();
+    refetchHistory();
+  }, [isAuthenticated, isLoadingAuth, router, refetchPayment, refetchHistory]);
 
   return (
     <div className="w-full p-5">

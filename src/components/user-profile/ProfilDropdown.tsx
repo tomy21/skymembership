@@ -29,6 +29,7 @@ export default function ProfileDropdown({ initial }: { initial: string }) {
     // Hapus data react-query
     queryClient.removeQueries({ queryKey: ["historyPayment"] });
     queryClient.removeQueries({ queryKey: ["historyParking"] });
+    queryClient.removeQueries({ queryKey: ["vehicleData"] });
     queryClient.clear();
 
     // 🔑 Ini yang penting — update state context

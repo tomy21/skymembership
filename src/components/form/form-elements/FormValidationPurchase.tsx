@@ -117,9 +117,11 @@ export default function ConfirmationForm() {
 
   const handleConfirm = () => {
     setShowModal(false);
-    if (data.data.points < parseInt(detail.harga)) {
-      toast.warning("Oops...! Point tidak mencukupi");
-      return;
+    if (selectedMethod === "POINT") {
+      if (data.data.points < parseInt(detail.harga)) {
+        toast.warning("Oops...! Point tidak mencukupi");
+        return;
+      }
     }
 
     if (searchParams.get("type")) {

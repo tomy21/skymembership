@@ -33,13 +33,16 @@ type VehicleResponse = {
 };
 
 export const useVehicle = (
+  isAuthenticated: boolean,
+  userToken: string,
   page = 1,
   limit = 10,
   search = "",
 ): UseQueryResult<VehicleResponse, Error> => {
   return useQuery<VehicleResponse, Error, VehicleResponse>({
-    queryKey: ["vehicleData", page, limit, search],
+    queryKey: ["vehicleData", isAuthenticated, userToken, page, limit, search],
     queryFn: () => VehicleListUser.getVehicle(page, limit, search),
+    enabled: isAuthenticated,
     staleTime: 1000 * 60 * 5,
     retry: 1,
     refetchOnWindowFocus: false,

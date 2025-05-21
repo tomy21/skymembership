@@ -110,6 +110,7 @@ export default function AuthCustomer() {
       } else {
         setIsLoading(false);
         toast.error(dataDecrypt?.message || "Login gagal.");
+        router.push("/");
         refreshString();
         setCaptcha("");
       }
@@ -127,9 +128,15 @@ export default function AuthCustomer() {
       }
 
       toast.error(message);
+      router.push("/");
+      setCaptcha("");
+      setIsLoading(false);
       refreshString();
     } finally {
       refreshString();
+      setIsLoading(false);
+      router.push("/");
+      setCaptcha("");
     }
   };
 
