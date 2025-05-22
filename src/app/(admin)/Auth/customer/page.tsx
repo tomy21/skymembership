@@ -106,13 +106,14 @@ export default function AuthCustomer() {
         setTimeout(() => {
           setIsLoading(false);
           router.push("/home");
+          setInputCaptcha("");
         }, 500);
       } else {
         setIsLoading(false);
         toast.error(dataDecrypt?.message || "Login gagal.");
         router.push("/");
         refreshString();
-        setCaptcha("");
+        setInputCaptcha("");
       }
     } catch (err) {
       let message = "Login gagal.";
@@ -129,14 +130,14 @@ export default function AuthCustomer() {
 
       toast.error(message);
       router.push("/");
-      setCaptcha("");
       setIsLoading(false);
       refreshString();
+      setInputCaptcha("");
     } finally {
       refreshString();
       setIsLoading(false);
       router.push("/");
-      setCaptcha("");
+      setInputCaptcha("");
     }
   };
 

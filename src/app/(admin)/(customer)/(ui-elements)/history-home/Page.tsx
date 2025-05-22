@@ -56,6 +56,7 @@ export default function HistoryHome() {
     { id: "parking", label: "Parking" },
   ];
 
+  console.log(parkingHistory);
   const handleCekDetails = (id: string) => {
     router.push(`/payment?idTransaction=${id}`);
   };

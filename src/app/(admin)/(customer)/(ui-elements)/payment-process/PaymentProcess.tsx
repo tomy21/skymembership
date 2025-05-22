@@ -166,7 +166,7 @@ export default function PaymentProcess() {
             {
               label: payment?.data.virtual_account_number
                 ? "Number Virtual Account"
-                : "Methode Pembayaran",
+                : "Metode Pembayaran",
               value:
                 payment?.data.virtual_account_number ?? "Point Sky Membership",
             },
@@ -204,6 +204,8 @@ export default function PaymentProcess() {
     // selama SSR dan sebelum mount, tolak render interaktif
     return null;
   }
+
+  console.log(paymentData);
 
   const handleCekStatus = () => {
     router.push("/payment?idTransaction=" + paymentData?.trxId);

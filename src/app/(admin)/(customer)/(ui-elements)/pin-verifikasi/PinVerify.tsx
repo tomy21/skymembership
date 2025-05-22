@@ -83,7 +83,7 @@ export default function PinVerify() {
       try {
         setIsLoading(true);
         const result = await Payment.verifikasiPin(String(pin.join("")));
-        console.log(topupData?.type);
+
         // Jika gagal verifikasi PIN
         if (result?.status === "fail" || result?.success === false) {
           toast.error(result.message || "PIN salah");
@@ -136,9 +136,6 @@ export default function PinVerify() {
 
               setAdminFee(response.data.admin_fee);
               setPaymentData(paymentDetails);
-              toast.success(
-                "Berhasil melakukan pembelian, silahkan ambil kartu anda ke petugas.",
-              );
               queryClient.invalidateQueries({ queryKey: ["userById"] });
               router.push("/payment");
               localStorage.removeItem("purchaseData");

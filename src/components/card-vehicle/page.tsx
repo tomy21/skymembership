@@ -138,11 +138,13 @@ export default function CardVehicle({
           </div>
         </div>
         <div className="flex w-full flex-row items-start justify-end space-x-5">
-          <BiRfid
-            onClick={() => setIsModal(true)}
-            size={20}
-            className="cursor-pointer text-cyan-600"
-          />
+          {!rfidNo && (
+            <BiRfid
+              onClick={() => setIsModal(true)}
+              size={20}
+              className="cursor-pointer text-cyan-600"
+            />
+          )}
         </div>
       </div>
 
