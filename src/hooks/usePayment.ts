@@ -41,7 +41,7 @@ export const useCreateVaTopup = () => {
   return useMutation({
     mutationFn: (data: TopupPayload) => Payment.createVaTopup(data),
     onError: (error: AxiosError) => {
-      console.error("Topup Error:", error.response?.data || error.message);
+      console.error("Topup Error:", error);
     },
   });
 };

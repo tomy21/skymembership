@@ -50,6 +50,17 @@ export const useVehicle = (
   });
 };
 
+export const useCardList = () => {
+  return useQuery({
+    queryKey: ["list-card_user"],
+    queryFn: () => vehicleAdd.getCardDetails(),
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    placeholderData: (previousData) => previousData, // ini pengganti keepPreviousData
+  });
+};
+
 export const useVehicleActive = (
   type = "",
   locationCode = "",

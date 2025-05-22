@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    domains: ["apimembershipservice.skyparking.online"],
+  },
   /* config options here */
   webpack(config) {
     config.module.rules.push({

@@ -33,6 +33,7 @@ export default function ConfirmationForm() {
     produk: "",
     kendaraan: "",
     harga: "",
+    typeProduct: "",
   });
 
   const { data: providerData } = useProviderByType(selectedMethod || undefined);
@@ -58,8 +59,18 @@ export default function ConfirmationForm() {
       const kendaraan = searchParams.get("vehicle") || "";
       const harga = searchParams.get("price") || "";
       const idProduct = searchParams.get("idProduct") || "";
+      const typeProduct = searchParams.get("typeProduct") || "";
 
-      setDetail({ lokasi, tipe, periode, produk, kendaraan, harga, idProduct });
+      setDetail({
+        lokasi,
+        tipe,
+        periode,
+        produk,
+        kendaraan,
+        harga,
+        idProduct,
+        typeProduct,
+      });
 
       // Simpan hasil getPeriodRange ke state
       const periodeRange = getPeriodRange(periode);
@@ -83,6 +94,7 @@ export default function ConfirmationForm() {
     const today = new Date();
     const nextDate = new Date(today); // clone supaya today tetap utuh
     nextDate.setMonth(today.getMonth() + months);
+    nextDate.setDate(nextDate.getDate() - 1);
 
     const format = (date: Date) => {
       return date.toLocaleDateString("id-ID", {
@@ -104,6 +116,16 @@ export default function ConfirmationForm() {
       toast.warning("Pilih provider");
       return;
     }
+
+    const dataPayload = {
+      idProduct: parseInt(detail.idProduct),
+      bank_id: selectedProviders[0].id,
+      plate_number: detail.kendaraan,
+      type: detail.typeProduct,
+      provider: selectedProviders[0],
+    };
+
+    localStorage.setItem("purchaseData", JSON.stringify(dataPayload));
 
     setPurchaseData({
       idProduct: parseInt(detail.idProduct),
@@ -158,6 +180,12 @@ export default function ConfirmationForm() {
             </span>
           </div>
         )}
+        <div className="flex justify-between">
+          {/* <span className="text-gray-600">Tipe</span> */}
+          <span className="font-medium text-gray-900">
+            {detail.typeProduct}
+          </span>
+        </div>
       </div>
 
       <div className="space-y-4">

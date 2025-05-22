@@ -103,12 +103,26 @@ export const vehicleAdd = {
   getDetailVehicle: async (id: number) => {
     const token = await DetailUser.getToken();
     try {
-      const response = await APIAPPS.get(`/v1/customer/members-vehicle/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token.token}`,
-          "Content-Type": "application/json",
+      const response = await APISERVICES.get(
+        `/v1/customer/members-vehicle/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token.token}`,
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getCardDetails: async () => {
+    try {
+      const response = await APIAPPS.get(
+        `/v01/member/api/auth/list-card-members`,
+      );
       return response.data;
     } catch (error) {
       throw error;

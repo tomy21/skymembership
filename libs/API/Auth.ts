@@ -168,6 +168,7 @@ export const Users = {
   getCardLocation: async () => {
     try {
       const token = await DetailUser.getToken();
+
       const response = await APISERVICES.get(`/v1/customer/members-vehicle`, {
         headers: {
           Authorization: `Bearer ${token.token}`,

@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTopupContext } from "@/context/TopupContext";
 import {
   useCreatePurchaseByPoint,
   useCreateVaPurchase,
@@ -19,6 +18,18 @@ import { toast } from "sonner";
 type TopupPayload = {
   bank_id: string;
   amount: number;
+};
+
+type payloadLocalStorage = {
+  method: string;
+  nominal: number;
+  type: string;
+  provider: {
+    id: string;
+    bank_id: string;
+    code_bank: string;
+    gateway_partner: string;
+  };
 };
 
 type PurchaseType = {
@@ -39,7 +50,7 @@ export default function PinVerify() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { topupData } = useTopupContext();
+  // const { topupData } = useTopupContext();
   const { purchaseData } = usePurchaseContext();
   const { setPaymentData, setAdminFee } = usePaymentContext();
   const { mutate: createVaTopup } = useCreateVaTopup();
@@ -47,6 +58,7 @@ export default function PinVerify() {
   const { mutate: createPurchasePoint } = useCreatePurchaseByPoint();
   const searchParams = useSearchParams();
   const type = searchParams.get("type") || "";
+  const [dataTopup, setDataTopup] = useState<payloadLocalStorage | null>(null);
 
   const handleKeyPress = (key: string) => {
     // Handling backspace
@@ -74,6 +86,13 @@ export default function PinVerify() {
       }
     }
   };
+
+  useEffect(() => {
+    const stored = localStorage.getItem("topupData");
+    if (stored) {
+      setDataTopup(JSON.parse(stored));
+    }
+  }, []);
 
   useEffect(() => {
     const handleVerification = async () => {
@@ -206,7 +225,7 @@ export default function PinVerify() {
         }
 
         if (type === "topup") {
-          const bank_id = topupData.provider?.id;
+          const bank_id = dataTopup?.provider?.id;
           if (!bank_id) {
             console.error("Bank ID is missing");
             return;
@@ -214,7 +233,7 @@ export default function PinVerify() {
 
           const data: TopupPayload = {
             bank_id,
-            amount: topupData.nominal,
+            amount: dataTopup?.nominal,
           };
 
           createVaTopup(data, {
@@ -244,14 +263,26 @@ export default function PinVerify() {
               setPaymentData(paymentDetails);
               queryClient.invalidateQueries({ queryKey: ["userById"] });
               router.push("/payment");
-              localStorage.removeItem("purchaseData");
+              localStorage.removeItem("topupData");
               setIsLoading(false);
             },
-            onError: (error) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onError: (error: any) => {
               setIsModal(true);
-              setMessage(error.message);
-              setIsLoading(false);
-              setPin(Array(length).fill(""));
+
+              const errorMessage =
+                error?.message ||
+                error?.error ||
+                "Terjadi kesalahan, silakan coba lagi.";
+              setMessage(errorMessage);
+
+              setInterval(() => {
+                setIsLoading(false);
+                setPin(Array(length).fill(""));
+                setActiveIndex(0);
+                setIsModal(false);
+              }, 1000);
+
               setActiveIndex(0);
             },
             onSettled: () => {
@@ -274,6 +305,7 @@ export default function PinVerify() {
     createPurchase,
     createPurchasePoint,
     createVaTopup,
+    dataTopup,
     pin,
     purchaseData.bank_id,
     purchaseData.idProduct,
@@ -282,9 +314,6 @@ export default function PinVerify() {
     router,
     setAdminFee,
     setPaymentData,
-    topupData.nominal,
-    topupData.provider?.id,
-    topupData?.type,
     type,
   ]);
 
