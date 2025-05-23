@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Select from "react-select";
 import { vehicleAdd } from "../../../../../../libs/API/VehicleListUser";
@@ -171,47 +171,48 @@ export default function ExtendMembership() {
   if (isLoading) return <Loading />;
 
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto max-w-4xl p-8">
-        <div className="flex w-full items-center justify-between">
-          <div className="mb-8 space-y-2">
-            <p className="text-gray-600">Plate Number</p>
-            <div className="flex items-center space-x-3">
-              <span className="text-xl font-semibold">
-                {detailCard.plate_number}
-              </span>
-              <span className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
-                {detailCard.vehicle_type}
-              </span>
+    <Suspense fallback={<Loading />}>
+      <div className="min-h-screen">
+        <div className="mx-auto max-w-4xl p-8">
+          <div className="flex w-full items-center justify-between">
+            <div className="mb-8 space-y-2">
+              <p className="text-gray-600">Plate Number</p>
+              <div className="flex items-center space-x-3">
+                <span className="text-xl font-semibold">
+                  {detailCard.plate_number}
+                </span>
+                <span className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
+                  {detailCard.vehicle_type}
+                </span>
+              </div>
+            </div>
+
+            <div className="mb-8 space-y-2">
+              <p className="text-gray-600">Member No</p>
+              <div className="flex items-center space-x-3">
+                <span className="text-xl font-semibold">
+                  {detailCard.member_customer_no}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="mb-8 space-y-2">
-            <p className="text-gray-600">Member No</p>
-            <div className="flex items-center space-x-3">
-              <span className="text-xl font-semibold">
-                {detailCard.member_customer_no}
-              </span>
+          <div className="mb-10">
+            {renderMembershipCard(detailCard.membership?.[0])}
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div>
+              <p className="mb-1 text-sm text-gray-500">RFID</p>
+              <p className="font-medium">{detailCard.rfid}</p>
             </div>
-          </div>
-        </div>
+            {detailCard?.membership[0]?.is_active === false && (
+              <Button size="sm" variant="outline" onClick={modalExtendCard}>
+                Extend Membership
+              </Button>
+            )}
 
-        <div className="mb-10">
-          {renderMembershipCard(detailCard.membership?.[0])}
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div>
-            <p className="mb-1 text-sm text-gray-500">RFID</p>
-            <p className="font-medium">{detailCard.rfid}</p>
-          </div>
-          {detailCard?.membership[0]?.is_active === false && (
-            <Button size="sm" variant="outline" onClick={modalExtendCard}>
-              Extend Membership
-            </Button>
-          )}
-
-          {/* <div>
+            {/* <div>
             <p className="mb-1 text-sm text-gray-500">STNK Image</p>
             <Image
               src={`https://apimembershipservice.skyparking.online/uploads/${detailCard.stnk_image}`}
@@ -231,75 +232,76 @@ export default function ExtendMembership() {
               height={100}
             />
           </div> */}
-        </div>
-      </div>
-
-      {modalActive && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50" onClick={closeModal} />
-          <div className="z-50 rounded-2xl bg-white p-6">
-            <h2 className="mb-4 text-lg font-semibold">Extend Membership</h2>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">
-                Lokasi
-              </label>
-              <h1 className="font-semibold">
-                {detailCard.membership[0].location_name}
-              </h1>
-            </div>
-            <div className="flex w-full items-center justify-between">
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Type Kendaraan
-                </label>
-                <h1 className="font-semibold">{detailCard.vehicle_type}</h1>
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Plat Nomor
-                </label>
-                <h1 className="font-semibold">{detailCard.plate_number}</h1>
-              </div>
-            </div>
-            <div className="mb-4">
-              <Select
-                placeholder="Periode Member..."
-                options={periodData}
-                value={period}
-                onChange={(val) => {
-                  setPeriod(val);
-                  setProduct(null);
-                }}
-              />
-            </div>
-
-            <div className="mb-4">
-              <Select
-                placeholder="Product..."
-                options={productData}
-                value={product}
-                onChange={(val) => {
-                  setProduct(val);
-                }}
-                isDisabled={!period}
-              />
-            </div>
-
-            <div className="mb-4 text-center text-xl font-semibold text-green-600">
-              Total: Rp {price.toLocaleString("id-ID")}
-            </div>
-
-            <Button
-              size="sm"
-              variant="primary"
-              className="w-full"
-              onClick={handleExtendMembership}
-            >
-              Extend Membership
-            </Button>
           </div>
         </div>
-      )}
-    </div>
+
+        {modalActive && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black/50" onClick={closeModal} />
+            <div className="z-50 rounded-2xl bg-white p-6">
+              <h2 className="mb-4 text-lg font-semibold">Extend Membership</h2>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Lokasi
+                </label>
+                <h1 className="font-semibold">
+                  {detailCard.membership[0].location_name}
+                </h1>
+              </div>
+              <div className="flex w-full items-center justify-between">
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Type Kendaraan
+                  </label>
+                  <h1 className="font-semibold">{detailCard.vehicle_type}</h1>
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Plat Nomor
+                  </label>
+                  <h1 className="font-semibold">{detailCard.plate_number}</h1>
+                </div>
+              </div>
+              <div className="mb-4">
+                <Select
+                  placeholder="Periode Member..."
+                  options={periodData}
+                  value={period}
+                  onChange={(val) => {
+                    setPeriod(val);
+                    setProduct(null);
+                  }}
+                />
+              </div>
+
+              <div className="mb-4">
+                <Select
+                  placeholder="Product..."
+                  options={productData}
+                  value={product}
+                  onChange={(val) => {
+                    setProduct(val);
+                  }}
+                  isDisabled={!period}
+                />
+              </div>
+
+              <div className="mb-4 text-center text-xl font-semibold text-green-600">
+                Total: Rp {price.toLocaleString("id-ID")}
+              </div>
+
+              <Button
+                size="sm"
+                variant="primary"
+                className="w-full"
+                onClick={handleExtendMembership}
+              >
+                Extend Membership
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </Suspense>
   );
 }
