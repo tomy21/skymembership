@@ -2,12 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Select from "react-select";
-import moment from "moment";
 import { vehicleAdd } from "../../../../../../libs/API/VehicleListUser";
 // import Image from "next/image";
 import Loading from "@/components/Loading/Loading";
 import Button from "@/components/ui/button/Button";
 import { usePeriode, useProduct } from "@/hooks/useProduct";
+import { format } from "date-fns";
 
 type OptionType = {
   value: string;
@@ -138,13 +138,13 @@ export default function ExtendMembership() {
           <div>
             <p className="text-sm text-gray-500">Start Date</p>
             <p className="font-medium">
-              {moment(membership.start_date).format("DD MMM YYYY")}
+              {format(membership.start_date, "dd MMM yyyy")}
             </p>
           </div>
           <div>
             <p className="text-sm text-gray-500">End Date</p>
             <p className="font-medium">
-              {moment(membership.end_date).format("DD MMM YYYY")}
+              {format(membership.end_date, "dd MMM yyyy")}
             </p>
           </div>
         </div>
