@@ -31,6 +31,7 @@ export default function PaymentProcess() {
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
 
+  console.log("paymentData", paymentData);
   const paymentHistory = usePaymentByVA(idTransaction);
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);

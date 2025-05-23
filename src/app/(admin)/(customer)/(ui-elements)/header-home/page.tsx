@@ -15,10 +15,11 @@ import { useCardList } from "@/hooks/useVehicle";
 
 interface responseCard {
   id: number;
+  vehicle_id: number;
   member_customer_no: string;
   plate_number: string;
   rfid: string;
-  is_active: number;
+  is_active: boolean;
   vehicle_type: string;
 }
 
@@ -32,6 +33,8 @@ export default function HeaderHome() {
     isLoading: isLoadingCardData,
     isError: isErrorCardData,
   } = useCardList();
+
+  console.log(dataCard);
 
   const router = useRouter();
   const [sliderRef] = useKeenSlider<HTMLDivElement>({
@@ -126,11 +129,11 @@ export default function HeaderHome() {
               // Data kartu
               dataCard.data
                 .filter((item: responseCard) => item.rfid)
-                .map((item: responseCard) => (
+                .map((item: responseCard, index: number) => (
                   <div
-                    key={item.id}
+                    key={index}
                     className="keen-slider__slide relative flex flex-col items-center rounded-xl bg-transparent p-2"
-                    onClick={() => handleCekDetails(item.id.toString())}
+                    onClick={() => handleCekDetails(item.vehicle_id.toString())}
                   >
                     <div className="relative aspect-[3/2] w-full max-w-[230px] overflow-hidden rounded-xl">
                       <Image
@@ -149,12 +152,12 @@ export default function HeaderHome() {
                       </div>
                       <div
                         className={`absolute bottom-2 left-2 rounded-md px-2 py-1 text-xs font-semibold ${
-                          item.is_active === 1
+                          item.is_active === true
                             ? "text-green-500"
                             : "text-red-500"
                         }`}
                       >
-                        {item.is_active === 1 ? "Active" : "Expired"}
+                        {item.is_active === true ? "Active" : "Expired"}
                       </div>
                     </div>
                   </div>

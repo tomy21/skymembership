@@ -131,7 +131,7 @@ export default function ConfirmationForm() {
       idProduct: parseInt(detail.idProduct),
       bank_id: selectedProviders[0].id,
       plate_number: detail.kendaraan,
-      type: "purchase",
+      type: detail.typeProduct,
       provider: selectedProviders[0],
     });
     setShowModal(true);

@@ -52,10 +52,11 @@ export default function ExtendMembership() {
     period?.value,
   );
   const idCard = searchParams.get("idCard");
+  console.log(detailCard);
   useEffect(() => {
     const fetchDetailCard = async () => {
       try {
-        const response = await vehicleAdd.getDetailVehicle(Number(idCard));
+        const response = await vehicleAdd.getDetailVehicle(idCard || "");
         setDetailCard(response.data);
         setPlatNumber(response.data.plate_number);
         setLocation(response.data.membership[0].location_id);
@@ -153,12 +154,14 @@ export default function ExtendMembership() {
             <p className="text-sm text-gray-500">Status</p>
             <span
               className={`rounded-full px-3 py-1 text-sm font-semibold ${
-                membership.is_active
+                new Date(membership.end_date) > new Date()
                   ? "bg-green-100 text-green-600"
                   : "bg-red-100 text-red-600"
               }`}
             >
-              {membership.is_active ? "Active" : "Expired"}
+              {new Date(membership.end_date) > new Date()
+                ? "Active"
+                : "Expired"}
             </span>
           </div>
         </div>
@@ -205,11 +208,12 @@ export default function ExtendMembership() {
             <p className="mb-1 text-sm text-gray-500">RFID</p>
             <p className="font-medium">{detailCard.rfid}</p>
           </div>
-          {detailCard?.membership[0]?.is_active === false && (
-            <Button size="sm" variant="outline" onClick={modalExtendCard}>
-              Extend Membership
-            </Button>
-          )}
+          {detailCard?.membership?.[0]?.end_date &&
+            new Date(detailCard.membership[0].end_date) < new Date() && (
+              <Button size="sm" variant="outline" onClick={modalExtendCard}>
+                Extend Membership
+              </Button>
+            )}
 
           {/* <div>
             <p className="mb-1 text-sm text-gray-500">STNK Image</p>

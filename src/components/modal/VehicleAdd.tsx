@@ -65,7 +65,7 @@ export default function VehicleAdd() {
     e.preventDefault();
     setIsLoading(true);
 
-    const fullPlate = `${formData.plate_prefix} ${formData.plate_number} ${formData.plate_suffix}`;
+    const fullPlate = `${formData.plate_prefix}${formData.plate_number}${formData.plate_suffix}`;
     const submitData = {
       ...formData,
       plate_number: fullPlate.trim(),

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   useCreatePurchaseByPoint,
+  useCreateVaExtend,
   useCreateVaPurchase,
   useCreateVaTopup,
 } from "@/hooks/usePayment";
@@ -55,6 +56,7 @@ export default function PinVerify() {
   const { setPaymentData, setAdminFee } = usePaymentContext();
   const { mutate: createVaTopup } = useCreateVaTopup();
   const { mutate: createPurchase } = useCreateVaPurchase();
+  const { mutate: createExtend } = useCreateVaExtend();
   const { mutate: createPurchasePoint } = useCreatePurchaseByPoint();
   const searchParams = useSearchParams();
   const type = searchParams.get("type") || "";
@@ -94,6 +96,8 @@ export default function PinVerify() {
     }
   }, []);
 
+  console.log(purchaseData.type);
+
   useEffect(() => {
     const handleVerification = async () => {
       const isComplete = pin.every((val) => val !== "");
@@ -103,7 +107,6 @@ export default function PinVerify() {
         setIsLoading(true);
         const result = await Payment.verifikasiPin(String(pin.join("")));
 
-        // Jika gagal verifikasi PIN
         if (result?.status === "fail" || result?.success === false) {
           toast.error(result.message || "PIN salah");
           setPin(Array(length).fill(""));
@@ -122,7 +125,7 @@ export default function PinVerify() {
             console.error("Bank ID is missing");
             return;
           }
-
+          // console.log(purchaseData.type);
           const data: PurchaseType = {
             idProduct: String(purchaseData.idProduct),
             data: {
@@ -131,11 +134,15 @@ export default function PinVerify() {
             },
           };
 
-          createPurchase(data, {
+          const submitType =
+            purchaseData.type === "Extend" ? createExtend : createPurchase;
+          console.log(data);
+          submitType(data, {
             onSuccess: (response) => {
-              const trx = response.data.transaction_data;
+              const trx = response.data.transaction_data ?? response.data;
+              console.log(response);
               const paymentDetails = {
-                Id: trx.Id,
+                Id: Number(trx.Id),
                 createdAt: trx.createdAt,
                 expired_date: trx.expired_date,
                 invoice_id: trx.invoice_id,
@@ -159,9 +166,22 @@ export default function PinVerify() {
               router.push("/payment");
               localStorage.removeItem("purchaseData");
             },
-            onError: (error) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onError: (error: any) => {
               setIsModal(true);
-              setMessage(error.message);
+              const errorMessage =
+                error?.message ||
+                error?.error ||
+                "Terjadi kesalahan, silakan coba lagi.";
+              setMessage(errorMessage);
+              setPin(Array(length).fill(""));
+              setActiveIndex(0);
+              setTimeout(() => {
+                const input = document.getElementById("pin-0");
+                if (input) input.focus();
+                // setIsModal(false);
+              }, 1000);
+              setIsLoading(false);
             },
             onSettled: () => {
               setIsLoading(false);
@@ -290,11 +310,18 @@ export default function PinVerify() {
             },
           });
         }
+
         setIsLoading(false);
       } catch (error) {
         setIsLoading(false);
         console.error("Verifikasi PIN error:", error);
         setPin(Array(length).fill(""));
+        setTimeout(() => {
+          setIsModal(false);
+          setActiveIndex(0);
+          const input = document.getElementById("pin-0");
+          if (input) input.focus();
+        }, 100);
         setActiveIndex(0);
         toast.error("Terjadi kesalah mohon ulangi kembali");
       }
@@ -302,6 +329,7 @@ export default function PinVerify() {
 
     handleVerification();
   }, [
+    createExtend,
     createPurchase,
     createPurchasePoint,
     createVaTopup,
@@ -310,6 +338,7 @@ export default function PinVerify() {
     purchaseData.bank_id,
     purchaseData.idProduct,
     purchaseData.plate_number,
+    purchaseData.type,
     queryClient,
     router,
     setAdminFee,
@@ -384,7 +413,7 @@ export default function PinVerify() {
       {isModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-5">
           <div className="flex flex-col items-center justify-center space-y-3 rounded-xl bg-white px-6 py-4 shadow-lg">
-            <FiAlertCircle className="h-8 w-8 text-green-500" />
+            <FiAlertCircle className="h-8 w-8 text-red-500" />
             <p className="text-sm font-medium text-blue-600">
               Transaksi Gagal !
             </p>

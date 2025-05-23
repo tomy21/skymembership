@@ -100,7 +100,7 @@ export const vehicleAdd = {
     }
   },
 
-  getDetailVehicle: async (id: number) => {
+  getDetailVehicle: async (id: string) => {
     const token = await DetailUser.getToken();
     try {
       const response = await APISERVICES.get(
