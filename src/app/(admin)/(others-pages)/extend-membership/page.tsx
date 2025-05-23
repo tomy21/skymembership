@@ -1,16 +1,20 @@
 import HeaderPage from "@/components/header-page/page";
 import { Metadata } from "next";
-import React, { Suspense } from "react";
-import ExtendMembership from "../../(customer)/(ui-elements)/extendMembership/page";
+import React, { lazy, Suspense } from "react";
 import Loading from "@/components/Loading/Loading";
 
 export const metadata: Metadata = {
-  title: "Purchase | SKY Membership",
-  description: "Purchase your membership product",
+  title: "Extend Membership | SKY Membership",
+  description: "Extend your membership product",
   // other metadata
 };
 
-export default function Page() {
+const ExtendMembership = lazy(
+  () =>
+    import("../../(customer)/(ui-elements)/extendMembership/extendMembership"),
+);
+
+export default function page() {
   return (
     <Suspense fallback={<Loading />}>
       <div className="relative min-h-screen w-full bg-white">

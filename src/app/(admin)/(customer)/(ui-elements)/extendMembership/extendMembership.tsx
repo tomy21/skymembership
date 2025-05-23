@@ -1,5 +1,6 @@
 "use client";
-import React, { Suspense, useEffect, useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Select from "react-select";
 import { vehicleAdd } from "../../../../../../libs/API/VehicleListUser";
@@ -8,6 +9,7 @@ import Loading from "@/components/Loading/Loading";
 import Button from "@/components/ui/button/Button";
 import { usePeriode, useProduct } from "@/hooks/useProduct";
 import { format } from "date-fns";
+import { AnimatePresence, motion } from "framer-motion";
 
 type OptionType = {
   value: string;
@@ -34,6 +36,7 @@ export default function ExtendMembership() {
   const [plateNumber, setPlatNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [period, setPeriod] = useState<OptionType | null>(null);
   const [product, setProduct] = useState<OptionType | null>(null);
@@ -48,10 +51,7 @@ export default function ExtendMembership() {
     typeVehicle,
     period?.value,
   );
-
-  const searchParams = useSearchParams();
-  const idCard = searchParams.get("idCard") || "";
-  // console.log("type vehicle", detailCard);
+  const idCard = searchParams.get("idCard");
   useEffect(() => {
     const fetchDetailCard = async () => {
       try {
@@ -171,48 +171,47 @@ export default function ExtendMembership() {
   if (isLoading) return <Loading />;
 
   return (
-    <Suspense fallback={<Loading />}>
-      <div className="min-h-screen">
-        <div className="mx-auto max-w-4xl p-8">
-          <div className="flex w-full items-center justify-between">
-            <div className="mb-8 space-y-2">
-              <p className="text-gray-600">Plate Number</p>
-              <div className="flex items-center space-x-3">
-                <span className="text-xl font-semibold">
-                  {detailCard.plate_number}
-                </span>
-                <span className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
-                  {detailCard.vehicle_type}
-                </span>
-              </div>
-            </div>
-
-            <div className="mb-8 space-y-2">
-              <p className="text-gray-600">Member No</p>
-              <div className="flex items-center space-x-3">
-                <span className="text-xl font-semibold">
-                  {detailCard.member_customer_no}
-                </span>
-              </div>
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-4xl p-8">
+        <div className="flex w-full items-center justify-between">
+          <div className="mb-8 space-y-2">
+            <p className="text-gray-600">Plate Number</p>
+            <div className="flex items-center space-x-3">
+              <span className="text-xl font-semibold">
+                {detailCard.plate_number}
+              </span>
+              <span className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
+                {detailCard.vehicle_type}
+              </span>
             </div>
           </div>
 
-          <div className="mb-10">
-            {renderMembershipCard(detailCard.membership?.[0])}
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2">
-            <div>
-              <p className="mb-1 text-sm text-gray-500">RFID</p>
-              <p className="font-medium">{detailCard.rfid}</p>
+          <div className="mb-8 space-y-2">
+            <p className="text-gray-600">Member No</p>
+            <div className="flex items-center space-x-3">
+              <span className="text-xl font-semibold">
+                {detailCard.member_customer_no}
+              </span>
             </div>
-            {detailCard?.membership[0]?.is_active === false && (
-              <Button size="sm" variant="outline" onClick={modalExtendCard}>
-                Extend Membership
-              </Button>
-            )}
+          </div>
+        </div>
 
-            {/* <div>
+        <div className="mb-10">
+          {renderMembershipCard(detailCard.membership?.[0])}
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div>
+            <p className="mb-1 text-sm text-gray-500">RFID</p>
+            <p className="font-medium">{detailCard.rfid}</p>
+          </div>
+          {detailCard?.membership[0]?.is_active === false && (
+            <Button size="sm" variant="outline" onClick={modalExtendCard}>
+              Extend Membership
+            </Button>
+          )}
+
+          {/* <div>
             <p className="mb-1 text-sm text-gray-500">STNK Image</p>
             <Image
               src={`https://apimembershipservice.skyparking.online/uploads/${detailCard.stnk_image}`}
@@ -232,14 +231,36 @@ export default function ExtendMembership() {
               height={100}
             />
           </div> */}
-          </div>
         </div>
+      </div>
 
+      <AnimatePresence>
         {modalActive && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="fixed inset-0 bg-black/50" onClick={closeModal} />
-            <div className="z-50 rounded-2xl bg-white p-6">
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Backdrop */}
+            <motion.div
+              className="fixed inset-0 bg-black/50"
+              onClick={closeModal}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+
+            {/* Modal Content */}
+            <motion.div
+              className="z-50 rounded-2xl bg-white p-6"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
               <h2 className="mb-4 text-lg font-semibold">Extend Membership</h2>
+
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   Lokasi
@@ -248,6 +269,7 @@ export default function ExtendMembership() {
                   {detailCard.membership[0].location_name}
                 </h1>
               </div>
+
               <div className="flex w-full items-center justify-between">
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700">
@@ -262,6 +284,7 @@ export default function ExtendMembership() {
                   <h1 className="font-semibold">{detailCard.plate_number}</h1>
                 </div>
               </div>
+
               <div className="mb-4">
                 <Select
                   placeholder="Periode Member..."
@@ -279,9 +302,7 @@ export default function ExtendMembership() {
                   placeholder="Product..."
                   options={productData}
                   value={product}
-                  onChange={(val) => {
-                    setProduct(val);
-                  }}
+                  onChange={(val) => setProduct(val)}
                   isDisabled={!period}
                 />
               </div>
@@ -298,10 +319,10 @@ export default function ExtendMembership() {
               >
                 Extend Membership
               </Button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
-      </div>
-    </Suspense>
+      </AnimatePresence>
+    </div>
   );
 }
