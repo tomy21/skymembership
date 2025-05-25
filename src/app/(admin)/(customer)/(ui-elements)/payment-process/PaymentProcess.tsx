@@ -1,8 +1,6 @@
 "use client";
 import Accordion from "@/components/accordion/page";
 import Button from "@/components/ui/button/Button";
-import { usePaymentContext } from "@/context/PaymentContext";
-import { useTopupContext } from "@/context/TopupContext";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { TbClockExclamation } from "react-icons/tb";
@@ -12,16 +10,14 @@ import { id } from "date-fns/locale";
 import { useDetailCustomer } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { usePurchaseContext } from "@/context/PurchaseContext";
+// import { usePurchaseContext } from "@/context/PurchaseContext";
 import { usePaymentByVA } from "@/hooks/usePayment";
 import { IoMdCheckmarkCircle, IoMdCloseCircleOutline } from "react-icons/io";
 import { jsPDF } from "jspdf";
 import Loading from "@/components/Loading/Loading";
 
 export default function PaymentProcess() {
-  const { paymentData, admin_fee } = usePaymentContext();
-  const { topupData } = useTopupContext();
-  const { purchaseData } = usePurchaseContext();
+  // const { topupData } = useTopupContext();
   const { data } = useDetailCustomer();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -31,12 +27,32 @@ export default function PaymentProcess() {
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
 
-  console.log("paymentData", paymentData);
+  const dataSession = sessionStorage.getItem("transactionData");
+  const dataSessionJson = dataSession ? JSON.parse(dataSession) : null;
+  const topup = localStorage.getItem("topupData");
+  const topupData = topup ? JSON.parse(topup) : null;
+  const localStorageData = localStorage.getItem("purchaseData");
+  const localStorageDataJson = localStorageData
+    ? JSON.parse(localStorageData)
+    : null;
+  console.log(topupData);
+
+  console.log("dataSessionJson", dataSessionJson);
   const paymentHistory = usePaymentByVA(idTransaction);
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} berhasil disalin!`);
   };
+
+  useEffect(() => {
+    if (localStorageDataJson) {
+      localStorage.setItem(
+        "localStorageDataJson",
+        JSON.stringify(localStorageDataJson),
+      );
+    }
+  }, [localStorageDataJson]);
+
   const getBankLogo = (gateway: string) => {
     switch (gateway.toUpperCase()) {
       case "BANK_NATIONAL_NOBU_VIRTUAL_ACCOUNT":
@@ -83,6 +99,9 @@ export default function PaymentProcess() {
 
   const handleBackHome = () => {
     queryClient.invalidateQueries({ queryKey: ["userById"] });
+    localStorage.removeItem("localStorageDataJson");
+    localStorage.removeItem("purchaseData");
+    sessionStorage.removeItem("transactionData");
     router.push("/home");
   };
 
@@ -206,10 +225,8 @@ export default function PaymentProcess() {
     return null;
   }
 
-  console.log(paymentData);
-
   const handleCekStatus = () => {
-    router.push("/payment?idTransaction=" + paymentData?.trxId);
+    router.push("/payment?idTransaction=" + dataSessionJson?.trxId);
   };
 
   return (
@@ -297,8 +314,9 @@ export default function PaymentProcess() {
         ) : (
           <p className="text-3xl font-bold text-orange-900">
             Rp.{" "}
-            {Number(paymentData!.price + admin_fee).toLocaleString("id-ID") ||
-              0}
+            {Number(
+              dataSessionJson!.price + dataSessionJson!.admin_fee,
+            ).toLocaleString("id-ID") || 0}
           </p>
         )}
 
@@ -341,7 +359,7 @@ export default function PaymentProcess() {
                 </>
               );
             } else {
-              const expiredDate = paymentData?.expired_date;
+              const expiredDate = dataSessionJson?.expired_date;
 
               return (
                 <>
@@ -381,7 +399,7 @@ export default function PaymentProcess() {
                 <p>
                   {getBankName(
                     topupData?.provider?.gateway_partner ??
-                      purchaseData?.provider?.gateway_partner ??
+                      localStorageDataJson?.provider?.gateway_partner ??
                       "-",
                   )}
                 </p>
@@ -401,7 +419,7 @@ export default function PaymentProcess() {
               <Image
                 src={getBankLogo(
                   topupData?.provider?.gateway_partner ??
-                    purchaseData?.provider?.gateway_partner ??
+                    localStorageDataJson?.provider?.gateway_partner ??
                     "-",
                 )}
                 width={50}
@@ -441,13 +459,13 @@ export default function PaymentProcess() {
               ) : (
                 <>
                   <span className="font-mono text-sm">
-                    {paymentData?.virtual_account}
+                    {dataSessionJson?.virtual_account}
                   </span>
                   <button
                     className="text-sm text-blue-500"
                     onClick={() =>
                       copyToClipboard(
-                        paymentData?.virtual_account ?? "-",
+                        dataSessionJson?.virtual_account ?? "-",
                         "Virtual Account",
                       )
                     }
@@ -484,13 +502,13 @@ export default function PaymentProcess() {
               ) : (
                 <>
                   <span className="font-mono text-sm">
-                    {paymentData?.virtual_account}
+                    {dataSessionJson?.virtual_account}
                   </span>
                   <button
                     className="text-sm text-blue-500"
                     onClick={() =>
                       copyToClipboard(
-                        paymentData?.virtual_account ?? "-",
+                        dataSessionJson?.virtual_account ?? "-",
                         "Virtual Account",
                       )
                     }
@@ -529,7 +547,7 @@ export default function PaymentProcess() {
                     onClick={() =>
                       copyToClipboard(
                         Number(topupData!.nominal.toString()) +
-                          parseNominal(admin_fee.toString()),
+                          parseNominal(dataSessionJson!.admin_fee.toString()),
                         "Nominal",
                       )
                     }
@@ -542,15 +560,17 @@ export default function PaymentProcess() {
               <>
                 <span>
                   Rp.{" "}
-                  {Number(paymentData!.price + admin_fee).toLocaleString(
-                    "id-ID",
-                  ) || 0}
+                  {Number(
+                    dataSessionJson!.price + dataSessionJson!.admin_fee,
+                  ).toLocaleString("id-ID") || 0}
                 </span>
                 <button
                   className="text-sm text-blue-500"
                   onClick={() =>
                     copyToClipboard(
-                      Number(paymentData!.price + admin_fee).toString(),
+                      Number(
+                        dataSessionJson!.price + dataSessionJson!.admin_fee,
+                      ).toString(),
                       "Nominal",
                     )
                   }
@@ -580,7 +600,9 @@ export default function PaymentProcess() {
             ) : (
               <span className="text-sm font-bold text-gray-800">
                 Rp{" "}
-                {Number(paymentData!.price + admin_fee).toLocaleString("id-ID")}
+                {Number(
+                  dataSessionJson!.price + dataSessionJson!.admin_fee,
+                ).toLocaleString("id-ID")}
               </span>
             )}
           </div>

@@ -128,4 +128,14 @@ export const vehicleAdd = {
       throw error;
     }
   },
+  getCardLocationActive: async (rfid: string) => {
+    try {
+      const response = await APIAPPS.get(
+        `/v01/member/api/auth//list-card-members/${rfid}`,
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };

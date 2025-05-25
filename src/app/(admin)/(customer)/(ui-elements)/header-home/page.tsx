@@ -133,7 +133,7 @@ export default function HeaderHome() {
                   <div
                     key={index}
                     className="keen-slider__slide relative flex flex-col items-center rounded-xl bg-transparent p-2"
-                    onClick={() => handleCekDetails(item.vehicle_id.toString())}
+                    onClick={() => handleCekDetails(item.rfid)}
                   >
                     <div className="relative aspect-[3/2] w-full max-w-[230px] overflow-hidden rounded-xl">
                       <Image
@@ -148,9 +148,9 @@ export default function HeaderHome() {
                         priority
                       />
                       <div className="absolute bottom-6 left-2 rounded-md px-2 py-1 text-xs font-semibold text-white">
-                        No RFID: {item.rfid.toUpperCase()}
+                        {item.rfid.toUpperCase()}
                       </div>
-                      <div
+                      {/* <div
                         className={`absolute bottom-2 left-2 rounded-md px-2 py-1 text-xs font-semibold ${
                           item.is_active === true
                             ? "text-green-500"
@@ -158,7 +158,7 @@ export default function HeaderHome() {
                         }`}
                       >
                         {item.is_active === true ? "Active" : "Expired"}
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 ))

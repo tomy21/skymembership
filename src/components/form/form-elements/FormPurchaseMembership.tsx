@@ -166,6 +166,7 @@ export default function BookingForm() {
         period: period.label,
         product: product.label,
         vehicle: vehicle.label,
+        typeProduct: "New Membership",
         price: price.toString(),
       }).toString();
 

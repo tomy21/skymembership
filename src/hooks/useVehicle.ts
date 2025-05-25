@@ -60,6 +60,16 @@ export const useCardList = () => {
     placeholderData: (previousData) => previousData, // ini pengganti keepPreviousData
   });
 };
+export const useCardListLocation = (rfid: string) => {
+  return useQuery({
+    queryKey: ["list-card_user", rfid],
+    queryFn: () => vehicleAdd.getCardLocationActive(rfid),
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    placeholderData: (previousData) => previousData, // ini pengganti keepPreviousData
+  });
+};
 
 export const useVehicleActive = (
   type = "",

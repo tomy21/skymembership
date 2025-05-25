@@ -158,13 +158,17 @@ export default function PinVerify() {
                 user_id: trx.user_id,
                 virtual_account: trx.virtual_account,
                 rfid: trx.rfid ?? undefined,
+                admin_fee: response.data.admin_fee,
               };
 
               setAdminFee(response.data.admin_fee);
               setPaymentData(paymentDetails);
               queryClient.invalidateQueries({ queryKey: ["userById"] });
               router.push("/payment");
-              localStorage.removeItem("purchaseData");
+              sessionStorage.setItem(
+                "transactionData",
+                JSON.stringify(paymentDetails),
+              );
             },
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onError: (error: any) => {
@@ -179,7 +183,7 @@ export default function PinVerify() {
               setTimeout(() => {
                 const input = document.getElementById("pin-0");
                 if (input) input.focus();
-                // setIsModal(false);
+                setIsModal(false);
               }, 1000);
               setIsLoading(false);
             },
@@ -258,7 +262,6 @@ export default function PinVerify() {
 
           createVaTopup(data, {
             onSuccess: (response) => {
-              console.log(response);
               const trx = response.data.transaction_data;
               const paymentDetails = {
                 Id: trx.Id,
@@ -277,13 +280,18 @@ export default function PinVerify() {
                 user_id: trx.user_id,
                 virtual_account: trx.virtual_account,
                 rfid: trx.rfid ?? undefined,
+                admin_fee: response.data.admin_fee,
               };
 
               setAdminFee(response.data.admin_fee);
               setPaymentData(paymentDetails);
               queryClient.invalidateQueries({ queryKey: ["userById"] });
               router.push("/payment");
-              localStorage.removeItem("topupData");
+              sessionStorage.setItem(
+                "transactionData",
+                JSON.stringify(paymentDetails),
+              );
+              // localStorage.removeItem("topupData");
               setIsLoading(false);
             },
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

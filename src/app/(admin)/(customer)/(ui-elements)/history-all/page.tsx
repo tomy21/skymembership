@@ -63,10 +63,15 @@ export default function HistoryAll() {
     itemsPerPage,
     search,
   );
-  const { data: parkingHistory } = useHistoryParking(isAuthenticated);
+  const { data: parkingHistory } = useHistoryParking(
+    isAuthenticated,
+    currentPage,
+    itemsPerPage,
+    search,
+  );
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
-
+  console.log(parkingHistory);
   const tabs = [
     { id: "payment", label: "Payment" },
     { id: "parking", label: "Parking" },
@@ -102,6 +107,8 @@ export default function HistoryAll() {
     setCurrentPage(1);
     setMounted(true);
   }, [activeTab, search]);
+
+  console.log(pageCount);
 
   if (!mounted) {
     // selama SSR dan sebelum mount, tolak render interaktif
@@ -216,7 +223,7 @@ export default function HistoryAll() {
       <div className="mb-4 flex flex-col items-start justify-between space-y-2 md:flex-row md:items-center md:space-y-0">
         <input
           type="text"
-          placeholder="Cari riwayat berdasarkan nama produk..."
+          placeholder={`${activeTab === "payment" ? "Cari riwayat berdasarkan nama produk..." : "Cari riwayat berdasarkan nama riwayat..."}`}
           className="w-full rounded border border-gray-300 px-4 py-2 text-sm focus:outline-yellow-400 md:w-1/2"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -271,11 +278,11 @@ export default function HistoryAll() {
                           : "failed"
                     }
                   />
-                ) : (
+                ) : (item as responseHistoryParking).time ? (
                   <CardHistory
                     key={index}
                     type="parking"
-                    date={(item as responseHistoryParking).time ?? "-"}
+                    date={(item as responseHistoryParking).time}
                     product={(item as responseHistoryParking).plate_number}
                     location={(item as responseHistoryParking).location_name}
                     productName={(item as responseHistoryParking).status_member}
@@ -293,7 +300,7 @@ export default function HistoryAll() {
                       "NON-MEMBER"
                     }
                   />
-                );
+                ) : null;
               },
             )
           ) : (

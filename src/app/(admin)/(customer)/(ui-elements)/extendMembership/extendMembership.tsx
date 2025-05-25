@@ -1,15 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Select from "react-select";
-import { vehicleAdd } from "../../../../../../libs/API/VehicleListUser";
 // import Image from "next/image";
 import Loading from "@/components/Loading/Loading";
 import Button from "@/components/ui/button/Button";
 import { usePeriode, useProduct } from "@/hooks/useProduct";
 import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
+import { useCardListLocation } from "@/hooks/useVehicle";
 
 type OptionType = {
   value: string;
@@ -24,6 +25,22 @@ interface Product {
   id: string;
   product_name: string;
   price: number;
+}
+
+interface responseDetailMembers {
+  Cust_Member: number;
+  created_at: string;
+  end_date: string;
+  id: number;
+  invoice_id: string;
+  is_active: boolean;
+  is_used: boolean;
+  kid: string;
+  location_id: string;
+  location_name: string;
+  member_customer_no: string;
+  start_date: string;
+  updated_at: string;
 }
 
 export default function ExtendMembership() {
@@ -43,33 +60,41 @@ export default function ExtendMembership() {
   const [periodData, setPeriodData] = useState<OptionType[]>([]);
   const [productData, setProductData] = useState<OptionType[]>([]);
   const [price, setPrice] = useState<number>(0);
+  const [detailMember, setDetailMember] =
+    useState<responseDetailMembers | null>(null);
 
+  const idCard = searchParams.get("idCard");
   const { data: dataPeriode } = usePeriode(typeVehicle, location);
-
+  const { data: listLocation, isLoading: isLoadingLocation } =
+    useCardListLocation(idCard || "");
   const { data: dataProduct } = useProduct(
     location,
     typeVehicle,
     period?.value,
   );
-  const idCard = searchParams.get("idCard");
-  console.log(detailCard);
-  useEffect(() => {
-    const fetchDetailCard = async () => {
-      try {
-        const response = await vehicleAdd.getDetailVehicle(idCard || "");
-        setDetailCard(response.data);
-        setPlatNumber(response.data.plate_number);
-        setLocation(response.data.membership[0].location_id);
-        setLocationName(response.data.membership[0].location_name);
-        setTypeVehicle(response.data.vehicle_type);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    if (idCard) fetchDetailCard();
-  }, [idCard]);
 
-  const modalExtendCard = () => {
+  useEffect(() => {
+    if (!listLocation || !idCard) return;
+
+    try {
+      const detail = listLocation.data.detail;
+      const locations = detail.location || [];
+
+      console.log("active", detail);
+      setDetailCard(detail);
+      setPlatNumber(detail.plateNumber || "");
+      setLocation(locations);
+      setTypeVehicle(detail.vehicleType || "");
+    } catch (error) {
+      console.error("Failed to process detail card:", error);
+    }
+  }, [listLocation, idCard]);
+
+  const modalExtendCard = (membership: responseDetailMembers) => {
+    setDetailMember(membership);
+    console.log(membership);
+    setLocation(membership.location_id);
+    setLocationName(membership?.location_name);
     setModalActive(true);
   };
   const closeModal = () => {
@@ -129,41 +154,51 @@ export default function ExtendMembership() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderMembershipCard = (membership: any) => {
+    const isActive = new Date(membership.end_date) > new Date();
+
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div>
-          <p className="text-sm text-gray-500">Location</p>
-          <p className="font-medium">{membership.location_name}</p>
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-500">Location</p>
+            <p className="text-sm font-semibold text-gray-800">
+              {membership.location_name}
+            </p>
+          </div>
         </div>
-        <div className="flex w-full items-center justify-between">
+
+        <div className="mb-5 grid grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-gray-500">Start Date</p>
-            <p className="font-medium">
-              {format(membership.start_date, "dd MMM yyyy")}
+            <p className="font-medium text-gray-700">
+              {format(new Date(membership.start_date), "dd MMM yyyy")}
             </p>
           </div>
           <div>
             <p className="text-sm text-gray-500">End Date</p>
-            <p className="font-medium">
-              {format(membership.end_date, "dd MMM yyyy")}
+            <p className="font-medium text-gray-700">
+              {format(new Date(membership.end_date), "dd MMM yyyy")}
             </p>
           </div>
         </div>
+
         <div className="flex w-full items-center justify-between">
-          <div>
-            <p className="text-sm text-gray-500">Status</p>
-            <span
-              className={`rounded-full px-3 py-1 text-sm font-semibold ${
-                new Date(membership.end_date) > new Date()
-                  ? "bg-green-100 text-green-600"
-                  : "bg-red-100 text-red-600"
-              }`}
-            >
-              {new Date(membership.end_date) > new Date()
-                ? "Active"
-                : "Expired"}
-            </span>
-          </div>
+          <span
+            className={`rounded-lg px-3 py-3 text-xs font-semibold ${
+              isActive
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-600"
+            }`}
+          >
+            {isActive ? "Active" : "Expired"}
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => modalExtendCard(membership)}
+          >
+            Extend Membership
+          </Button>
         </div>
       </div>
     );
@@ -172,6 +207,7 @@ export default function ExtendMembership() {
   if (!detailCard) return <Loading />;
 
   if (isLoading) return <Loading />;
+  if (isLoadingLocation) return <Loading />;
 
   return (
     <div className="min-h-screen">
@@ -180,11 +216,11 @@ export default function ExtendMembership() {
           <div className="mb-8 space-y-2">
             <p className="text-gray-600">Plate Number</p>
             <div className="flex items-center space-x-3">
-              <span className="text-xl font-semibold">
-                {detailCard.plate_number}
+              <span className="text-lg font-semibold">
+                {detailCard.plateNumber}
               </span>
               <span className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
-                {detailCard.vehicle_type}
+                {detailCard.vehicleType}
               </span>
             </div>
           </div>
@@ -192,49 +228,26 @@ export default function ExtendMembership() {
           <div className="mb-8 space-y-2">
             <p className="text-gray-600">Member No</p>
             <div className="flex items-center space-x-3">
-              <span className="text-xl font-semibold">
+              <span className="text-lg font-semibold">
                 {detailCard.member_customer_no}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="mb-10">
-          {renderMembershipCard(detailCard.membership?.[0])}
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2">
+        <div className="mb-8 space-y-2">
           <div>
             <p className="mb-1 text-sm text-gray-500">RFID</p>
             <p className="font-medium">{detailCard.rfid}</p>
           </div>
-          {detailCard?.membership?.[0]?.end_date &&
-            new Date(detailCard.membership[0].end_date) < new Date() && (
-              <Button size="sm" variant="outline" onClick={modalExtendCard}>
-                Extend Membership
-              </Button>
-            )}
+        </div>
 
-          {/* <div>
-            <p className="mb-1 text-sm text-gray-500">STNK Image</p>
-            <Image
-              src={`https://apimembershipservice.skyparking.online/uploads/${detailCard.stnk_image}`}
-              alt="STNK"
-              className="h-40 w-full rounded-md border object-contain shadow"
-              width={100}
-              height={100}
-            />
+        <div className="max-h-[60vh] overflow-auto pr-2">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {detailCard.location.map((m: any, index: number) => (
+              <div key={index}>{renderMembershipCard(m)}</div>
+            ))}
           </div>
-          <div>
-            <p className="mb-1 text-sm text-gray-500">Plate Number Image</p>
-            <Image
-              src={`https://apimembershipservice.skyparking.online/uploads/${detailCard.plate_number_image}`}
-              alt="Plate Number"
-              className="h-40 w-full rounded-md border object-contain shadow"
-              width={100}
-              height={100}
-            />
-          </div> */}
         </div>
       </div>
 
@@ -270,7 +283,7 @@ export default function ExtendMembership() {
                   Lokasi
                 </label>
                 <h1 className="font-semibold">
-                  {detailCard.membership[0].location_name}
+                  {detailMember && detailMember.location_name}
                 </h1>
               </div>
 
@@ -279,13 +292,17 @@ export default function ExtendMembership() {
                   <label className="block text-sm font-medium text-gray-700">
                     Type Kendaraan
                   </label>
-                  <h1 className="font-semibold">{detailCard.vehicle_type}</h1>
+                  <h1 className="font-semibold">
+                    {detailMember && typeVehicle}
+                  </h1>
                 </div>
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700">
                     Plat Nomor
                   </label>
-                  <h1 className="font-semibold">{detailCard.plate_number}</h1>
+                  <h1 className="font-semibold">
+                    {detailMember && plateNumber}
+                  </h1>
                 </div>
               </div>
 
