@@ -15,6 +15,10 @@ import HeaderPage from "@/components/header-page/page";
 import { FiAlertCircle } from "react-icons/fi";
 import { Payment } from "../../../../../../libs/API/Payment";
 import { toast } from "sonner";
+import { AnimatePresence, motion } from "framer-motion";
+import { FaEnvelope } from "react-icons/fa";
+import { ClipLoader } from "react-spinners";
+import { useForgotPin } from "@/hooks/useAuth";
 
 type TopupPayload = {
   bank_id: string;
@@ -48,6 +52,9 @@ export default function PinVerify() {
   const [isLoading, setIsLoading] = useState(false);
   const [isModal, setIsModal] = useState(false);
   const [message, setMessage] = useState("");
+  const [isModalLupaPin, setIsModalLupaPin] = useState(false);
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -61,6 +68,7 @@ export default function PinVerify() {
   const searchParams = useSearchParams();
   const type = searchParams.get("type") || "";
   const [dataTopup, setDataTopup] = useState<payloadLocalStorage | null>(null);
+  const forgotPin = useForgotPin();
 
   const handleKeyPress = (key: string) => {
     // Handling backspace
@@ -369,6 +377,42 @@ export default function PinVerify() {
     "backspace",
   ];
 
+  const modalLupaPin = () => {
+    setIsModalLupaPin(true);
+    // setActiveIndex(0);
+    // setPin(Array(length).fill(""));
+  };
+
+  const modalLupaPinClose = () => {
+    setIsModalLupaPin(false);
+    setActiveIndex(0);
+    setPin(Array(length).fill(""));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    const referralUrl = window.location.origin;
+    setIsLoading(true);
+    // Simulasi request
+    try {
+      forgotPin.mutate(
+        { email, referralUrl },
+        {
+          onSuccess: () => {
+            setSubmitted(true);
+            setIsLoading(false);
+          },
+        },
+      );
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="min-h-screen w-full overflow-y-auto bg-white">
@@ -391,7 +435,12 @@ export default function PinVerify() {
             ))}
           </div>
 
-          {/* <h1 className="text-md underline text-blue-500">Lupa pin</h1> */}
+          <h1
+            onClick={modalLupaPin}
+            className="text-md text-blue-500 underline"
+          >
+            Lupa pin
+          </h1>
 
           <div className="mx-auto mt-7 grid grid-cols-3 gap-x-12 gap-y-5">
             {keypad.map((key, idx) => (
@@ -429,6 +478,68 @@ export default function PinVerify() {
           </div>
         </div>
       )}
+
+      <AnimatePresence>
+        {isModalLupaPin && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Backdrop */}
+            <motion.div
+              className="fixed inset-0 bg-black/50"
+              onClick={modalLupaPinClose}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+
+            {/* Modal Content */}
+            <motion.div
+              className="z-50 rounded-2xl bg-white p-6"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
+              <h2 className="mb-4 text-lg font-semibold">Lupa pin ...</h2>
+              {submitted ? (
+                <div className="p-5 text-center font-medium text-green-600">
+                  Link reset telah dikirim ke{" "}
+                  <span className="font-semibold">{email}</span>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="relative">
+                    <FaEnvelope className="absolute top-3.5 left-3 text-gray-400" />
+                    <input
+                      type="email"
+                      placeholder="Email Anda"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="w-full rounded-lg border border-gray-300 py-2 pr-4 pl-10 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full rounded-lg bg-blue-600 py-2 font-medium text-white transition duration-200 hover:bg-blue-700"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <ClipLoader size={20} color="#fff" />
+                    ) : (
+                      "Kirim Link Reset"
+                    )}
+                  </button>
+                </form>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

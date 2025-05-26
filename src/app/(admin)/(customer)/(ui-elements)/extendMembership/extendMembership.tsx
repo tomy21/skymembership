@@ -192,13 +192,15 @@ export default function ExtendMembership() {
           >
             {isActive ? "Active" : "Expired"}
           </span>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => modalExtendCard(membership)}
-          >
-            Extend Membership
-          </Button>
+          {!isActive && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => modalExtendCard(membership)}
+            >
+              Extend Membership
+            </Button>
+          )}
         </div>
       </div>
     );

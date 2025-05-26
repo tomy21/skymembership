@@ -64,6 +64,23 @@ export const Users = {
       throw new Error(message);
     }
   },
+  requestResetPin: async (email = "", referralUrl = "") => {
+    try {
+      const response = await APIAPPS.post(
+        `/v01/member/api/auth/request-reset-pin`,
+        {
+          email,
+          referralUrl,
+        },
+      );
+      return response.data;
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+
+      const message = err.response?.data?.message || "Unknown error";
+      throw new Error(message);
+    }
+  },
 
   requestChangePassword: async (
     password = "",
@@ -72,10 +89,26 @@ export const Users = {
   ) => {
     try {
       const response = await APIAPPS.post(
-        `/v01/member/api/auth//request-change-password`,
+        `/v01/member/api/auth/request-change-password`,
         {
           password,
           confirmPassword,
+          token,
+        },
+      );
+      return response.data;
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      return err;
+    }
+  },
+  requestChangePin: async (pin = "", confirmPin = "", token = "") => {
+    try {
+      const response = await APIAPPS.post(
+        `/v01/member/api/auth/request-change-pin`,
+        {
+          pin,
+          confirmPin,
           token,
         },
       );

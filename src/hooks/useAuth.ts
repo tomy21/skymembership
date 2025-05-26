@@ -89,6 +89,29 @@ export const useForgotPassword = () => {
   });
 };
 
+export const useForgotPin = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    { email: string; referralUrl: string }, // response type from API, bisa kamu ubah sesuai kebutuhan
+    AxiosError<{ message: string }>, // 🟢 error type
+    { email: string; referralUrl: string } // 🟡 variables type
+  >({
+    mutationFn: ({ email, referralUrl }) =>
+      Users.requestResetPin(email, referralUrl),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["users-request-reset-password"],
+      });
+    },
+    onError: (error) => {
+      // ✅ Tangani error di sini untuk mencegah throw ke global error boundary
+      console.warn("Handled error:", error.message);
+      // Optional: tampilkan toast atau logging lain
+    },
+  });
+};
+
 export const useChangePassword = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -104,6 +127,26 @@ export const useChangePassword = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["users-request-reset-password"],
+      });
+    },
+  });
+};
+
+export const useChangePin = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      pin,
+      confirmPin,
+      token,
+    }: {
+      pin: string;
+      confirmPin: string;
+      token: string;
+    }) => Users.requestChangePin(pin, confirmPin, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["users-request-reset-pin"],
       });
     },
   });
