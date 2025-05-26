@@ -90,7 +90,7 @@ export default function ChangePin() {
     // Simulasi request
     try {
       forgotPin.mutate(
-        { email, referralUrl },
+        { referralUrl },
         {
           onSuccess: () => {
             setSubmitted(true);
