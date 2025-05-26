@@ -93,15 +93,14 @@ export const useForgotPin = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
-    { email: string; referralUrl: string }, // response type from API, bisa kamu ubah sesuai kebutuhan
+    { referralUrl: string }, // response type from API, bisa kamu ubah sesuai kebutuhan
     AxiosError<{ message: string }>, // 🟢 error type
-    { email: string; referralUrl: string } // 🟡 variables type
+    { referralUrl: string } // 🟡 variables type
   >({
-    mutationFn: ({ email, referralUrl }) =>
-      Users.requestResetPin(email, referralUrl),
+    mutationFn: ({ referralUrl }) => Users.requestResetPin(referralUrl),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["users-request-reset-password"],
+        queryKey: ["users-request-reset-pin"],
       });
     },
     onError: (error) => {

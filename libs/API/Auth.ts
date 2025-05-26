@@ -64,12 +64,11 @@ export const Users = {
       throw new Error(message);
     }
   },
-  requestResetPin: async (email = "", referralUrl = "") => {
+  requestResetPin: async (referralUrl = "") => {
     try {
       const response = await APIAPPS.post(
         `/v01/member/api/auth/request-reset-pin`,
         {
-          email,
           referralUrl,
         },
       );

@@ -16,8 +16,6 @@ import { FiAlertCircle } from "react-icons/fi";
 import { Payment } from "../../../../../../libs/API/Payment";
 import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
-import { FaEnvelope } from "react-icons/fa";
-import { ClipLoader } from "react-spinners";
 import { useForgotPin } from "@/hooks/useAuth";
 
 type TopupPayload = {
@@ -53,7 +51,7 @@ export default function PinVerify() {
   const [isModal, setIsModal] = useState(false);
   const [message, setMessage] = useState("");
   const [isModalLupaPin, setIsModalLupaPin] = useState(false);
-  const [email, setEmail] = useState("");
+  // const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -379,8 +377,6 @@ export default function PinVerify() {
 
   const modalLupaPin = () => {
     setIsModalLupaPin(true);
-    // setActiveIndex(0);
-    // setPin(Array(length).fill(""));
   };
 
   const modalLupaPinClose = () => {
@@ -391,13 +387,12 @@ export default function PinVerify() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
     const referralUrl = window.location.origin;
     setIsLoading(true);
     // Simulasi request
     try {
       forgotPin.mutate(
-        { email, referralUrl },
+        { referralUrl },
         {
           onSuccess: () => {
             setSubmitted(true);
@@ -504,37 +499,30 @@ export default function PinVerify() {
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
             >
-              <h2 className="mb-4 text-lg font-semibold">Lupa pin ...</h2>
               {submitted ? (
                 <div className="p-5 text-center font-medium text-green-600">
-                  Link reset telah dikirim ke{" "}
-                  <span className="font-semibold">{email}</span>
+                  Link reset telah dikirim ke email anda .
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <div className="relative">
-                    <FaEnvelope className="absolute top-3.5 left-3 text-gray-400" />
-                    <input
-                      type="email"
-                      placeholder="Email Anda"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="w-full rounded-lg border border-gray-300 py-2 pr-4 pl-10 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                    />
+                <>
+                  <h1 className="mb-4 text-sm font-medium">
+                    Anda yakin untuk reset PIN ?
+                  </h1>
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      onClick={modalLupaPinClose}
+                      className="rounded bg-red-500 px-3 py-1 text-sm font-medium text-white"
+                    >
+                      Tidak
+                    </button>
+                    <button
+                      onClick={handleSubmit}
+                      className="rounded bg-blue-500 px-3 py-1 text-sm font-medium text-white"
+                    >
+                      Ya
+                    </button>
                   </div>
-                  <button
-                    type="submit"
-                    className="w-full rounded-lg bg-blue-600 py-2 font-medium text-white transition duration-200 hover:bg-blue-700"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <ClipLoader size={20} color="#fff" />
-                    ) : (
-                      "Kirim Link Reset"
-                    )}
-                  </button>
-                </form>
+                </>
               )}
             </motion.div>
           </motion.div>
