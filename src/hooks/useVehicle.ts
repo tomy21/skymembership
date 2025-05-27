@@ -1,6 +1,12 @@
-import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseQueryResult,
+} from "@tanstack/react-query";
 import { vehicleAdd, VehicleListUser } from "../../libs/API/VehicleListUser";
 import { AxiosError } from "axios";
+import { queryClient } from "@/components/user-profile/ProfilDropdown";
 
 export type CardHistoryProps = {
   type: "payment" | "parking";
@@ -50,14 +56,14 @@ export const useVehicle = (
   });
 };
 
-export const useCardList = () => {
+export const useCardList = (isAuthenticated: boolean) => {
   return useQuery({
-    queryKey: ["list-card_user"],
+    queryKey: ["list-card", isAuthenticated],
     queryFn: () => vehicleAdd.getCardDetails(),
+    enabled: isAuthenticated,
     staleTime: 1000 * 60 * 5,
     retry: 1,
     refetchOnWindowFocus: false,
-    placeholderData: (previousData) => previousData, // ini pengganti keepPreviousData
   });
 };
 export const useCardListLocation = (rfid: string) => {
@@ -67,7 +73,7 @@ export const useCardListLocation = (rfid: string) => {
     staleTime: 1000 * 60 * 5,
     retry: 1,
     refetchOnWindowFocus: false,
-    placeholderData: (previousData) => previousData, // ini pengganti keepPreviousData
+    // placeholderData: (previousData) => previousData,
   });
 };
 
@@ -112,6 +118,9 @@ export const useAddVehicle = () => {
 
       return vehicleAdd.addVehicle(formData);
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vehicleData"] });
+    },
     onError: (error: AxiosError) => {
       console.error(
         "❌ Add Vehicle Error:",
@@ -122,6 +131,8 @@ export const useAddVehicle = () => {
 };
 
 export const useUpdateRFID = () => {
+  const queryClient = useQueryClient(); // ✅ ini penting
+
   return useMutation({
     mutationFn: async ({
       plate_number,
@@ -131,6 +142,20 @@ export const useUpdateRFID = () => {
       RFID_Number: string;
     }) => {
       return vehicleAdd.udpatedRFID(plate_number, RFID_Number);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["vehicleData"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["userById"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["list-card"],
+        exact: false,
+      });
     },
     onError: (error: AxiosError) => {
       console.error(

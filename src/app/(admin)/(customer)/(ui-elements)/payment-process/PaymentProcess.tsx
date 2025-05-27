@@ -29,15 +29,15 @@ export default function PaymentProcess() {
 
   const dataSession = sessionStorage.getItem("transactionData");
   const dataSessionJson = dataSession ? JSON.parse(dataSession) : null;
+
   const topup = localStorage.getItem("topupData");
   const topupData = topup ? JSON.parse(topup) : null;
+
   const localStorageData = localStorage.getItem("purchaseData");
   const localStorageDataJson = localStorageData
     ? JSON.parse(localStorageData)
     : null;
-  console.log(topupData);
 
-  console.log("dataSessionJson", dataSessionJson);
   const paymentHistory = usePaymentByVA(idTransaction);
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -102,6 +102,7 @@ export default function PaymentProcess() {
     localStorage.removeItem("localStorageDataJson");
     localStorage.removeItem("purchaseData");
     sessionStorage.removeItem("transactionData");
+    sessionStorage.removeItem("topupData");
     router.push("/home");
   };
 

@@ -83,18 +83,6 @@ export default function BookingForm() {
   const [vehicleUsers, setVehicleUsers] = useState<OptionType[]>([]);
   const defaultAdditional = useMemo(() => ({ page: 1, limit: 5 }), []);
 
-  // MAPPING LOCATION
-  // useEffect(() => {
-  //   if (Array.isArray(dataLocation?.data)) {
-  //     setLocationData(
-  //       dataLocation.data.map((loc) => ({
-  //         value: loc.location_code,
-  //         label: loc.location_name,
-  //       }))
-  //     );
-  //   }
-  // }, [dataLocation]);
-
   // MAPPING VEHICLE TYPE
   useEffect(() => {
     if (Array.isArray(dataVehicle?.data)) {

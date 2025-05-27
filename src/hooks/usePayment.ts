@@ -78,6 +78,17 @@ export const useCreatePurchaseByPoint = () => {
   });
 };
 
+export const useExtendByPoint = () => {
+  return useMutation({
+    mutationFn: async ({ idProduct, data }: CreateVaPurchaseParams) => {
+      return await Payment.extendByPoint({ idProduct, data });
+    },
+    // onError: (error: AxiosError) => {
+    //   return error.response?.data || error.message;
+    // },
+  });
+};
+
 export const usePaymentByVA = (VA: string) => {
   return useQuery({
     queryKey: ["historyTransacton", VA],

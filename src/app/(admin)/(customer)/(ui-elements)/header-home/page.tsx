@@ -12,6 +12,7 @@ import { ClipLoader } from "react-spinners";
 import ProfileDropdown from "@/components/user-profile/ProfilDropdown";
 import NotificationDropdown from "@/components/header/NotificationDropdown";
 import { useCardList } from "@/hooks/useVehicle";
+import { useAuth } from "@/context/AuthContext";
 
 interface responseCard {
   id: number;
@@ -27,28 +28,27 @@ export default function HeaderHome() {
   const { data, isLoading, isError, refetch } = useDetailCustomer();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [totalSlides, setTotalSlides] = useState(0);
+  const { isAuthenticated } = useAuth();
 
   const {
     data: dataCard,
     isLoading: isLoadingCardData,
     isError: isErrorCardData,
-  } = useCardList();
+    refetch: refetchCard,
+  } = useCardList(isAuthenticated);
 
-  console.log(dataCard);
+  useEffect(() => {
+    refetch();
+    refetchCard();
+    setTotalSlides(dataCard?.data.length || 0);
+  }, [dataCard?.data.length, refetch, refetchCard]);
 
   const router = useRouter();
   const [sliderRef] = useKeenSlider<HTMLDivElement>({
     slideChanged(slider) {
       setCurrentSlide(slider.track.details.rel); // rel = slide aktif (0-index)
     },
-    created(slider) {
-      setTotalSlides(slider.track.details.slides.length);
-    },
   });
-
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
 
   const getInitials = (fullname: string) => {
     if (!fullname) return "";
@@ -105,65 +105,54 @@ export default function HeaderHome() {
         </div>
 
         <div ref={sliderRef} className="keen-slider mt-4 w-full">
-          <div ref={sliderRef} className="keen-slider mt-4 w-full">
-            {isLoadingCardData ? (
-              // Skeleton loading
-              [...Array(2)].map((_, index) => (
-                <div key={index} className="keen-slider__slide p-2">
-                  <div className="aspect-[3/2] w-full max-w-[230px] animate-pulse rounded-xl bg-gray-300" />
-                </div>
-              ))
-            ) : dataCard.data?.filter((item: responseCard) => item.rfid)
-                ?.length === 0 ? (
-              // Kalau kosong
-              <div className="m-auto flex w-full flex-col items-center justify-center overflow-hidden rounded-xl">
-                <Image
-                  src="/images/company/card-member.png"
-                  alt="Empty Image"
-                  width={100}
-                  height={100}
-                />
-                <h1>Kamu belum memiliki kartu</h1>
+          {isLoadingCardData ? (
+            // Skeleton loading
+            [...Array(2)].map((_, index) => (
+              <div key={index} className="keen-slider__slide p-2">
+                <div className="aspect-[3/2] w-full max-w-[230px] animate-pulse rounded-xl bg-gray-300" />
               </div>
-            ) : (
-              // Data kartu
-              dataCard.data
-                .filter((item: responseCard) => item.rfid)
-                .map((item: responseCard, index: number) => (
-                  <div
-                    key={index}
-                    className="keen-slider__slide relative flex flex-col items-center rounded-xl bg-transparent p-2"
-                    onClick={() => handleCekDetails(item.rfid)}
-                  >
-                    <div className="relative aspect-[3/2] w-full max-w-[230px] overflow-hidden rounded-xl">
-                      <Image
-                        src={
-                          item.vehicle_type === "MOBIL"
-                            ? "/images/company/card03.png"
-                            : "/images/company/card02.png"
-                        }
-                        alt="Card Image"
-                        fill
-                        className="rounded-xl object-cover"
-                        priority
-                      />
-                      <div className="absolute bottom-6 left-2 rounded-md px-2 py-1 text-xs font-semibold text-white">
-                        {item.rfid.toUpperCase()}
-                      </div>
-                      {/* <div
-                        className={`absolute bottom-2 left-2 rounded-md px-2 py-1 text-xs font-semibold ${
-                          item.is_active === true
-                            ? "text-green-500"
-                            : "text-red-500"
-                        }`}
-                      >
-                        {item.is_active === true ? "Active" : "Expired"}
-                      </div> */}
+            ))
+          ) : dataCard.data?.filter((item: responseCard) => item.rfid)
+              ?.length === 0 ? (
+            // Kalau kosong
+            <div className="m-auto flex w-full flex-col items-center justify-center overflow-hidden rounded-xl">
+              <Image
+                src="/images/company/card-member.png"
+                alt="Empty Image"
+                width={100}
+                height={100}
+              />
+              <h1>Kamu belum memiliki kartu</h1>
+            </div>
+          ) : (
+            // Data kartu
+            dataCard.data
+              .filter((item: responseCard) => item.rfid)
+              .map((item: responseCard, index: number) => (
+                <div
+                  key={index}
+                  className="keen-slider__slide relative flex flex-col items-center rounded-xl bg-transparent p-2"
+                  onClick={() => handleCekDetails(item.rfid)}
+                >
+                  <div className="relative aspect-[3/2] w-full max-w-[230px] overflow-hidden rounded-xl">
+                    <Image
+                      src={
+                        item.vehicle_type === "MOBIL"
+                          ? "/images/company/card03.png"
+                          : "/images/company/card02.png"
+                      }
+                      alt="Card Image"
+                      fill
+                      className="rounded-xl object-cover"
+                      priority
+                    />
+                    <div className="absolute bottom-6 left-2 rounded-md px-2 py-1 text-xs font-semibold text-white">
+                      {item.rfid.toUpperCase()}
                     </div>
                   </div>
-                ))
-            )}
-          </div>
+                </div>
+              ))
+          )}
         </div>
         {totalSlides > 0 && (
           <div className="text-sm font-medium text-gray-600">

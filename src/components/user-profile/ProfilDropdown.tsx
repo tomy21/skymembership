@@ -16,27 +16,30 @@ export default function ProfileDropdown({ initial }: { initial: string }) {
   const router = useRouter();
   const logoutMutation = useLogout();
   const [isLoading, setIsLoading] = useState(false);
-  const { isAuthenticated, logout } = useAuth();
+  const { logout } = useAuth();
 
   const handleLogout = async () => {
     setIsLoading(true);
-    await logoutMutation.mutateAsync();
+    try {
+      await logoutMutation.mutateAsync();
 
-    // Hapus cookie/token lainnya
-    document.cookie = "refreshToken=; max-age=0; path=/";
-    Cookies.remove("refreshToken");
+      document.cookie = "refreshToken=; max-age=0; path=/";
+      Cookies.remove("refreshToken");
 
-    // Hapus data react-query
-    queryClient.removeQueries({ queryKey: ["historyPayment"] });
-    queryClient.removeQueries({ queryKey: ["historyParking"] });
-    queryClient.removeQueries({ queryKey: ["vehicleData"] });
-    queryClient.clear();
+      queryClient.removeQueries({ queryKey: ["historyPayment"] });
+      queryClient.removeQueries({ queryKey: ["historyParking"] });
+      queryClient.removeQueries({ queryKey: ["vehicleData"] });
+      queryClient.removeQueries({ queryKey: ["list-card"] });
+      await queryClient.invalidateQueries();
 
-    // 🔑 Ini yang penting — update state context
-    logout(); // <-- ini akan set isAuthenticated jadi false
+      logout(); // set isAuthenticated = false
 
-    console.log("isAuthenticated", isAuthenticated);
-    router.push("/");
+      router.push("/");
+    } catch (error) {
+      console.error("Logout gagal:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isLoading) {

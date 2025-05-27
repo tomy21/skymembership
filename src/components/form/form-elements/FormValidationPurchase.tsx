@@ -125,6 +125,8 @@ export default function ConfirmationForm() {
       provider: selectedProviders[0],
     };
 
+    console.log(dataPayload);
+
     localStorage.setItem("purchaseData", JSON.stringify(dataPayload));
 
     setPurchaseData({

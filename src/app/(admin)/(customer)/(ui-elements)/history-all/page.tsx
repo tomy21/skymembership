@@ -71,7 +71,7 @@ export default function HistoryAll() {
   );
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
-  console.log(parkingHistory);
+
   const tabs = [
     { id: "payment", label: "Payment" },
     { id: "parking", label: "Parking" },
@@ -107,8 +107,6 @@ export default function HistoryAll() {
     setCurrentPage(1);
     setMounted(true);
   }, [activeTab, search]);
-
-  console.log(pageCount);
 
   if (!mounted) {
     // selama SSR dan sebelum mount, tolak render interaktif

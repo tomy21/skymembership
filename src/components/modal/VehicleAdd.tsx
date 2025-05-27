@@ -80,7 +80,14 @@ export default function VehicleAdd() {
           setIsLoading(false);
           toast.success("Berhasil menambahkan kendaraan.");
           setIsOpen(false);
-          queryClient.invalidateQueries({ queryKey: ["vehicleData"] });
+          queryClient.invalidateQueries({
+            queryKey: ["vehicleData"],
+            exact: false,
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["vehicleDataActive"],
+            exact: false,
+          });
           setFormData({
             vehicle_type: "",
             plate_prefix: "", // Kotak 1

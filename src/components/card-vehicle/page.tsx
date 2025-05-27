@@ -92,7 +92,18 @@ export default function CardVehicle({
         setIsModal(false);
         setRfid("");
         toast.success(response.message);
-        queryClient.invalidateQueries({ queryKey: ["vehicleData"] });
+        queryClient.invalidateQueries({
+          queryKey: ["vehicleData"],
+          exact: false,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["userById"],
+          exact: false,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["list-card"],
+          exact: false,
+        });
       } else {
         setRfid("");
         toast.error(response.response.data.message);

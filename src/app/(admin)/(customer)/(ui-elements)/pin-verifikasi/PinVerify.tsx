@@ -6,6 +6,7 @@ import {
   useCreateVaExtend,
   useCreateVaPurchase,
   useCreateVaTopup,
+  useExtendByPoint,
 } from "@/hooks/usePayment";
 import { usePaymentContext } from "@/context/PaymentContext";
 import { useQueryClient } from "@tanstack/react-query";
@@ -63,6 +64,7 @@ export default function PinVerify() {
   const { mutate: createPurchase } = useCreateVaPurchase();
   const { mutate: createExtend } = useCreateVaExtend();
   const { mutate: createPurchasePoint } = useCreatePurchaseByPoint();
+  const { mutate: extendProductPoint } = useExtendByPoint();
   const searchParams = useSearchParams();
   const type = searchParams.get("type") || "";
   const [dataTopup, setDataTopup] = useState<payloadLocalStorage | null>(null);
@@ -102,8 +104,6 @@ export default function PinVerify() {
     }
   }, []);
 
-  console.log(purchaseData.type);
-
   useEffect(() => {
     const handleVerification = async () => {
       const isComplete = pin.every((val) => val !== "");
@@ -142,7 +142,7 @@ export default function PinVerify() {
 
           const submitType =
             purchaseData.type === "Extend" ? createExtend : createPurchase;
-          console.log(data);
+
           submitType(data, {
             onSuccess: (response) => {
               const trx = response.data.transaction_data ?? response.data;
@@ -176,6 +176,7 @@ export default function PinVerify() {
                 JSON.stringify(paymentDetails),
               );
             },
+
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onError: (error: any) => {
               setIsModal(true);
@@ -214,7 +215,12 @@ export default function PinVerify() {
             },
           };
 
-          createPurchasePoint(data, {
+          const submitType =
+            purchaseData.type === "Extend"
+              ? extendProductPoint
+              : createPurchasePoint;
+
+          submitType(data, {
             onSuccess: (response) => {
               const trx = response.data.transaction_data;
               const paymentDetails = {
@@ -245,6 +251,9 @@ export default function PinVerify() {
             onError: (error) => {
               setIsModal(true);
               setMessage(error.message);
+              setInterval(() => {
+                setIsModal(false);
+              }, 1000);
               setPin(Array(length).fill(""));
               setActiveIndex(0);
             },
@@ -348,6 +357,7 @@ export default function PinVerify() {
     createPurchasePoint,
     createVaTopup,
     dataTopup,
+    extendProductPoint,
     pin,
     purchaseData.bank_id,
     purchaseData.idProduct,
