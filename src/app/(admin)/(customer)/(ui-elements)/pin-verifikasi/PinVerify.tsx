@@ -511,7 +511,7 @@ export default function PinVerify() {
             >
               {submitted ? (
                 <div className="p-5 text-center font-medium text-green-600">
-                  Link reset telah dikirim ke email anda .
+                  Link reset telah dikirim ke email anda.
                 </div>
               ) : (
                 <>
