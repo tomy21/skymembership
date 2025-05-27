@@ -80,7 +80,6 @@ export default function ExtendMembership() {
       const detail = listLocation.data.detail;
       const locations = detail.location || [];
 
-      console.log("active", detail);
       setDetailCard(detail);
       setPlatNumber(detail.plateNumber || "");
       setLocation(locations);
@@ -92,7 +91,6 @@ export default function ExtendMembership() {
 
   const modalExtendCard = (membership: responseDetailMembers) => {
     setDetailMember(membership);
-    console.log(membership);
     setLocation(membership.location_id);
     setLocationName(membership?.location_name);
     setModalActive(true);
@@ -154,7 +152,8 @@ export default function ExtendMembership() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderMembershipCard = (membership: any) => {
-    const isActive = new Date(membership.end_date) > new Date();
+    const isExpired = new Date(membership.end_date) > new Date();
+    const isActive = membership.is_active;
 
     return (
       <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
@@ -192,15 +191,16 @@ export default function ExtendMembership() {
           >
             {isActive ? "Active" : "Expired"}
           </span>
-          {!isActive && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => modalExtendCard(membership)}
-            >
-              Extend Membership
-            </Button>
-          )}
+          {!isActive ||
+            (!isExpired && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => modalExtendCard(membership)}
+              >
+                Extend Membership
+              </Button>
+            ))}
         </div>
       </div>
     );
