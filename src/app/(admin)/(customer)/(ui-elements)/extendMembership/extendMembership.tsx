@@ -184,12 +184,12 @@ export default function ExtendMembership() {
         <div className="flex w-full items-center justify-between">
           <span
             className={`rounded-lg px-3 py-3 text-xs font-semibold ${
-              isExpired
+              isExpired && isActive
                 ? "bg-green-100 text-green-700"
                 : "bg-red-100 text-red-600"
             }`}
           >
-            {isExpired ? "Active" : "Expired"}
+            {isExpired && isActive ? "Active" : "Expired"}
           </span>
           {!isActive ||
             (!isExpired && (
