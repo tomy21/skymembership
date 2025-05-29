@@ -16,7 +16,7 @@ interface responseHistoryPayment {
   expired_date: string;
   id: number;
   invoice_id: string;
-  platNumber: string;
+  // platNumber: string;
   location_code: string;
   location_name: string;
   periode: string;
@@ -261,9 +261,6 @@ export default function HistoryAll() {
                     location={
                       (item as responseHistoryPayment).location_name ??
                       (item as responseHistoryPayment).invoice_id
-                    }
-                    platNumber={
-                      (item as responseHistoryPayment).platNumber ?? "-"
                     }
                     productName={
                       (item as responseHistoryPayment).purchase_type === "TOPUP"

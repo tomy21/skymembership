@@ -10,7 +10,7 @@ type CardHistoryProps = {
   product: string;
   location: string;
   productName: string;
-  platNumber: string;
+  platNumber?: string;
   amount: number;
   status: "paid" | "failed" | "pending" | "masuk" | "keluar";
   isMember?: boolean;
