@@ -252,7 +252,7 @@ export default function HistoryAll() {
                     type="payment"
                     onClick={() =>
                       handleCekDetails(
-                        (item as responseHistoryPayment).trxId.toString(),
+                        (item as responseHistoryPayment).trxId?.toString(),
                       )
                     }
                     date={(item as responseHistoryPayment).createdAt}
@@ -261,7 +261,7 @@ export default function HistoryAll() {
                       (item as responseHistoryPayment).location_name ??
                       (item as responseHistoryPayment).invoice_id
                     }
-                    platNumber="-"
+                    platNumber={"-"}
                     productName={
                       (item as responseHistoryPayment).purchase_type === "TOPUP"
                         ? `${(item as responseHistoryPayment).product_name} Points`
