@@ -10,6 +10,7 @@ type CardHistoryProps = {
   product: string;
   location: string;
   productName: string;
+  platNumber: string;
   amount: number;
   status: "paid" | "failed" | "pending" | "masuk" | "keluar";
   isMember?: boolean;
@@ -22,6 +23,7 @@ export default function CardHistory({
   product,
   location,
   productName,
+  platNumber,
   amount,
   status,
   isMember,
@@ -74,7 +76,7 @@ export default function CardHistory({
             </p>
             <div className="flex w-full items-center justify-between">
               <p className="text-base font-semibold text-gray-800 dark:text-white">
-                {productName}
+                {productName === "-" ? platNumber : productName}
               </p>
               <p className="text-md font-bold text-emerald-600 dark:text-emerald-400">
                 {amount.toLocaleString("id-ID", {

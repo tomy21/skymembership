@@ -261,6 +261,7 @@ export default function HistoryAll() {
                       (item as responseHistoryPayment).location_name ??
                       (item as responseHistoryPayment).invoice_id
                     }
+                    platNumber="-"
                     productName={
                       (item as responseHistoryPayment).purchase_type === "TOPUP"
                         ? `${(item as responseHistoryPayment).product_name} Points`
@@ -283,7 +284,8 @@ export default function HistoryAll() {
                     date={(item as responseHistoryParking).time}
                     product={(item as responseHistoryParking).plate_number}
                     location={(item as responseHistoryParking).location_name}
-                    productName={(item as responseHistoryParking).status_member}
+                    productName={"-"}
+                    platNumber={(item as responseHistoryParking).plate_number}
                     amount={Number(
                       (item as responseHistoryParking).tariff ?? 0,
                     )}

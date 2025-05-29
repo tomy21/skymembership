@@ -175,7 +175,7 @@ export default function PaymentProcess() {
             },
             {
               label: "Amount Paid",
-              value: `Rp ${payment?.data.paid_amount?.toLocaleString("id-ID") ?? paymentHistory?.data.data.price?.toLocaleString("id-ID")}`,
+              value: `Rp ${Number(payment?.data.paid_amount ?? paymentHistory?.data.data.price).toLocaleString("id-ID")}`,
             },
             {
               label: "Date",
