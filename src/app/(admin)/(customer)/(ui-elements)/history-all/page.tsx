@@ -222,7 +222,7 @@ export default function HistoryAll() {
       <div className="mb-4 flex flex-col items-start justify-between space-y-2 md:flex-row md:items-center md:space-y-0">
         <input
           type="text"
-          placeholder={`${activeTab === "payment" ? "Cari riwayat berdasarkan nama produk..." : "Cari riwayat berdasarkan nama riwayat..."}`}
+          placeholder={`${activeTab === "payment" ? "Cari riwayat berdasarkan nama produk..." : "Cari berdasarkan plat nomor dan lokasi..."}`}
           className="w-full rounded border border-gray-300 px-4 py-2 text-sm focus:outline-yellow-400 md:w-1/2"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
