@@ -136,24 +136,28 @@ export default function NotificationDropdown() {
           </button>
         </div>
         <ul className="custom-scrollbar flex h-auto flex-col overflow-y-auto">
-          {/* Example notification items */}
-
-          {dataNotify.map((notify, index) => (
-            <li
-              key={index}
-              className="mb-3 flex items-center gap-3 border-b border-gray-100 p-3 dark:border-gray-700"
-              onClick={() => handleNotificationClick(notify)}
-            >
-              <div>
-                <p className="mb-1 text-sm text-gray-700 dark:text-gray-200">
-                  {notify.Title}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {notify.Message}
-                </p>
-              </div>
+          {dataNotify && dataNotify.length > 0 ? (
+            dataNotify.map((notify, index) => (
+              <li
+                key={index}
+                className="mb-3 flex items-center gap-3 border-b border-gray-100 p-3 dark:border-gray-700"
+                onClick={() => handleNotificationClick(notify)}
+              >
+                <div>
+                  <p className="mb-1 text-sm text-gray-700 dark:text-gray-200">
+                    {notify.Title}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {notify.Message}
+                  </p>
+                </div>
+              </li>
+            ))
+          ) : (
+            <li className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+              Belum ada notifikasi
             </li>
-          ))}
+          )}
         </ul>
         {/* <Link
           href="/"

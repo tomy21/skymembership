@@ -223,8 +223,12 @@ export default function PinVerify() {
           submitType(data, {
             onSuccess: (response) => {
               const trx = response.data.transaction_data;
+              if (!trx) {
+                console.error("Transaction data is undefined", response.data);
+                return;
+              }
               const paymentDetails = {
-                Id: trx.Id,
+                Id: trx.Id ?? "-",
                 createdAt: trx.createdAt,
                 expired_date: trx.expired_date,
                 invoice_id: trx.invoice_id,
@@ -238,14 +242,18 @@ export default function PinVerify() {
                 trxId: trx.trxId,
                 updatedAt: trx.updatedAt,
                 user_id: trx.user_id,
-                virtual_account: trx.virtual_account,
+                virtual_account: trx.virtual_account ?? "-",
                 rfid: trx.rfid ?? undefined,
               };
 
               setAdminFee(response.data.admin_fee);
               setPaymentData(paymentDetails);
               queryClient.invalidateQueries({ queryKey: ["userById"] });
-              router.push(`/payment?idTransaction=${paymentDetails.trxId}`);
+              queryClient.invalidateQueries({ queryKey: ["list-card_user"] });
+
+              router.push(`/home`);
+              toast.success("Pembayaran berhasil");
+
               localStorage.removeItem("purchaseData");
             },
             onError: (error) => {

@@ -31,6 +31,7 @@ export default function ProfileDropdown({ initial }: { initial: string }) {
       queryClient.removeQueries({ queryKey: ["vehicleData"] });
       queryClient.removeQueries({ queryKey: ["list-card"] });
       await queryClient.invalidateQueries();
+      localStorage.clear();
 
       logout(); // set isAuthenticated = false
 
