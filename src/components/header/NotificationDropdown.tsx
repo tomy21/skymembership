@@ -69,8 +69,14 @@ export default function NotificationDropdown() {
       if (!response) throw new Error("Network response was not ok");
 
       if (response.data.statusCode === 200) {
-        if (response.data.data.NoRFID !== null) {
-          router.push(`extend-membership?idCard=${response.data.data.NoRFID}`);
+        if (dataCustomer.Title === "Pemberitahuan Membership") {
+          fetchNotification();
+        } else {
+          if (response.data.data.NoRFID !== null) {
+            router.push(
+              `extend-membership?idCard=${response.data.data.NoRFID}`,
+            );
+          }
         }
       }
     } catch (error) {
