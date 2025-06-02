@@ -17,6 +17,7 @@
 
 # docker
 docker-compose.copy.yml
+docker-compose.yml
 
 # production
 /build
