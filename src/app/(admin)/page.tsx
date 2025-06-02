@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import React from "react";
-// import AuthCustomer from "./Auth/customer/page";
-import ComingSoonPage from "@/components/comingSoon";
+import AuthCustomer from "./Auth/customer/page";
+// import ComingSoonPage from "@/components/comingSoon";
 
 export const metadata: Metadata = {
   title: "Login | SKY Membership",
@@ -11,10 +11,10 @@ export const metadata: Metadata = {
 export default function Login() {
   return (
     <>
-      {/* <AuthCustomer /> */}
-      <div className="min-h-screen">
+      <AuthCustomer />
+      {/* <div className="min-h-screen">
         <ComingSoonPage />
-      </div>
+      </div> */}
     </>
   );
 }
