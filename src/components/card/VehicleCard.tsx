@@ -7,17 +7,36 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { ClipLoader } from "react-spinners";
 import { useDebounce } from "use-debounce";
 import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function VehicleCard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [searchText, setSearchText] = useState("");
   const [debouncedSearchText] = useDebounce(searchText, 500);
+  const { isAuthenticated, isLoadingAuth, userToken } = useAuth();
   const {
     data: dataVehicle,
     isLoading,
     isError,
-  } = useVehicle(currentPage, itemsPerPage, debouncedSearchText);
+    refetch,
+  } = useVehicle(
+    isAuthenticated,
+    userToken!,
+    currentPage,
+    itemsPerPage,
+    debouncedSearchText,
+  );
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoadingAuth && !isAuthenticated) {
+      router.push("/");
+    }
+    refetch();
+  }, [isAuthenticated, isLoadingAuth, router, refetch]);
 
   // recalc itemsPerPage on resize
   useEffect(() => {
@@ -30,11 +49,10 @@ export default function VehicleCard() {
       );
       setItemsPerPage(perPage);
     }
-
     updateCount();
     window.addEventListener("resize", updateCount);
     return () => window.removeEventListener("resize", updateCount);
-  }, []);
+  }, [refetch]);
 
   const handleSearchTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();

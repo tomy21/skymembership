@@ -1,11 +1,45 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { DropdownItem } from "../ui/dropdown/DropdownItem";
+// import { DropdownItem } from "../ui/dropdown/DropdownItem";
+import { APIAPPS } from "../../../libs/ApiServices";
+import { useRouter } from "next/navigation";
+
+interface NotificationDropdownProps {
+  Id: number;
+  Title: string;
+  Message: string;
+  CreatedAt: string;
+  UserId: number;
+  PlateNumber: string;
+  IsRead: boolean;
+  CustomerNo: string;
+}
 
 export default function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  // const [notifying, setNotifying] = useState(true);
+  const [notifying, setNotifying] = useState(true);
+  const [dataNotify, setDataNotify] = useState<NotificationDropdownProps[]>([]);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    fetchNotification();
+  }, []);
+
+  const fetchNotification = async () => {
+    try {
+      const response = await APIAPPS.get("/v01/member/api/notification-get");
+      if (!response) throw new Error("Network response was not ok");
+
+      const data = response.data.data;
+      setNotifying(data.length > 0);
+      setDataNotify(data);
+      return data;
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    }
+  };
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -19,19 +53,50 @@ export default function NotificationDropdown() {
     toggleDropdown();
     // setNotifying(false);
   };
+
+  const handleNotificationClick = async (
+    dataCustomer: NotificationDropdownProps,
+  ) => {
+    toggleDropdown();
+    setNotifying(false);
+
+    try {
+      const response = await APIAPPS.put(
+        `/v01/member/api/notification-read/${dataCustomer.Id}`,
+        {},
+      );
+
+      if (!response) throw new Error("Network response was not ok");
+
+      if (response.data.statusCode === 200) {
+        if (dataCustomer.Title === "Pemberitahuan Membership") {
+          fetchNotification();
+        } else {
+          if (response.data.data.NoRFID !== null) {
+            router.push(
+              `extend-membership?idCard=${response.data.data.NoRFID}`,
+            );
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to update notification:", error);
+    }
+  };
+
   return (
     <div className="relative">
       <button
         className="dropdown-toggle relative flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
         onClick={handleClick}
       >
-        {/* <span
+        <span
           className={`absolute top-0.5 right-0 z-10 h-2 w-2 rounded-full bg-orange-400 ${
             !notifying ? "hidden" : "flex"
           }`}
         >
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75"></span>
-        </span> */}
+        </span>
         <svg
           className="fill-current"
           width="20"
@@ -77,18 +142,28 @@ export default function NotificationDropdown() {
           </button>
         </div>
         <ul className="custom-scrollbar flex h-auto flex-col overflow-y-auto">
-          {/* Example notification items */}
-
-          <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-              href="#"
-            >
+          {dataNotify && dataNotify.length > 0 ? (
+            dataNotify.map((notify, index) => (
+              <li
+                key={index}
+                className="mb-3 flex items-center gap-3 border-b border-gray-100 p-3 dark:border-gray-700"
+                onClick={() => handleNotificationClick(notify)}
+              >
+                <div>
+                  <p className="mb-1 text-sm text-gray-700 dark:text-gray-200">
+                    {notify.Title}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {notify.Message}
+                  </p>
+                </div>
+              </li>
+            ))
+          ) : (
+            <li className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
               Belum ada notifikasi
-            </DropdownItem>
-          </li>
-          {/* Add more items as needed */}
+            </li>
+          )}
         </ul>
         {/* <Link
           href="/"

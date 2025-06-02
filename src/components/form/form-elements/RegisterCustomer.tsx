@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 import { ClipLoader } from "react-spinners";
 import { useRouter } from "next/navigation";
 import TextArea from "@/components/form/input/TextArea";
+import getMaxBirthdate from "./getMaxBirthDate";
 // import CustomDatePicker from "../date-picker";
 
 export default function RegisterPage() {
@@ -90,6 +91,7 @@ export default function RegisterPage() {
 
   const getPasswordStrength = (password: string) => {
     let score = 0;
+    if (password.length <= 0) score = 0;
     if (password.length >= 8) score++;
     if (/[A-Z]/.test(password)) score++;
     if (/[a-z]/.test(password)) score++;
@@ -132,6 +134,17 @@ export default function RegisterPage() {
     }
   };
 
+  const isValidBirthdate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    // const now = new Date();
+    const minDate = new Date("1900-01-01");
+    const maxDate = getMaxBirthdate(); // string format: "YYYY-MM-DD"
+
+    return (
+      !isNaN(date.getTime()) && date >= minDate && date <= new Date(maxDate)
+    );
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -172,7 +185,11 @@ export default function RegisterPage() {
     }
 
     if (!gender) newErrors.gender = "Gender is required.";
-    // if (!birthdate) newErrors.birthdate = "Birthdate is required.";
+    if (!birthdate) {
+      newErrors.birthdate = "Birthdate is required.";
+    } else if (!isValidBirthdate(birthdate)) {
+      newErrors.birthdate = "Birthdate is not valid.";
+    }
 
     if (!password) {
       newErrors.password = "Password is required.";
@@ -350,11 +367,12 @@ export default function RegisterPage() {
             <Input
               type={showPassword ? "text" : "password"}
               id="password"
-              defaultValue={password}
               name="password"
+              defaultValue={password}
               onChange={(e) => {
-                setPassword(e.target.value);
-                setPasswordStrength(getPasswordStrength(e.target.value));
+                const value = e.target.value;
+                setPassword(value);
+                setPasswordStrength(getPasswordStrength(value));
               }}
               className="input pr-10"
               placeholder="Masukkan password"
@@ -366,11 +384,22 @@ export default function RegisterPage() {
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </div>
           </div>
-          <div className="mt-1 h-2 rounded bg-gray-300">
-            <div
-              className={`h-2 rounded transition-all duration-300 ${passwordStrength <= 2 ? "w-1/3 bg-red-500" : passwordStrength === 3 ? "w-2/3 bg-yellow-500" : "w-full bg-green-500"}`}
-            ></div>
-          </div>
+
+          {/* Hanya tampilkan bar jika password tidak kosong */}
+          {password.length > 0 && (
+            <div className="mt-1 h-2 rounded bg-gray-300">
+              <div
+                className={`h-2 rounded transition-all duration-300 ${
+                  passwordStrength <= 2
+                    ? "w-1/3 bg-red-500"
+                    : passwordStrength === 3
+                      ? "w-2/3 bg-yellow-500"
+                      : "w-full bg-green-500"
+                }`}
+              ></div>
+            </div>
+          )}
+
           {errors.password && (
             <p className="mt-1 text-sm text-red-500">{errors.password}</p>
           )}
@@ -480,7 +509,9 @@ export default function RegisterPage() {
             id="birthdate"
             onChange={(e) => setBirthdate(e.target.value)}
             className="w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            defaultValue={birthdate}
+            value={birthdate}
+            max={getMaxBirthdate()}
+            min="1900-01-01"
           />
 
           {errors.birthdate && (
@@ -494,6 +525,7 @@ export default function RegisterPage() {
             name="address"
             value={address}
             onChange={(value) => setAddress(value)}
+            className="input text-black"
           />
         </div>
 

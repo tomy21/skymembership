@@ -18,7 +18,7 @@ interface formData {
 export const useLogin = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: string) => login(data),
+    mutationFn: (data: string) => login({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["userById"] });
@@ -89,6 +89,28 @@ export const useForgotPassword = () => {
   });
 };
 
+export const useForgotPin = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    { referralUrl: string }, // response type from API, bisa kamu ubah sesuai kebutuhan
+    AxiosError<{ message: string }>, // 🟢 error type
+    { referralUrl: string } // 🟡 variables type
+  >({
+    mutationFn: ({ referralUrl }) => Users.requestResetPin(referralUrl),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["users-request-reset-pin"],
+      });
+    },
+    onError: (error) => {
+      // ✅ Tangani error di sini untuk mencegah throw ke global error boundary
+      console.warn("Handled error:", error.message);
+      // Optional: tampilkan toast atau logging lain
+    },
+  });
+};
+
 export const useChangePassword = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -104,6 +126,26 @@ export const useChangePassword = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["users-request-reset-password"],
+      });
+    },
+  });
+};
+
+export const useChangePin = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      pin,
+      confirmPin,
+      token,
+    }: {
+      pin: string;
+      confirmPin: string;
+      token: string;
+    }) => Users.requestChangePin(pin, confirmPin, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["users-request-reset-pin"],
       });
     },
   });

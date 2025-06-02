@@ -33,6 +33,7 @@ export default function ConfirmationForm() {
     produk: "",
     kendaraan: "",
     harga: "",
+    typeProduct: "",
   });
 
   const { data: providerData } = useProviderByType(selectedMethod || undefined);
@@ -58,8 +59,18 @@ export default function ConfirmationForm() {
       const kendaraan = searchParams.get("vehicle") || "";
       const harga = searchParams.get("price") || "";
       const idProduct = searchParams.get("idProduct") || "";
+      const typeProduct = searchParams.get("typeProduct") || "";
 
-      setDetail({ lokasi, tipe, periode, produk, kendaraan, harga, idProduct });
+      setDetail({
+        lokasi,
+        tipe,
+        periode,
+        produk,
+        kendaraan,
+        harga,
+        idProduct,
+        typeProduct,
+      });
 
       // Simpan hasil getPeriodRange ke state
       const periodeRange = getPeriodRange(periode);
@@ -83,6 +94,7 @@ export default function ConfirmationForm() {
     const today = new Date();
     const nextDate = new Date(today); // clone supaya today tetap utuh
     nextDate.setMonth(today.getMonth() + months);
+    nextDate.setDate(nextDate.getDate() - 1);
 
     const format = (date: Date) => {
       return date.toLocaleDateString("id-ID", {
@@ -105,11 +117,23 @@ export default function ConfirmationForm() {
       return;
     }
 
+    const dataPayload = {
+      idProduct: parseInt(detail.idProduct),
+      bank_id: selectedProviders[0].id,
+      plate_number: detail.kendaraan,
+      type: detail.typeProduct,
+      provider: selectedProviders[0],
+    };
+
+    console.log(dataPayload);
+
+    localStorage.setItem("purchaseData", JSON.stringify(dataPayload));
+
     setPurchaseData({
       idProduct: parseInt(detail.idProduct),
       bank_id: selectedProviders[0].id,
       plate_number: detail.kendaraan,
-      type: "purchase",
+      type: detail.typeProduct,
       provider: selectedProviders[0],
     });
     setShowModal(true);
@@ -117,9 +141,11 @@ export default function ConfirmationForm() {
 
   const handleConfirm = () => {
     setShowModal(false);
-    if (data.data.points < parseInt(detail.harga)) {
-      toast.warning("Oops...! Point tidak mencukupi");
-      return;
+    if (selectedMethod === "POINT") {
+      if (data.data.points < parseInt(detail.harga)) {
+        toast.warning("Oops...! Point tidak mencukupi");
+        return;
+      }
     }
 
     if (searchParams.get("type")) {
@@ -156,6 +182,12 @@ export default function ConfirmationForm() {
             </span>
           </div>
         )}
+        <div className="flex justify-between">
+          {/* <span className="text-gray-600">Tipe</span> */}
+          <span className="font-medium text-gray-900">
+            {detail.typeProduct}
+          </span>
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -227,7 +259,10 @@ export default function ConfirmationForm() {
                 Total pembayaran
               </h2>
               <h1 className="my-2 text-center text-3xl font-bold">
-                IDR {(parseInt(detail.harga) + 5000).toLocaleString("id-ID")}
+                IDR{" "}
+                {selectedMethod === "POINT"
+                  ? parseInt(detail.harga).toLocaleString("id-ID")
+                  : (parseInt(detail.harga) + 5000).toLocaleString("id-ID")}
               </h1>
 
               <div className="mt-4 space-y-3 text-sm">
@@ -244,10 +279,12 @@ export default function ConfirmationForm() {
                     )}
                   </span>
                 </div>
-                <div className="flex justify-between border-b border-slate-300 py-1">
-                  <span className="text-slate-400">Biaya admin</span>
-                  <span className="font-semibold">IDR 5.000</span>
-                </div>
+                {selectedMethod === "VIRTUAL_ACCOUNT" && (
+                  <div className="flex justify-between border-b border-slate-300 py-1">
+                    <span className="text-slate-400">Biaya admin</span>
+                    <span className="font-semibold">IDR 5.000</span>
+                  </div>
+                )}
                 {/* <div className="flex justify-between border-b border-slate-300 py-1">
                   <span className="text-slate-400">Total points</span>
                   <span className="font-semibold">

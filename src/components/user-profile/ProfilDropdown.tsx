@@ -8,6 +8,7 @@ import { FiUser, FiLogOut } from "react-icons/fi";
 import Loading from "../Loading/Loading";
 import { QueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
+import { useAuth } from "@/context/AuthContext";
 
 export const queryClient = new QueryClient();
 
@@ -15,17 +16,31 @@ export default function ProfileDropdown({ initial }: { initial: string }) {
   const router = useRouter();
   const logoutMutation = useLogout();
   const [isLoading, setIsLoading] = useState(false);
+  const { logout } = useAuth();
 
   const handleLogout = async () => {
     setIsLoading(true);
-    await logoutMutation.mutateAsync();
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("user");
-    document.cookie = "refreshToken=; max-age=0; path=/";
-    Cookies.remove("refreshToken");
-    queryClient.clear();
+    try {
+      await logoutMutation.mutateAsync();
 
-    router.push("/");
+      document.cookie = "refreshToken=; max-age=0; path=/";
+      Cookies.remove("refreshToken");
+
+      queryClient.removeQueries({ queryKey: ["historyPayment"] });
+      queryClient.removeQueries({ queryKey: ["historyParking"] });
+      queryClient.removeQueries({ queryKey: ["vehicleData"] });
+      queryClient.removeQueries({ queryKey: ["list-card"] });
+      await queryClient.invalidateQueries();
+      localStorage.clear();
+
+      logout(); // set isAuthenticated = false
+
+      router.push("/");
+    } catch (error) {
+      console.error("Logout gagal:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isLoading) {

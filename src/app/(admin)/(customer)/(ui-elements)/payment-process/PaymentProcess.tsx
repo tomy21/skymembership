@@ -1,8 +1,6 @@
 "use client";
 import Accordion from "@/components/accordion/page";
 import Button from "@/components/ui/button/Button";
-import { usePaymentContext } from "@/context/PaymentContext";
-import { useTopupContext } from "@/context/TopupContext";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { TbClockExclamation } from "react-icons/tb";
@@ -12,16 +10,14 @@ import { id } from "date-fns/locale";
 import { useDetailCustomer } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { usePurchaseContext } from "@/context/PurchaseContext";
+// import { usePurchaseContext } from "@/context/PurchaseContext";
 import { usePaymentByVA } from "@/hooks/usePayment";
 import { IoMdCheckmarkCircle, IoMdCloseCircleOutline } from "react-icons/io";
 import { jsPDF } from "jspdf";
 import Loading from "@/components/Loading/Loading";
 
 export default function PaymentProcess() {
-  const { paymentData, admin_fee } = usePaymentContext();
-  const { topupData } = useTopupContext();
-  const { purchaseData } = usePurchaseContext();
+  // const { topupData } = useTopupContext();
   const { data } = useDetailCustomer();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -31,17 +27,41 @@ export default function PaymentProcess() {
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
 
+  const dataSession = sessionStorage.getItem("transactionData");
+  const dataSessionJson = dataSession ? JSON.parse(dataSession) : null;
+
+  const topup = localStorage.getItem("topupData");
+  const topupData = topup ? JSON.parse(topup) : null;
+
+  const localStorageData = localStorage.getItem("purchaseData");
+  const localStorageDataJson = localStorageData
+    ? JSON.parse(localStorageData)
+    : null;
+
   const paymentHistory = usePaymentByVA(idTransaction);
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} berhasil disalin!`);
   };
 
+  useEffect(() => {
+    if (localStorageDataJson) {
+      localStorage.setItem(
+        "localStorageDataJson",
+        JSON.stringify(localStorageDataJson),
+      );
+    }
+  }, [localStorageDataJson]);
+
   const getBankLogo = (gateway: string) => {
     switch (gateway.toUpperCase()) {
-      case "BAYARIND":
+      case "BANK_NATIONAL_NOBU_VIRTUAL_ACCOUNT":
         return "/images/company/bank/bca_logo.png";
       case "NOBU":
+        return "/images/company/bank/nobu_logo.png";
+      case "BAYARIND":
+        return "/images/company/bank/bca_logo.png";
+      case "BANK_NATIONAL_NOBU_VIRTUAL_ACCOUNT":
         return "/images/company/bank/nobu_logo.png";
       // Tambahkan yang lain jika perlu
       default:
@@ -61,8 +81,28 @@ export default function PaymentProcess() {
     }
   };
 
+  const getBankName = (moduleName: string) => {
+    switch (moduleName.toUpperCase()) {
+      case "BAYARIND_BCA_VIRTUAL_ACCOUNT":
+        return "BCA Virtual Account";
+      case "BANK_NATIONAL_NOBU_VIRTUAL_ACCOUNT":
+        return "NOBU Virtual Account";
+      case "BAYARIND":
+        return "BCA Virtual Account";
+      case "NOBU":
+        return "NOBU Virtual Account";
+      // Tambahkan yang lain jika perlu
+      default:
+        return "Point Sky Membership";
+    }
+  };
+
   const handleBackHome = () => {
     queryClient.invalidateQueries({ queryKey: ["userById"] });
+    localStorage.removeItem("localStorageDataJson");
+    localStorage.removeItem("purchaseData");
+    sessionStorage.removeItem("transactionData");
+    sessionStorage.removeItem("topupData");
     router.push("/home");
   };
 
@@ -121,13 +161,21 @@ export default function PaymentProcess() {
           doc.setFontSize(13);
           doc.setFont("Helvetica", "normal");
           const details = [
-            { label: "Invoice ID", value: payment?.data.invoice_number ?? "-" },
-            { label: "Status", value: payment?.data.status_transaction ?? "-" },
+            {
+              label: "Invoice ID",
+              value:
+                payment?.data.invoice_number ??
+                paymentHistory?.data?.data?.invoice_id,
+            },
+            {
+              label: "Status",
+              value:
+                payment?.data.status_transaction ??
+                paymentHistory?.data?.data?.statusPayment,
+            },
             {
               label: "Amount Paid",
-              value:
-                `Rp ${payment?.data.paid_amount?.toLocaleString("id-ID")}` ||
-                "Rp 0",
+              value: `Rp ${Number(payment?.data.paid_amount ?? paymentHistory?.data.data.price).toLocaleString("id-ID")}`,
             },
             {
               label: "Date",
@@ -137,8 +185,11 @@ export default function PaymentProcess() {
               }),
             },
             {
-              label: "Virtual Account",
-              value: payment?.data.virtual_account_number ?? "-",
+              label: payment?.data.virtual_account_number
+                ? "Number Virtual Account"
+                : "Metode Pembayaran",
+              value:
+                payment?.data.virtual_account_number ?? "Point Sky Membership",
             },
           ];
 
@@ -157,7 +208,7 @@ export default function PaymentProcess() {
 
           // ⏳ Save PDF baru setelah semua selesai
           doc.save(
-            `payment-receipt-${payment?.data.invoice_number ?? "unknown"}.pdf`,
+            `payment-receipt-${payment?.data.invoice_number ?? paymentHistory?.data?.data?.invoice_id}.pdf`,
           );
 
           // ✅ SELESAI, matikan loading
@@ -176,7 +227,7 @@ export default function PaymentProcess() {
   }
 
   const handleCekStatus = () => {
-    router.push("/payment?idTransaction=" + paymentData?.trxId);
+    router.push("/payment?idTransaction=" + dataSessionJson?.trxId);
   };
 
   return (
@@ -264,8 +315,9 @@ export default function PaymentProcess() {
         ) : (
           <p className="text-3xl font-bold text-orange-900">
             Rp.{" "}
-            {Number(paymentData!.price + admin_fee).toLocaleString("id-ID") ||
-              0}
+            {Number(
+              dataSessionJson!.price + dataSessionJson!.admin_fee,
+            ).toLocaleString("id-ID") || 0}
           </p>
         )}
 
@@ -308,7 +360,7 @@ export default function PaymentProcess() {
                 </>
               );
             } else {
-              const expiredDate = paymentData?.expired_date;
+              const expiredDate = dataSessionJson?.expired_date;
 
               return (
                 <>
@@ -340,16 +392,21 @@ export default function PaymentProcess() {
 
           <div className="mt-5 mb-2 flex w-full items-center justify-between">
             <div className="text-sm font-semibold text-gray-500">
-              {purchaseData?.provider?.gateway_partner
-                ? purchaseData.provider.gateway_partner
-                : topupData?.provider?.gateway_partner
-                  ? topupData.provider.gateway_partner
-                  : paymentHistory?.data?.data?.payment_using
-                    ? paymentHistory.data.data.payment_using
-                    : paymentHistory?.data?.data?.transactionType
-                      ? paymentHistory.data.data.transactionType
-                      : "-"}
+              {idTransaction !== "" ? (
+                <p>
+                  {getBankName(paymentHistory?.data?.data.module_name ?? "-")}
+                </p>
+              ) : (
+                <p>
+                  {getBankName(
+                    topupData?.provider?.gateway_partner ??
+                      localStorageDataJson?.provider?.gateway_partner ??
+                      "-",
+                  )}
+                </p>
+              )}
             </div>
+
             {idTransaction !== "" ? (
               <Image
                 src={getBankLogoHistory(
@@ -363,7 +420,7 @@ export default function PaymentProcess() {
               <Image
                 src={getBankLogo(
                   topupData?.provider?.gateway_partner ??
-                    purchaseData?.provider?.gateway_partner ??
+                    localStorageDataJson?.provider?.gateway_partner ??
                     "-",
                 )}
                 width={50}
@@ -403,13 +460,13 @@ export default function PaymentProcess() {
               ) : (
                 <>
                   <span className="font-mono text-sm">
-                    {paymentData?.virtual_account}
+                    {dataSessionJson?.virtual_account}
                   </span>
                   <button
                     className="text-sm text-blue-500"
                     onClick={() =>
                       copyToClipboard(
-                        paymentData?.virtual_account ?? "-",
+                        dataSessionJson?.virtual_account ?? "-",
                         "Virtual Account",
                       )
                     }
@@ -446,13 +503,13 @@ export default function PaymentProcess() {
               ) : (
                 <>
                   <span className="font-mono text-sm">
-                    {paymentData?.virtual_account}
+                    {dataSessionJson?.virtual_account}
                   </span>
                   <button
                     className="text-sm text-blue-500"
                     onClick={() =>
                       copyToClipboard(
-                        paymentData?.virtual_account ?? "-",
+                        dataSessionJson?.virtual_account ?? "-",
                         "Virtual Account",
                       )
                     }
@@ -491,7 +548,7 @@ export default function PaymentProcess() {
                     onClick={() =>
                       copyToClipboard(
                         Number(topupData!.nominal.toString()) +
-                          parseNominal(admin_fee.toString()),
+                          parseNominal(dataSessionJson!.admin_fee.toString()),
                         "Nominal",
                       )
                     }
@@ -504,15 +561,17 @@ export default function PaymentProcess() {
               <>
                 <span>
                   Rp.{" "}
-                  {Number(paymentData!.price + admin_fee).toLocaleString(
-                    "id-ID",
-                  ) || 0}
+                  {Number(
+                    dataSessionJson!.price + dataSessionJson!.admin_fee,
+                  ).toLocaleString("id-ID") || 0}
                 </span>
                 <button
                   className="text-sm text-blue-500"
                   onClick={() =>
                     copyToClipboard(
-                      Number(paymentData!.price + admin_fee).toString(),
+                      Number(
+                        dataSessionJson!.price + dataSessionJson!.admin_fee,
+                      ).toString(),
                       "Nominal",
                     )
                   }
@@ -542,7 +601,9 @@ export default function PaymentProcess() {
             ) : (
               <span className="text-sm font-bold text-gray-800">
                 Rp{" "}
-                {Number(paymentData!.price + admin_fee).toLocaleString("id-ID")}
+                {Number(
+                  dataSessionJson!.price + dataSessionJson!.admin_fee,
+                ).toLocaleString("id-ID")}
               </span>
             )}
           </div>

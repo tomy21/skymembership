@@ -1,11 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTopupContext } from "@/context/TopupContext";
 import {
   useCreatePurchaseByPoint,
+  useCreateVaExtend,
   useCreateVaPurchase,
   useCreateVaTopup,
+  useExtendByPoint,
 } from "@/hooks/usePayment";
 import { usePaymentContext } from "@/context/PaymentContext";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,10 +16,24 @@ import HeaderPage from "@/components/header-page/page";
 import { FiAlertCircle } from "react-icons/fi";
 import { Payment } from "../../../../../../libs/API/Payment";
 import { toast } from "sonner";
+import { AnimatePresence, motion } from "framer-motion";
+import { useForgotPin } from "@/hooks/useAuth";
 
 type TopupPayload = {
   bank_id: string;
   amount: number;
+};
+
+type payloadLocalStorage = {
+  method: string;
+  nominal: number;
+  type: string;
+  provider: {
+    id: string;
+    bank_id: string;
+    code_bank: string;
+    gateway_partner: string;
+  };
 };
 
 type PurchaseType = {
@@ -36,17 +51,24 @@ export default function PinVerify() {
   const [isLoading, setIsLoading] = useState(false);
   const [isModal, setIsModal] = useState(false);
   const [message, setMessage] = useState("");
+  const [isModalLupaPin, setIsModalLupaPin] = useState(false);
+  // const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { topupData } = useTopupContext();
+  // const { topupData } = useTopupContext();
   const { purchaseData } = usePurchaseContext();
   const { setPaymentData, setAdminFee } = usePaymentContext();
   const { mutate: createVaTopup } = useCreateVaTopup();
   const { mutate: createPurchase } = useCreateVaPurchase();
+  const { mutate: createExtend } = useCreateVaExtend();
   const { mutate: createPurchasePoint } = useCreatePurchaseByPoint();
+  const { mutate: extendProductPoint } = useExtendByPoint();
   const searchParams = useSearchParams();
   const type = searchParams.get("type") || "";
+  const [dataTopup, setDataTopup] = useState<payloadLocalStorage | null>(null);
+  const forgotPin = useForgotPin();
 
   const handleKeyPress = (key: string) => {
     // Handling backspace
@@ -76,6 +98,13 @@ export default function PinVerify() {
   };
 
   useEffect(() => {
+    const stored = localStorage.getItem("topupData");
+    if (stored) {
+      setDataTopup(JSON.parse(stored));
+    }
+  }, []);
+
+  useEffect(() => {
     const handleVerification = async () => {
       const isComplete = pin.every((val) => val !== "");
       if (!isComplete) return;
@@ -83,8 +112,7 @@ export default function PinVerify() {
       try {
         setIsLoading(true);
         const result = await Payment.verifikasiPin(String(pin.join("")));
-        console.log(topupData?.type);
-        // Jika gagal verifikasi PIN
+
         if (result?.status === "fail" || result?.success === false) {
           toast.error(result.message || "PIN salah");
           setPin(Array(length).fill(""));
@@ -103,7 +131,7 @@ export default function PinVerify() {
             console.error("Bank ID is missing");
             return;
           }
-
+          // console.log(purchaseData.type);
           const data: PurchaseType = {
             idProduct: String(purchaseData.idProduct),
             data: {
@@ -112,12 +140,15 @@ export default function PinVerify() {
             },
           };
 
-          createPurchase(data, {
+          const submitType =
+            purchaseData.type === "Extend" ? createExtend : createPurchase;
+
+          submitType(data, {
             onSuccess: (response) => {
+              const trx = response.data.transaction_data ?? response.data;
               console.log(response);
-              const trx = response.data.transaction_data;
               const paymentDetails = {
-                Id: trx.Id,
+                Id: Number(trx.Id),
                 createdAt: trx.createdAt,
                 expired_date: trx.expired_date,
                 invoice_id: trx.invoice_id,
@@ -133,17 +164,35 @@ export default function PinVerify() {
                 user_id: trx.user_id,
                 virtual_account: trx.virtual_account,
                 rfid: trx.rfid ?? undefined,
+                admin_fee: response.data.admin_fee,
               };
 
               setAdminFee(response.data.admin_fee);
               setPaymentData(paymentDetails);
               queryClient.invalidateQueries({ queryKey: ["userById"] });
               router.push("/payment");
-              localStorage.removeItem("purchaseData");
+              sessionStorage.setItem(
+                "transactionData",
+                JSON.stringify(paymentDetails),
+              );
             },
-            onError: (error) => {
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onError: (error: any) => {
               setIsModal(true);
-              setMessage(error.message);
+              const errorMessage =
+                error?.message ||
+                error?.error ||
+                "Terjadi kesalahan, silakan coba lagi.";
+              setMessage(errorMessage);
+              setPin(Array(length).fill(""));
+              setActiveIndex(0);
+              setTimeout(() => {
+                const input = document.getElementById("pin-0");
+                if (input) input.focus();
+                setIsModal(false);
+              }, 1000);
+              setIsLoading(false);
             },
             onSettled: () => {
               setIsLoading(false);
@@ -166,11 +215,20 @@ export default function PinVerify() {
             },
           };
 
-          createPurchasePoint(data, {
+          const submitType =
+            purchaseData.type === "Extend"
+              ? extendProductPoint
+              : createPurchasePoint;
+
+          submitType(data, {
             onSuccess: (response) => {
               const trx = response.data.transaction_data;
+              if (!trx) {
+                console.error("Transaction data is undefined", response.data);
+                return;
+              }
               const paymentDetails = {
-                Id: trx.Id,
+                Id: trx.Id ?? "-",
                 createdAt: trx.createdAt,
                 expired_date: trx.expired_date,
                 invoice_id: trx.invoice_id,
@@ -184,19 +242,26 @@ export default function PinVerify() {
                 trxId: trx.trxId,
                 updatedAt: trx.updatedAt,
                 user_id: trx.user_id,
-                virtual_account: trx.virtual_account,
+                virtual_account: trx.virtual_account ?? "-",
                 rfid: trx.rfid ?? undefined,
               };
 
               setAdminFee(response.data.admin_fee);
               setPaymentData(paymentDetails);
               queryClient.invalidateQueries({ queryKey: ["userById"] });
-              router.push(`/payment?idTransaction=${paymentDetails.trxId}`);
+              queryClient.invalidateQueries({ queryKey: ["list-card_user"] });
+
+              router.push(`/home`);
+              toast.success("Pembayaran berhasil");
+
               localStorage.removeItem("purchaseData");
             },
             onError: (error) => {
               setIsModal(true);
               setMessage(error.message);
+              setInterval(() => {
+                setIsModal(false);
+              }, 1000);
               setPin(Array(length).fill(""));
               setActiveIndex(0);
             },
@@ -207,7 +272,7 @@ export default function PinVerify() {
         }
 
         if (type === "topup") {
-          const bank_id = topupData.provider?.id;
+          const bank_id = dataTopup?.provider?.id;
           if (!bank_id) {
             console.error("Bank ID is missing");
             return;
@@ -215,12 +280,11 @@ export default function PinVerify() {
 
           const data: TopupPayload = {
             bank_id,
-            amount: topupData.nominal,
+            amount: dataTopup?.nominal,
           };
 
           createVaTopup(data, {
             onSuccess: (response) => {
-              console.log(response);
               const trx = response.data.transaction_data;
               const paymentDetails = {
                 Id: trx.Id,
@@ -239,20 +303,37 @@ export default function PinVerify() {
                 user_id: trx.user_id,
                 virtual_account: trx.virtual_account,
                 rfid: trx.rfid ?? undefined,
+                admin_fee: response.data.admin_fee,
               };
 
               setAdminFee(response.data.admin_fee);
               setPaymentData(paymentDetails);
               queryClient.invalidateQueries({ queryKey: ["userById"] });
               router.push("/payment");
-              localStorage.removeItem("purchaseData");
+              sessionStorage.setItem(
+                "transactionData",
+                JSON.stringify(paymentDetails),
+              );
+              // localStorage.removeItem("topupData");
               setIsLoading(false);
             },
-            onError: (error) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onError: (error: any) => {
               setIsModal(true);
-              setMessage(error.message);
-              setIsLoading(false);
-              setPin(Array(length).fill(""));
+
+              const errorMessage =
+                error?.message ||
+                error?.error ||
+                "Terjadi kesalahan, silakan coba lagi.";
+              setMessage(errorMessage);
+
+              setInterval(() => {
+                setIsLoading(false);
+                setPin(Array(length).fill(""));
+                setActiveIndex(0);
+                setIsModal(false);
+              }, 1000);
+
               setActiveIndex(0);
             },
             onSettled: () => {
@@ -260,11 +341,18 @@ export default function PinVerify() {
             },
           });
         }
+
         setIsLoading(false);
       } catch (error) {
         setIsLoading(false);
         console.error("Verifikasi PIN error:", error);
         setPin(Array(length).fill(""));
+        setTimeout(() => {
+          setIsModal(false);
+          setActiveIndex(0);
+          const input = document.getElementById("pin-0");
+          if (input) input.focus();
+        }, 100);
         setActiveIndex(0);
         toast.error("Terjadi kesalah mohon ulangi kembali");
       }
@@ -272,20 +360,21 @@ export default function PinVerify() {
 
     handleVerification();
   }, [
+    createExtend,
     createPurchase,
     createPurchasePoint,
     createVaTopup,
+    dataTopup,
+    extendProductPoint,
     pin,
     purchaseData.bank_id,
     purchaseData.idProduct,
     purchaseData.plate_number,
+    purchaseData.type,
     queryClient,
     router,
     setAdminFee,
     setPaymentData,
-    topupData.nominal,
-    topupData.provider?.id,
-    topupData?.type,
     type,
   ]);
 
@@ -303,6 +392,39 @@ export default function PinVerify() {
     "0",
     "backspace",
   ];
+
+  const modalLupaPin = () => {
+    setIsModalLupaPin(true);
+  };
+
+  const modalLupaPinClose = () => {
+    setIsModalLupaPin(false);
+    setActiveIndex(0);
+    setPin(Array(length).fill(""));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const referralUrl = window.location.origin;
+    setIsLoading(true);
+    // Simulasi request
+    try {
+      forgotPin.mutate(
+        { referralUrl },
+        {
+          onSuccess: () => {
+            setSubmitted(true);
+            setIsLoading(false);
+          },
+        },
+      );
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -326,7 +448,12 @@ export default function PinVerify() {
             ))}
           </div>
 
-          {/* <h1 className="text-md underline text-blue-500">Lupa pin</h1> */}
+          <h1
+            onClick={modalLupaPin}
+            className="text-md text-blue-500 underline"
+          >
+            Lupa pin
+          </h1>
 
           <div className="mx-auto mt-7 grid grid-cols-3 gap-x-12 gap-y-5">
             {keypad.map((key, idx) => (
@@ -356,7 +483,7 @@ export default function PinVerify() {
       {isModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-5">
           <div className="flex flex-col items-center justify-center space-y-3 rounded-xl bg-white px-6 py-4 shadow-lg">
-            <FiAlertCircle className="h-8 w-8 text-green-500" />
+            <FiAlertCircle className="h-8 w-8 text-red-500" />
             <p className="text-sm font-medium text-blue-600">
               Transaksi Gagal !
             </p>
@@ -364,6 +491,61 @@ export default function PinVerify() {
           </div>
         </div>
       )}
+
+      <AnimatePresence>
+        {isModalLupaPin && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Backdrop */}
+            <motion.div
+              className="fixed inset-0 bg-black/50"
+              onClick={modalLupaPinClose}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+
+            {/* Modal Content */}
+            <motion.div
+              className="z-50 rounded-2xl bg-white p-6"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
+              {submitted ? (
+                <div className="p-5 text-center font-medium text-green-600">
+                  Link reset telah dikirim ke email anda.
+                </div>
+              ) : (
+                <>
+                  <h1 className="mb-4 text-sm font-medium">
+                    Anda yakin untuk reset PIN ?
+                  </h1>
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      onClick={modalLupaPinClose}
+                      className="rounded bg-red-500 px-3 py-1 text-sm font-medium text-white"
+                    >
+                      Tidak
+                    </button>
+                    <button
+                      onClick={handleSubmit}
+                      className="rounded bg-blue-500 px-3 py-1 text-sm font-medium text-white"
+                    >
+                      Ya
+                    </button>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

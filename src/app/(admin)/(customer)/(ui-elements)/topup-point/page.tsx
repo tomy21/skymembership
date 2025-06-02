@@ -53,6 +53,15 @@ export default function TopupPage() {
       return;
     }
 
+    const dataPayload = {
+      nominal: selectedNominal,
+      type: "topup",
+      method: selectedMethod,
+      provider: selectedProviders[0],
+    };
+
+    localStorage.setItem("topupData", JSON.stringify(dataPayload));
+
     setTopupData({
       nominal: selectedNominal,
       type: "topup",

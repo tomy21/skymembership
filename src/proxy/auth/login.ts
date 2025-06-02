@@ -2,7 +2,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 
-export default async function handler(
+export default async function handlerLogin(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
@@ -16,7 +16,7 @@ export default async function handler(
         },
       },
     );
-
+    console.log(apiRes);
     res.status(apiRes.status).json(apiRes.data);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {

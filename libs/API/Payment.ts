@@ -59,18 +59,25 @@ export const Payment = {
           },
         },
       );
+
       return response.data;
-    } catch (error) {
-      if (error) {
-        console.error("Error response:", error);
-        return error;
-      } else if (error) {
-        console.error("Error request:", error);
-        return new Error("No response received from server");
-      } else {
-        console.error("Error message:", error);
-        return new Error("Error occurred during request setup");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      // Jika error dari response API
+      if (error.response) {
+        console.error("API responded with an error:", error.response.data);
+        return Promise.reject(error.response.data);
       }
+
+      // Jika request dikirim tapi tidak ada respons (server mati/delay)
+      if (error.request) {
+        console.error("No response received from server:", error.request);
+        return Promise.reject({ message: "No response received from server" });
+      }
+
+      // Jika terjadi error dalam setup request (mungkin syntax atau config error)
+      console.error("Error setting up the request:", error.message);
+      return Promise.reject({ message: error.message });
     }
   },
 
@@ -88,10 +95,60 @@ export const Payment = {
           },
         },
       );
-      console.log(response);
+
       return response.data;
-    } catch (error) {
-      throw error;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      // Jika error dari response API
+      if (error.response) {
+        console.error("API responded with an error:", error.response.data);
+        return Promise.reject(error.response.data);
+      }
+
+      // Jika request dikirim tapi tidak ada respons (server mati/delay)
+      if (error.request) {
+        console.error("No response received from server:", error.request);
+        return Promise.reject({ message: "No response received from server" });
+      }
+
+      // Jika terjadi error dalam setup request (mungkin syntax atau config error)
+      console.error("Error setting up the request:", error.message);
+      return Promise.reject({ message: error.message });
+    }
+  },
+  createVaExtend: async ({ idProduct, data }: CreateVaPurchaseParams) => {
+    try {
+      const token = await DetailUser.getToken();
+
+      const response = await APISERVICES.post(
+        `/v1/productPurchase/extend-membership/${idProduct}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token.token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      // Jika error dari response API
+      if (error.response) {
+        console.error("API responded with an error:", error.response.data);
+        return Promise.reject(error.response.data);
+      }
+
+      // Jika request dikirim tapi tidak ada respons (server mati/delay)
+      if (error.request) {
+        console.error("No response received from server:", error.request);
+        return Promise.reject({ message: "No response received from server" });
+      }
+
+      // Jika terjadi error dalam setup request (mungkin syntax atau config error)
+      console.error("Error setting up the request:", error.message);
+      return Promise.reject({ message: error.message });
     }
   },
   createVaPuchaseByPoint: async ({
@@ -111,10 +168,61 @@ export const Payment = {
           },
         },
       );
-      console.log(response);
+
       return response.data;
-    } catch (error) {
-      throw error;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      // Jika error dari response API
+      if (error.response) {
+        console.error("API responded with an error:", error.response.data);
+        return Promise.reject(error.response.data);
+      }
+
+      // Jika request dikirim tapi tidak ada respons (server mati/delay)
+      if (error.request) {
+        console.error("No response received from server:", error.request);
+        return Promise.reject({ message: "No response received from server" });
+      }
+
+      // Jika terjadi error dalam setup request (mungkin syntax atau config error)
+      console.error("Error setting up the request:", error.message);
+      return Promise.reject({ message: error.message });
+    }
+  },
+
+  extendByPoint: async ({ idProduct, data }: CreateVaPurchaseParams) => {
+    try {
+      const token = await DetailUser.getToken();
+
+      const response = await APISERVICES.post(
+        `/v1/productPurchase/extend-membership-point/${idProduct}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token.token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      // Jika error dari response API
+      if (error.response) {
+        console.error("API responded with an error:", error.response.data);
+        return Promise.reject(error.response.data);
+      }
+
+      // Jika request dikirim tapi tidak ada respons (server mati/delay)
+      if (error.request) {
+        console.error("No response received from server:", error.request);
+        return Promise.reject({ message: "No response received from server" });
+      }
+
+      // Jika terjadi error dalam setup request (mungkin syntax atau config error)
+      console.error("Error setting up the request:", error.message);
+      return Promise.reject({ message: error.message });
     }
   },
 
@@ -123,7 +231,7 @@ export const Payment = {
       const response = await APIAPPS.get(
         `/v01/member/api/history/transaction-byidtrx/${idTrx}`,
       );
-      console.log(response.data);
+
       return response.data;
     } catch (error) {
       return error;

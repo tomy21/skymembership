@@ -1,16 +1,14 @@
 import { APIAPPS, APISERVICES } from "../ApiServices";
 import axios, { AxiosError } from "axios";
 
-export const login = async (data: string) => {
-  const response = await axios.post("/proxy/auth/login", {
-    data,
-  });
-  console.log(response);
+export const login = async (data: { data: string }) => {
+  const response = await axios.post("/api/login", data);
+
   return response.data;
 };
+
 export const logout = async () => {
   const response = await APIAPPS.get(`/v01/member/api/auth/logout`);
-
   return response.data;
 };
 
@@ -66,6 +64,22 @@ export const Users = {
       throw new Error(message);
     }
   },
+  requestResetPin: async (referralUrl = "") => {
+    try {
+      const response = await APIAPPS.post(
+        `/v01/member/api/auth/request-reset-pin`,
+        {
+          referralUrl,
+        },
+      );
+      return response.data;
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+
+      const message = err.response?.data?.message || "Unknown error";
+      throw new Error(message);
+    }
+  },
 
   requestChangePassword: async (
     password = "",
@@ -74,10 +88,26 @@ export const Users = {
   ) => {
     try {
       const response = await APIAPPS.post(
-        `/v01/member/api/auth//request-change-password`,
+        `/v01/member/api/auth/request-change-password`,
         {
           password,
           confirmPassword,
+          token,
+        },
+      );
+      return response.data;
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      return err;
+    }
+  },
+  requestChangePin: async (pin = "", confirmPin = "", token = "") => {
+    try {
+      const response = await APIAPPS.post(
+        `/v01/member/api/auth/request-change-pin`,
+        {
+          pin,
+          confirmPin,
           token,
         },
       );
@@ -170,6 +200,7 @@ export const Users = {
   getCardLocation: async () => {
     try {
       const token = await DetailUser.getToken();
+
       const response = await APISERVICES.get(`/v1/customer/members-vehicle`, {
         headers: {
           Authorization: `Bearer ${token.token}`,

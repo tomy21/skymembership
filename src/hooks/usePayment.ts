@@ -41,7 +41,7 @@ export const useCreateVaTopup = () => {
   return useMutation({
     mutationFn: (data: TopupPayload) => Payment.createVaTopup(data),
     onError: (error: AxiosError) => {
-      console.error("Topup Error:", error.response?.data || error.message);
+      console.error("Topup Error:", error);
     },
   });
 };
@@ -56,10 +56,32 @@ export const useCreateVaPurchase = () => {
     // },
   });
 };
+
+export const useCreateVaExtend = () => {
+  return useMutation({
+    mutationFn: async ({ idProduct, data }: CreateVaPurchaseParams) => {
+      return await Payment.createVaExtend({ idProduct, data });
+    },
+    // onError: (error: AxiosError) => {
+    //   return error.response?.data || error.message;
+    // },
+  });
+};
 export const useCreatePurchaseByPoint = () => {
   return useMutation({
     mutationFn: async ({ idProduct, data }: CreateVaPurchaseParams) => {
       return await Payment.createVaPuchaseByPoint({ idProduct, data });
+    },
+    // onError: (error: AxiosError) => {
+    //   return error.response?.data || error.message;
+    // },
+  });
+};
+
+export const useExtendByPoint = () => {
+  return useMutation({
+    mutationFn: async ({ idProduct, data }: CreateVaPurchaseParams) => {
+      return await Payment.extendByPoint({ idProduct, data });
     },
     // onError: (error: AxiosError) => {
     //   return error.response?.data || error.message;

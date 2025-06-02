@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CardHistory from "../card-history/Page";
 import Link from "next/link";
 import { useHistoryParking, useHistoryPayment } from "@/hooks/useTransaction";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
 
 interface responseHistoryPayment {
   createdAt: string;
@@ -44,8 +45,10 @@ interface responseHistoryParking {
 
 export default function HistoryHome() {
   const [activeTab, setActiveTab] = useState("payment");
-  const { data } = useHistoryPayment();
-  const { data: parkingHistory } = useHistoryParking();
+  const { isAuthenticated, isLoadingAuth } = useAuth();
+  const { data, refetch: refetchPayment } = useHistoryPayment(isAuthenticated);
+  const { data: parkingHistory, refetch: refetchHistory } =
+    useHistoryParking(isAuthenticated);
   // const [modalDetail, setModalDetail] = useState(false);
   const router = useRouter();
   const tabs = [
@@ -56,6 +59,14 @@ export default function HistoryHome() {
   const handleCekDetails = (id: string) => {
     router.push(`/payment?idTransaction=${id}`);
   };
+
+  useEffect(() => {
+    if (!isLoadingAuth && !isAuthenticated) {
+      router.push("/");
+    }
+    refetchPayment();
+    refetchHistory();
+  }, [isAuthenticated, isLoadingAuth, router, refetchPayment, refetchHistory]);
 
   return (
     <div className="w-full p-5">

@@ -9,12 +9,14 @@ import { dataCustomer } from "../../../../../../libs/API/ExportData";
 import { toast } from "sonner";
 import Loading from "@/components/Loading/Loading";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { useAuth } from "@/context/AuthContext";
 
 interface responseHistoryPayment {
   createdAt: string;
   expired_date: string;
   id: number;
   invoice_id: string;
+  // platNumber: string;
   location_code: string;
   location_name: string;
   periode: string;
@@ -54,13 +56,20 @@ export default function HistoryAll() {
   const [endDate, setEndDate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(5);
+  const { isAuthenticated } = useAuth();
 
   const { data: paymentHistory } = useHistoryPayment(
+    isAuthenticated,
     currentPage,
     itemsPerPage,
     search,
   );
-  const { data: parkingHistory } = useHistoryParking();
+  const { data: parkingHistory } = useHistoryParking(
+    isAuthenticated,
+    currentPage,
+    itemsPerPage,
+    search,
+  );
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
@@ -117,7 +126,7 @@ export default function HistoryAll() {
     }
 
     if (activeTab === "parking") {
-      setModalPayment(false);
+      setModalPayment(true);
     }
 
     // alert(`Exported ${exportData?.length} item(s) from "${activeTab}"`)
@@ -128,28 +137,56 @@ export default function HistoryAll() {
 
     setIsLoading(true);
 
-    const result = await dataCustomer.exportDataPayment(startDate, endDate);
+    if (activeTab === "payment") {
+      const result = await dataCustomer.exportDataPayment(startDate, endDate);
 
-    if (result.error) {
-      toast.error(result.message);
+      if (result.error) {
+        toast.error(result.message);
+        setIsLoading(false);
+        setStartDate("");
+        setEndDate("");
+        return;
+      }
+
+      // download file
+      const url = window.URL.createObjectURL(result.blob || new Blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", result.fileName || "export.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
       setIsLoading(false);
+      setModalPayment(false);
       setStartDate("");
       setEndDate("");
-      return;
-    }
+    } else if (activeTab === "parking") {
+      const result = await dataCustomer.exportDataTransaction(
+        startDate,
+        endDate,
+      );
 
-    // download file
-    const url = window.URL.createObjectURL(result.blob || new Blob());
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", result.fileName || "export.xlsx");
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setIsLoading(false);
-    setModalPayment(false);
-    setStartDate("");
-    setEndDate("");
+      if (result.error) {
+        toast.error(result.message);
+        setIsLoading(false);
+        setStartDate("");
+        setEndDate("");
+        return;
+      }
+
+      // download file
+      const url = window.URL.createObjectURL(result.blob || new Blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", result.fileName || "export.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setIsLoading(false);
+      setModalPayment(false);
+      setStartDate("");
+      setEndDate("");
+    }
   };
 
   const handleCancel = () => {
@@ -185,7 +222,7 @@ export default function HistoryAll() {
       <div className="mb-4 flex flex-col items-start justify-between space-y-2 md:flex-row md:items-center md:space-y-0">
         <input
           type="text"
-          placeholder="Cari riwayat berdasarkan nama produk..."
+          placeholder={`${activeTab === "payment" ? "Cari riwayat berdasarkan nama produk..." : "Cari berdasarkan plat nomor dan lokasi..."}`}
           className="w-full rounded border border-gray-300 px-4 py-2 text-sm focus:outline-yellow-400 md:w-1/2"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -216,7 +253,7 @@ export default function HistoryAll() {
                     type="payment"
                     onClick={() =>
                       handleCekDetails(
-                        (item as responseHistoryPayment).trxId.toString(),
+                        (item as responseHistoryPayment).trxId?.toString(),
                       )
                     }
                     date={(item as responseHistoryPayment).createdAt}
@@ -240,14 +277,15 @@ export default function HistoryAll() {
                           : "failed"
                     }
                   />
-                ) : (
+                ) : (item as responseHistoryParking).time ? (
                   <CardHistory
                     key={index}
                     type="parking"
-                    date={(item as responseHistoryParking).time ?? "-"}
+                    date={(item as responseHistoryParking).time}
                     product={(item as responseHistoryParking).plate_number}
                     location={(item as responseHistoryParking).location_name}
-                    productName={(item as responseHistoryParking).status_member}
+                    productName={"-"}
+                    platNumber={(item as responseHistoryParking).plate_number}
                     amount={Number(
                       (item as responseHistoryParking).tariff ?? 0,
                     )}
@@ -262,7 +300,7 @@ export default function HistoryAll() {
                       "NON-MEMBER"
                     }
                   />
-                );
+                ) : null;
               },
             )
           ) : (

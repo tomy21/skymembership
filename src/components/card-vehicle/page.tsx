@@ -47,19 +47,11 @@ export default function CardVehicle({
         await ndef.scan();
 
         ndef.addEventListener("reading", (event: NDEFReadingEvent) => {
-          const { message } = event;
+          const { serialNumber } = event;
 
-          const decoder = new TextDecoder();
-          let result = "";
-
-          for (const record of message.records) {
-            if (record.data) {
-              result += decoder.decode(record.data);
-            }
-          }
-
-          if (result) {
-            setRfid(result);
+          if (serialNumber) {
+            const formattedRfid = serialNumber.replace(/:/g, "").toUpperCase();
+            setRfid(formattedRfid);
             setIsModal(true);
           }
 
@@ -82,6 +74,9 @@ export default function CardVehicle({
     if (rfid !== "" && isModal && nfcSupported) {
       handleUpdateRFID();
     }
+
+    if (nfcSupported) handleUpdateRFID();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rfid]);
 
   const handleUpdateRFID = async (e?: React.FormEvent) => {
@@ -97,7 +92,18 @@ export default function CardVehicle({
         setIsModal(false);
         setRfid("");
         toast.success(response.message);
-        queryClient.invalidateQueries({ queryKey: ["vehicleData"] });
+        queryClient.invalidateQueries({
+          queryKey: ["vehicleData"],
+          exact: false,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["userById"],
+          exact: false,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["list-card"],
+          exact: false,
+        });
       } else {
         setRfid("");
         toast.error(response.response.data.message);
@@ -146,11 +152,13 @@ export default function CardVehicle({
           </div>
         </div>
         <div className="flex w-full flex-row items-start justify-end space-x-5">
-          <BiRfid
-            onClick={() => setIsModal(true)}
-            size={20}
-            className="cursor-pointer text-cyan-600"
-          />
+          {!rfidNo && (
+            <BiRfid
+              onClick={() => setIsModal(true)}
+              size={20}
+              className="cursor-pointer text-cyan-600"
+            />
+          )}
         </div>
       </div>
 
@@ -170,10 +178,10 @@ export default function CardVehicle({
                     <p className="text-sm text-gray-700">
                       Tempelkan kartu member Anda...
                     </p>
-                    <p>{rfid}</p>
                   </>
                 ) : (
                   <>
+                    <p>{rfid}</p>
                     <p className="text-sm text-gray-700">
                       Siap untuk scan NFC...
                     </p>

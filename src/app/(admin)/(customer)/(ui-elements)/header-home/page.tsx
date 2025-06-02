@@ -4,44 +4,51 @@ import Button from "@/components/ui/button/Button";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FaWallet } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import { useCardCustomer, useDetailCustomer } from "@/hooks/useAuth";
+import { useDetailCustomer } from "@/hooks/useAuth";
 import { ClipLoader } from "react-spinners";
 import ProfileDropdown from "@/components/user-profile/ProfilDropdown";
 import NotificationDropdown from "@/components/header/NotificationDropdown";
+import { useCardList } from "@/hooks/useVehicle";
+import { useAuth } from "@/context/AuthContext";
 
 interface responseCard {
-  cust_id: number;
   id: number;
+  vehicle_id: number;
   member_customer_no: string;
   plate_number: string;
-  plate_number_image: string;
   rfid: string;
-  stnk_image: string;
+  is_active: boolean;
   vehicle_type: string;
 }
 
 export default function HeaderHome() {
   const { data, isLoading, isError, refetch } = useDetailCustomer();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [totalSlides, setTotalSlides] = useState(0);
+  const { isAuthenticated } = useAuth();
+
   const {
-    data: cardCustomer,
-    isLoading: isLoadingCard,
-    isError: isErrorCard,
-  } = useCardCustomer();
-  const router = useRouter();
-  const [sliderRef] = useKeenSlider({
-    loop: true,
-    slides: {
-      perView: 1,
-      spacing: 50,
-    },
-  });
+    data: dataCard,
+    isLoading: isLoadingCardData,
+    isError: isErrorCardData,
+    refetch: refetchCard,
+  } = useCardList(isAuthenticated);
 
   useEffect(() => {
     refetch();
-  }, [refetch]);
+    refetchCard();
+    setTotalSlides(dataCard?.data.length || 0);
+  }, [dataCard?.data.length, refetch, refetchCard]);
+
+  const router = useRouter();
+  const [sliderRef] = useKeenSlider<HTMLDivElement>({
+    slideChanged(slider) {
+      setCurrentSlide(slider.track.details.rel); // rel = slide aktif (0-index)
+    },
+  });
 
   const getInitials = (fullname: string) => {
     if (!fullname) return "";
@@ -53,7 +60,11 @@ export default function HeaderHome() {
     return first + second;
   };
 
-  if (isLoading || isLoadingCard) {
+  const handleCekDetails = (id: string) => {
+    router.push(`/extend-membership?idCard=${id}`);
+  };
+
+  if (isLoading || isLoadingCardData || isErrorCardData) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
         <div className="flex flex-col items-center justify-center p-6">
@@ -64,7 +75,7 @@ export default function HeaderHome() {
     );
   }
 
-  if (isError || isErrorCard) {
+  if (isError || isErrorCardData) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
         <div className="flex flex-col items-center justify-center p-6">
@@ -92,60 +103,62 @@ export default function HeaderHome() {
           </div>
           <NotificationDropdown />
         </div>
+
         <div ref={sliderRef} className="keen-slider mt-4 w-full">
-          <div ref={sliderRef} className="keen-slider mt-4 w-full">
-            {isLoadingCard ? (
-              // Skeleton loading
-              [...Array(2)].map((_, index) => (
-                <div key={index} className="keen-slider__slide p-2">
-                  <div className="aspect-[3/2] w-full max-w-[230px] animate-pulse rounded-xl bg-gray-300" />
-                </div>
-              ))
-            ) : cardCustomer.data?.filter((item: responseCard) => item.rfid)
-                ?.length === 0 ? (
-              // Kalau kosong
-              <div className="m-auto flex w-full flex-col items-center justify-center overflow-hidden rounded-xl">
-                <Image
-                  src="/images/company/card-member.png"
-                  alt="Empty Image"
-                  width={100}
-                  height={100}
-                />
-                <h1>Kamu belum memiliki kartu</h1>
+          {isLoadingCardData ? (
+            // Skeleton loading
+            [...Array(2)].map((_, index) => (
+              <div key={index} className="keen-slider__slide p-2">
+                <div className="aspect-[3/2] w-full max-w-[230px] animate-pulse rounded-xl bg-gray-300" />
               </div>
-            ) : (
-              // Data kartu
-              cardCustomer.data
-                .filter((item: responseCard) => item.rfid)
-                .map((item: responseCard) => (
-                  <div
-                    key={item.id}
-                    className="keen-slider__slide relative flex flex-col items-center rounded-xl bg-transparent p-2"
-                  >
-                    <div className="relative aspect-[3/2] w-full max-w-[230px] overflow-hidden rounded-xl">
-                      <Image
-                        src={
-                          item.vehicle_type === "MOBIL"
-                            ? "/images/company/card03.png"
-                            : "/images/company/card02.png"
-                        }
-                        alt="Card Image"
-                        fill
-                        className="rounded-xl object-cover"
-                        priority
-                      />
-                      <div className="absolute bottom-6 left-2 rounded-md px-2 py-1 text-xs font-semibold text-white">
-                        No RFID: {item.rfid.toUpperCase()}
-                      </div>
-                      <div className="absolute bottom-2 left-2 rounded-md px-2 py-1 text-xs font-semibold text-green-500">
-                        Active
-                      </div>
+            ))
+          ) : dataCard.data?.filter((item: responseCard) => item.rfid)
+              ?.length === 0 ? (
+            // Kalau kosong
+            <div className="m-auto flex w-full flex-col items-center justify-center overflow-hidden rounded-xl">
+              <Image
+                src="/images/company/card-member.png"
+                alt="Empty Image"
+                width={100}
+                height={100}
+              />
+              <h1>Kamu belum memiliki kartu</h1>
+            </div>
+          ) : (
+            // Data kartu
+            dataCard.data
+              .filter((item: responseCard) => item.rfid)
+              .map((item: responseCard, index: number) => (
+                <div
+                  key={index}
+                  className="keen-slider__slide relative flex flex-col items-center rounded-xl bg-transparent p-2"
+                  onClick={() => handleCekDetails(item.rfid)}
+                >
+                  <div className="relative aspect-[3/2] w-full max-w-[230px] overflow-hidden rounded-xl">
+                    <Image
+                      src={
+                        item.vehicle_type === "MOBIL"
+                          ? "/images/company/card03.png"
+                          : "/images/company/card02.png"
+                      }
+                      alt="Card Image"
+                      fill
+                      className="rounded-xl object-cover"
+                      priority
+                    />
+                    <div className="absolute bottom-6 left-2 rounded-md px-2 py-1 text-xs font-semibold text-white">
+                      {item.rfid.toUpperCase()}
                     </div>
                   </div>
-                ))
-            )}
-          </div>
+                </div>
+              ))
+          )}
         </div>
+        {totalSlides > 0 && (
+          <div className="text-sm font-medium text-gray-600">
+            {currentSlide + 1} of {totalSlides}
+          </div>
+        )}
         <div className="absolute -bottom-12 h-20 w-[90%] rounded-lg bg-white p-4 shadow-lg">
           <div className="flex w-full items-center justify-between">
             <div className="flex flex-row items-center justify-start space-x-3">

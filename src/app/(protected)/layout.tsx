@@ -14,7 +14,7 @@ export default function ProtectedLayout({
 
   useEffect(() => {
     const refreshToken = Cookies.get("refreshToken");
-    const accessToken = localStorage.getItem("userToken"); // ambil token dari localStorage
+    const accessToken = localStorage.getItem("userToken");
 
     const publicRoutes = [
       "/register",

@@ -97,6 +97,7 @@ export default function AuthCustomer() {
 
       const data = encryptData(dataForm);
       const response = await loginMutation(data);
+
       const dataDecrypt = decryptData(response.data);
 
       if (dataDecrypt && dataDecrypt.status === "success") {
@@ -105,12 +106,14 @@ export default function AuthCustomer() {
         setTimeout(() => {
           setIsLoading(false);
           router.push("/home");
+          setInputCaptcha("");
         }, 500);
       } else {
         setIsLoading(false);
         toast.error(dataDecrypt?.message || "Login gagal.");
+        router.push("/");
         refreshString();
-        setCaptcha("");
+        setInputCaptcha("");
       }
     } catch (err) {
       let message = "Login gagal.";
@@ -126,9 +129,15 @@ export default function AuthCustomer() {
       }
 
       toast.error(message);
+      router.push("/");
+      setIsLoading(false);
       refreshString();
+      setInputCaptcha("");
     } finally {
       refreshString();
+      setIsLoading(false);
+      router.push("/");
+      setInputCaptcha("");
     }
   };
 

@@ -10,11 +10,22 @@ import { ClipLoader } from "react-spinners";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
+type FormData = {
+  vehicle_type: string;
+  plate_prefix?: string;
+  plate_number: string;
+  plate_suffix?: string; // ← dijadikan optional
+  plate_number_image: File | null;
+  stnk_image: File | null;
+};
+
 export default function VehicleAdd() {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     vehicle_type: "",
-    plate_number: "",
+    plate_prefix: "", // Kotak 1
+    plate_number: "", // Kotak 2
+    plate_suffix: "", // Kotak 3
     plate_number_image: null as File | null,
     stnk_image: null as File | null,
   });
@@ -23,50 +34,28 @@ export default function VehicleAdd() {
   const { mutateAsync: createVehicle } = useAddVehicle();
   const queryClient = useQueryClient();
 
-  const formatPlateNumber = (value: string) => {
-    // Hapus semua karakter selain huruf dan angka
-    const cleaned = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-
-    // Ambil 2 karakter pertama untuk huruf
-    const part1 = cleaned.slice(0, 2);
-    // Ambil 4 karakter berikutnya untuk angka
-    const part2 = cleaned.slice(2, 6);
-    // Ambil 3 karakter berikutnya untuk huruf
-    const part3 = cleaned.slice(6, 9);
-
-    // Validasi format huruf dan angka
-    if (part1.length > 0 && !/^[A-Z]{2}$/.test(part1)) {
-      return value; // Jika format bagian 1 salah, biarkan input tetap seperti itu
-    }
-
-    if (part2.length > 0 && !/^\d{4}$/.test(part2)) {
-      return value; // Jika format bagian 2 salah, biarkan input tetap seperti itu
-    }
-
-    if (part3.length > 0 && !/^[A-Z]{3}$/.test(part3)) {
-      return value; // Jika format bagian 3 salah, biarkan input tetap seperti itu
-    }
-
-    let result = part1;
-    if (part2) result += " " + part2;
-    if (part3) result += " " + part3;
-
-    return result;
-  };
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
+    let formattedValue = value.toUpperCase();
 
-    if (name === "plate_number") {
-      setFormData((f) => ({ ...f, [name]: formatPlateNumber(value) }));
-      return;
+    if (name === "plate_prefix") {
+      // Hanya huruf, maksimal 2
+      formattedValue = formattedValue.replace(/[^A-Z]/g, "").slice(0, 2);
+    } else if (name === "plate_number") {
+      // Hanya angka, maksimal 4
+      formattedValue = formattedValue.replace(/[^0-9]/g, "").slice(0, 4);
+    } else if (name === "plate_suffix") {
+      // Hanya huruf, maksimal 3
+      formattedValue = formattedValue.replace(/[^A-Z]/g, "").slice(0, 3);
     }
 
-    setFormData((f) => ({ ...f, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: formattedValue,
+    }));
   };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, files } = e.target;
     if (files) setFormData((f) => ({ ...f, [name]: files[0] }));
@@ -75,27 +64,47 @@ export default function VehicleAdd() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    const fullPlate = `${formData.plate_prefix}${formData.plate_number}${formData.plate_suffix}`;
+    const submitData = {
+      ...formData,
+      plate_number: fullPlate.trim(),
+    };
+
+    delete submitData.plate_prefix;
+    delete submitData.plate_suffix;
+
     try {
-      createVehicle(formData, {
-        onSuccess: (data) => {
-          console.log("✅ Berhasil:", data);
+      createVehicle(submitData, {
+        onSuccess: () => {
           setIsLoading(false);
           toast.success("Berhasil menambahkan kendaraan.");
           setIsOpen(false);
-          queryClient.invalidateQueries({ queryKey: ["vehicleData"] });
+          queryClient.invalidateQueries({
+            queryKey: ["vehicleData"],
+            exact: false,
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["vehicleDataActive"],
+            exact: false,
+          });
           setFormData({
             vehicle_type: "",
-            plate_number: "",
-            plate_number_image: null,
-            stnk_image: null,
+            plate_prefix: "", // Kotak 1
+            plate_number: "", // Kotak 2
+            plate_suffix: "", // Kotak 3
+            plate_number_image: null as File | null,
+            stnk_image: null as File | null,
           });
         },
         onError: (err) => {
           setFormData({
             vehicle_type: "",
-            plate_number: "",
-            plate_number_image: null,
-            stnk_image: null,
+            plate_prefix: "", // Kotak 1
+            plate_number: "", // Kotak 2
+            plate_suffix: "", // Kotak 3
+            plate_number_image: null as File | null,
+            stnk_image: null as File | null,
           });
           setIsLoading(false);
           let message = "An error occurred";
@@ -118,9 +127,11 @@ export default function VehicleAdd() {
     setIsOpen(false);
     setFormData({
       vehicle_type: "",
-      plate_number: "",
-      plate_number_image: null,
-      stnk_image: null,
+      plate_prefix: "", // Kotak 1
+      plate_number: "", // Kotak 2
+      plate_suffix: "", // Kotak 3
+      plate_number_image: null as File | null,
+      stnk_image: null as File | null,
     });
   };
 
@@ -206,16 +217,38 @@ export default function VehicleAdd() {
                     <label className="block text-sm font-medium text-gray-700">
                       Plate Number
                     </label>
-                    <input
-                      type="text"
-                      name="plate_number"
-                      value={formData.plate_number}
-                      onChange={handleChange}
-                      placeholder="XX 1234 XXX"
-                      maxLength={11} // XX 1234 XXX = 11 karakter termasuk spasi
-                      className="mt-1 w-full rounded-md border border-gray-400 p-2 uppercase shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
+                    <div className="mt-1 flex space-x-2">
+                      <input
+                        type="text"
+                        name="plate_prefix"
+                        value={formData.plate_prefix}
+                        onChange={handleChange}
+                        placeholder="AA"
+                        maxLength={2}
+                        className="w-1/4 rounded-md border p-2 uppercase"
+                        required
+                      />
+                      <input
+                        type="text"
+                        name="plate_number"
+                        value={formData.plate_number}
+                        onChange={handleChange}
+                        placeholder="1234"
+                        maxLength={4}
+                        className="w-1/3 rounded-md border p-2 uppercase"
+                        required
+                      />
+                      <input
+                        type="text"
+                        name="plate_suffix"
+                        value={formData.plate_suffix}
+                        onChange={handleChange}
+                        placeholder="XYZ"
+                        maxLength={3}
+                        className="w-1/3 rounded-md border p-2 uppercase"
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div>

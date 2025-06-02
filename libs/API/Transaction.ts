@@ -14,6 +14,7 @@ export const Transaction = {
 
   getHistoryParkingById: async (page = 1, limit = 1, search = "") => {
     try {
+      console.log(page, limit, search);
       const response = await APIAPPS.get(`/v01/member/api/history-post`, {
         params: { page, limit, search },
       });
