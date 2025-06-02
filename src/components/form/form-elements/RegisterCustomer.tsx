@@ -242,7 +242,7 @@ export default function RegisterPage() {
       // Simulasi loading 3 detik
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      await register(formData, {
+      register(formData, {
         onSuccess: () => {
           setMessage("Silahkan cek email anda untuk aktifasi akun anda.");
           setIsModal(true);
@@ -258,7 +258,11 @@ export default function RegisterPage() {
           }
         },
       });
-
+    } catch (error) {
+      toast.error((error as Error).message || "Registrasi gagal.");
+      refreshString();
+    } finally {
+      setIsLoading(false);
       setFullName("");
       setUsername("");
       setAddress("");
@@ -271,11 +275,6 @@ export default function RegisterPage() {
       setBirthdate("");
       setAgree(false);
       refreshString();
-    } catch (error) {
-      toast.error((error as Error).message || "Registrasi gagal.");
-      refreshString();
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -331,12 +330,16 @@ export default function RegisterPage() {
             type="text"
             id="username"
             name="username"
-            onChange={(e) => setUsername(e.target.value)}
+            placeholder="ex : emirhan"
+            defaultValue={username}
+            onChange={(e) => {
+              const value = e.target.value.replace(/\s/g, ""); // hilangkan semua spasi
+              setUsername(value);
+            }}
             className="input"
-            defaultValue={username ?? undefined}
             onBlur={validateUsername}
             onKeyDown={(e) => {
-              if (e.key === " ") e.preventDefault(); // blok input spasi
+              if (e.key === " ") e.preventDefault(); // blok spasi saat diketik
             }}
           />
           {errors.username && (
