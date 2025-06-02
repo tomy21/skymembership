@@ -112,7 +112,7 @@ export default function HeaderHome() {
                 <div className="aspect-[3/2] w-full max-w-[230px] animate-pulse rounded-xl bg-gray-300" />
               </div>
             ))
-          ) : dataCard.data?.filter((item: responseCard) => item.rfid)
+          ) : dataCard?.data?.filter((item: responseCard) => item.rfid)
               ?.length === 0 ? (
             // Kalau kosong
             <div className="m-auto flex w-full flex-col items-center justify-center overflow-hidden rounded-xl">
@@ -126,8 +126,8 @@ export default function HeaderHome() {
             </div>
           ) : (
             // Data kartu
-            dataCard.data
-              .filter((item: responseCard) => item.rfid)
+            dataCard?.data
+              ?.filter((item: responseCard) => item.rfid)
               .map((item: responseCard, index: number) => (
                 <div
                   key={index}
@@ -154,6 +154,7 @@ export default function HeaderHome() {
               ))
           )}
         </div>
+
         {totalSlides > 0 && (
           <div className="text-sm font-medium text-gray-600">
             {currentSlide + 1} of {totalSlides}

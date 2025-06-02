@@ -23,6 +23,10 @@ export default function ProfileDropdown({ initial }: { initial: string }) {
     try {
       await logoutMutation.mutateAsync();
 
+      Object.keys(Cookies.get()).forEach((cookie) => {
+        Cookies.remove(cookie, { path: "/" });
+      });
+
       document.cookie = "refreshToken=; max-age=0; path=/";
       Cookies.remove("refreshToken");
 

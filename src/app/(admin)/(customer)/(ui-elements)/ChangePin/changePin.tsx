@@ -58,7 +58,7 @@ export default function ChangePin() {
         confirmPin: confirmPin,
         token: token!,
       });
-      console.log(response);
+
       if (response?.status === "success") {
         setSuccess(true);
       } else {

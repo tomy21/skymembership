@@ -16,7 +16,7 @@ export default async function handlerLogin(
         },
       },
     );
-    console.log(apiRes);
+
     res.status(apiRes.status).json(apiRes.data);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {

@@ -131,7 +131,7 @@ export default function PinVerify() {
             console.error("Bank ID is missing");
             return;
           }
-          // console.log(purchaseData.type);
+
           const data: PurchaseType = {
             idProduct: String(purchaseData.idProduct),
             data: {
@@ -146,7 +146,7 @@ export default function PinVerify() {
           submitType(data, {
             onSuccess: (response) => {
               const trx = response.data.transaction_data ?? response.data;
-              console.log(response);
+
               const paymentDetails = {
                 Id: Number(trx.Id),
                 createdAt: trx.createdAt,
