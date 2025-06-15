@@ -3,7 +3,7 @@ import { ScaleLoader } from "react-spinners";
 
 export default function Loading() {
   return (
-    <div className="fixed inset-0 z-9999 flex w-full items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-99999 flex w-full items-center justify-center bg-black/50">
       <ScaleLoader
         height={100}
         width={5}

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { login, logout, Users } from "../../libs/API/Auth";
+import { adminAPI, login, loginCMS, logout, Users } from "../../libs/API/Auth";
 import { AxiosError } from "axios";
 
 interface formData {
@@ -25,6 +25,25 @@ export const useLogin = () => {
     },
   });
 };
+
+export const useLoginCMS = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      identifier,
+      password,
+      rememberMe,
+    }: {
+      identifier: string;
+      password: string;
+      rememberMe: boolean;
+    }) => loginCMS({ identifier, password, rememberMe }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users-cms"] });
+    },
+  });
+};
+
 export const useLogout = () => {
   return useMutation({
     mutationFn: logout,
@@ -155,6 +174,15 @@ export const useDetailCustomer = () => {
   return useQuery({
     queryKey: ["userById"],
     queryFn: () => Users.getByUserId(),
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+};
+export const useDetailAdmin = () => {
+  return useQuery({
+    queryKey: ["adminById"],
+    queryFn: () => adminAPI.getAdminById(),
     staleTime: 1000 * 60 * 5,
     retry: 1,
     refetchOnWindowFocus: false,

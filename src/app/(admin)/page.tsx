@@ -12,9 +12,6 @@ export default function Login() {
   return (
     <>
       <AuthCustomer />
-      {/* <div className="min-h-screen">
-        <ComingSoonPage />
-      </div> */}
     </>
   );
 }

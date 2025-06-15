@@ -17,6 +17,7 @@ import { ClipLoader } from "react-spinners";
 import { useRouter } from "next/navigation";
 import TextArea from "@/components/form/input/TextArea";
 import getMaxBirthdate from "./getMaxBirthDate";
+import TermsAndCondition from "@/components/accordion/Termncondition";
 // import CustomDatePicker from "../date-picker";
 
 export default function RegisterPage() {
@@ -40,6 +41,7 @@ export default function RegisterPage() {
   const [birthdate, setBirthdate] = useState("");
   const [pin, setPin] = useState("");
   const [agree, setAgree] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
   const [message, setMessage] = useState("");
   const [isModal, setIsModal] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -585,7 +587,14 @@ export default function RegisterPage() {
               onChange={() => setAgree(!agree)}
             />
             <span className="text-sm text-gray-600">
-              I agree to the terms and conditions
+              I agree to the{" "}
+              <button
+                type="button"
+                className="text-blue-600 underline hover:text-blue-800"
+                onClick={() => setShowTermsModal(true)}
+              >
+                terms and conditions
+              </button>
             </span>
           </label>
           {errors.agree && (
@@ -641,6 +650,14 @@ export default function RegisterPage() {
           </div>
         </div>
       )}
+
+      <TermsAndCondition
+        isVisible={showTermsModal}
+        onClose={() => {
+          setAgree(true); // otomatis setuju saat klik "Setuju" di modal
+          setShowTermsModal(false);
+        }}
+      />
     </div>
   );
 }

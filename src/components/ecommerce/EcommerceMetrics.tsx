@@ -1,11 +1,34 @@
 "use client";
-import React from "react";
-import Badge from "../ui/badge/Badge";
-import { ArrowDownIcon, ArrowUpIcon, BoxIconLine, GroupIcon } from "@/icons";
+import React, { useEffect, useState } from "react";
+// import Badge from "../ui/badge/Badge";
+import { DollarLineIcon, GroupIcon } from "@/icons";
+import axios from "axios";
+import { BiWallet } from "react-icons/bi";
 
 export const EcommerceMetrics = () => {
+  const [totalMemberActive, setTotalMemberActive] = useState(0);
+  // const [totalMemberInActive, setTotalMemberInActive] = useState(0);
+  const [income, setIncome] = useState(0);
+  const [balance, setBalance] = useState(0);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get("/api/dashboard-value");
+      setTotalMemberActive(response.data.totalMembershipActive);
+      // setTotalMemberInActive(response.data.totalMemberInActive);
+      setIncome(response.data.totalPrice.totalPrice);
+      setBalance(response.data.totalBalancePoint);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-2">
       {/* <!-- Metric Item Start --> */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
@@ -15,16 +38,16 @@ export const EcommerceMetrics = () => {
         <div className="mt-5 flex items-end justify-between">
           <div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              Customers
+              Member Active
             </span>
             <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
-              3,782
+              {totalMemberActive ?? 0}
             </h4>
           </div>
-          <Badge color="success">
+          {/* <Badge color="success">
             <ArrowUpIcon />
             11.01%
-          </Badge>
+          </Badge> */}
         </div>
       </div>
       {/* <!-- Metric Item End --> */}
@@ -32,22 +55,46 @@ export const EcommerceMetrics = () => {
       {/* <!-- Metric Item Start --> */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
-          <BoxIconLine className="text-gray-800 dark:text-white/90" />
+          <DollarLineIcon
+            size={30}
+            className="text-gray-800 dark:text-white/90"
+          />
         </div>
         <div className="mt-5 flex items-end justify-between">
           <div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              Orders
+              Total Income
             </span>
             <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
-              5,359
+              {Number(income).toLocaleString("id-ID")}
             </h4>
           </div>
 
-          <Badge color="error">
+          {/* <Badge color="error">
             <ArrowDownIcon className="text-error-500" />
             9.05%
-          </Badge>
+          </Badge> */}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
+          <BiWallet size={30} className="text-gray-800 dark:text-white/90" />
+        </div>
+        <div className="mt-5 flex items-end justify-between">
+          <div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Total Balance
+            </span>
+            <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
+              {Number(balance).toLocaleString("id-ID")}
+            </h4>
+          </div>
+
+          {/* <Badge color="error">
+            <ArrowDownIcon className="text-error-500" />
+            9.05%
+          </Badge> */}
         </div>
       </div>
       {/* <!-- Metric Item End --> */}

@@ -7,9 +7,38 @@ export const login = async (data: { data: string }) => {
   return response.data;
 };
 
+export const loginCMS = async ({
+  identifier,
+  password,
+  rememberMe,
+}: {
+  identifier: string;
+  password: string;
+  rememberMe: boolean;
+}) => {
+  const response = await axios.post("/api/login-admin", {
+    identifier,
+    password,
+    rememberMe,
+  });
+
+  return response.data;
+};
+
 export const logout = async () => {
   const response = await APIAPPS.get(`/v01/member/api/auth/logout`);
   return response.data;
+};
+
+export const adminAPI = {
+  getAdminById: async () => {
+    try {
+      const response = await APIAPPS.get(`/v01/cms/api/auth/cms-userById`);
+      return response.data;
+    } catch (error) {
+      return error;
+    }
+  },
 };
 
 export const Users = {

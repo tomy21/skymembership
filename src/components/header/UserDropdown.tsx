@@ -1,17 +1,33 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
+import { useDetailAdmin } from "@/hooks/useAuth";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
+  const { data, isLoading, isError, refetch } = useDetailAdmin();
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation();
     setIsOpen((prev) => !prev);
   }
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+
+  const getInitials = (fullname: string) => {
+    if (!fullname) return "";
+
+    const names = fullname.trim().split(" ");
+    const first = names[0]?.charAt(0).toUpperCase() || "";
+    const second = names[1]?.charAt(0).toUpperCase() || "";
+
+    return first + second;
+  };
 
   function closeDropdown() {
     setIsOpen(false);
@@ -22,16 +38,18 @@ export default function UserDropdown() {
         onClick={toggleDropdown}
         className="dropdown-toggle flex items-center text-gray-700 dark:text-gray-400"
       >
-        <span className="mr-3 h-11 w-11 overflow-hidden rounded-full">
-          <Image
-            width={44}
-            height={44}
-            src="/images/user/owner.jpg"
-            alt="User"
-          />
+        <span className="mr-3 flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-black/50 text-white">
+          {getInitials(data?.data.fullname || "")}
         </span>
 
-        <span className="text-theme-sm mr-1 block font-medium">Musharof</span>
+        <div className="flex flex-col items-start justify-start">
+          <span className="text-theme-sm mr-1 block font-medium">
+            {data?.data.fullname}
+          </span>
+          <span className="text-theme-sm mr-1 block font-medium">
+            {data?.data?.membershipRole && data?.data?.membershipRole?.name}
+          </span>
+        </div>
 
         <svg
           className={`stroke-gray-500 transition-transform duration-200 dark:stroke-gray-400 ${

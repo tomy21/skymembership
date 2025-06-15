@@ -1,70 +1,64 @@
-"use client";
-
 import React, { useState } from "react";
-import { FaChevronDown } from "react-icons/fa";
 
 interface Option {
   value: string;
   label: string;
 }
 
-interface CustomSelectWithImageProps {
+interface SelectProps {
   options: Option[];
   placeholder?: string;
   onChange: (value: string) => void;
+  className?: string;
   defaultValue?: string;
 }
 
-const CustomSelectWithImage: React.FC<CustomSelectWithImageProps> = ({
+const Select: React.FC<SelectProps> = ({
   options,
-  placeholder = "Pilih Provider",
+  placeholder = "Select an option",
   onChange,
+  className = "",
   defaultValue = "",
 }) => {
-  const [selected, setSelected] = useState<Option | null>(
-    options.find((o) => o.value === defaultValue) || null,
-  );
-  const [isOpen, setIsOpen] = useState(false);
+  // Manage the selected value
+  const [selectedValue, setSelectedValue] = useState<string>(defaultValue);
 
-  const handleSelect = (option: Option) => {
-    setSelected(option);
-    onChange(option.value);
-    setIsOpen(false);
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setSelectedValue(value);
+    onChange(value); // Trigger parent handler
   };
 
   return (
-    <div className="relative w-full">
-      {/* Selected */}
-      <div
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="dark:bg-dark-900 flex h-11 cursor-pointer items-center justify-between rounded-lg border bg-white px-4 py-2"
+    <select
+      className={`shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full appearance-none rounded-lg border border-gray-300 px-4 py-2.5 pr-11 text-sm placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
+        selectedValue
+          ? "text-gray-800 dark:text-white/90"
+          : "text-gray-400 dark:text-gray-400"
+      } ${className}`}
+      value={selectedValue}
+      onChange={handleChange}
+    >
+      {/* Placeholder option */}
+      <option
+        value=""
+        disabled
+        className="text-gray-700 dark:bg-gray-900 dark:text-gray-400"
       >
-        {selected ? (
-          <div className="flex items-center gap-2">
-            <span className="text-sm">{selected.label}</span>
-          </div>
-        ) : (
-          <span className="text-sm text-gray-400">{placeholder}</span>
-        )}
-        <FaChevronDown className="text-sm text-gray-500" />
-      </div>
-
-      {/* Options */}
-      {isOpen && (
-        <div className="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-lg border bg-white shadow-lg">
-          {options.map((option) => (
-            <div
-              key={option.value}
-              onClick={() => handleSelect(option)}
-              className="flex cursor-pointer items-center gap-2 px-4 py-2 hover:bg-gray-100"
-            >
-              <span className="text-sm">{option.label}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+        {placeholder}
+      </option>
+      {/* Map over options */}
+      {options.map((option) => (
+        <option
+          key={option.value}
+          value={option.value}
+          className="text-gray-700 dark:bg-gray-900 dark:text-gray-400"
+        >
+          {option.label}
+        </option>
+      ))}
+    </select>
   );
 };
 
-export default CustomSelectWithImage;
+export default Select;

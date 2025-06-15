@@ -13,6 +13,8 @@ import { ChevronDownIcon } from "@/icons";
 import { toast } from "sonner";
 import { usePurchaseContext } from "@/context/PurchaseContext";
 import { useDetailCustomer } from "@/hooks/useAuth";
+import Checkbox from "@/components/form/input/Checkbox";
+import TermsAndCondition from "@/components/accordion/Termncondition";
 
 interface Option {
   id: string;
@@ -25,6 +27,8 @@ export default function ConfirmationForm() {
   const [selectedMethod, setSelectedMethod] = useState("");
   const [selectedProviders, setSelectedProviders] = useState<Option[]>([]);
   const [periodeTanggal, setPeriodeTanggal] = useState<string | null>(null);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
   const [detail, setDetail] = useState({
     idProduct: "",
     lokasi: "",
@@ -125,8 +129,6 @@ export default function ConfirmationForm() {
       provider: selectedProviders[0],
     };
 
-    console.log(dataPayload);
-
     localStorage.setItem("purchaseData", JSON.stringify(dataPayload));
 
     setPurchaseData({
@@ -226,9 +228,25 @@ export default function ConfirmationForm() {
           </div>
         )}
 
+        <div className="mt-3 flex w-full items-center justify-start gap-3 px-1">
+          <Checkbox checked={isChecked} onChange={setIsChecked} />
+          <span className="text-start text-sm text-gray-600">
+            <button
+              type="button"
+              className="text-blue-600 underline hover:text-blue-800"
+              onClick={() => setShowTermsModal(true)}
+            >
+              <p className="text-start">
+                Saya telah membaca dan menyetujui syarat dan ketentuan
+              </p>
+            </button>
+          </span>
+        </div>
+
         <Button
           onClick={handleSubmit}
-          className="mt-4 w-full bg-emerald-600 transition-all hover:bg-emerald-700"
+          className="mt-4 w-full bg-emerald-600 transition-all hover:bg-emerald-700 disabled:bg-emerald-300"
+          disabled={!isChecked || !selectedMethod || !selectedProviders}
         >
           Bayar Sekarang
         </Button>
@@ -318,6 +336,14 @@ export default function ConfirmationForm() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <TermsAndCondition
+        isVisible={showTermsModal}
+        onClose={() => {
+          setIsChecked(true); // otomatis setuju saat klik "Setuju" di modal
+          setShowTermsModal(false);
+        }}
+      />
     </div>
   );
 }

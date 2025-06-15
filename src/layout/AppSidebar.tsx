@@ -5,19 +5,15 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import {
-  BoxCubeIcon,
-  CalenderIcon,
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
-  ListIcon,
-  PageIcon,
-  PieChartIcon,
-  PlugInIcon,
-  TableIcon,
   UserCircleIcon,
 } from "../icons/index";
-import SidebarWidget from "./SidebarWidget";
+import { GoPeople } from "react-icons/go";
+import { MdCardMembership, MdLocationCity, MdPayments } from "react-icons/md";
+import { BiHistory, BiWalletAlt } from "react-icons/bi";
+// import { TbBrandOffice } from "react-icons/tb";
 
 type NavItem = {
   name: string;
@@ -30,66 +26,66 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    path: "/admin/dashboard",
   },
   {
-    icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "/calendar",
+    icon: <GoPeople size={24} />,
+    name: "Membership",
+    path: "/admin/list-membership",
   },
   {
+    icon: <MdLocationCity size={25} />,
+    name: "Location",
+    path: "/admin/location",
+  },
+  {
+    name: "History",
+    icon: <BiHistory size={25} />,
+    subItems: [
+      { name: "Transaction", path: "/admin/history/transaction", pro: false },
+      { name: "Parking", path: "/admin/history/parking", pro: false },
+    ],
+  },
+  {
+    name: "Transaction",
+    icon: <BiWalletAlt size={25} />,
+    subItems: [
+      { name: "Purchase", path: "/admin/purchase", pro: false },
+      { name: "Topup", path: "/admin/topup", pro: false },
+    ],
+  },
+  {
+    icon: <MdPayments size={25} />,
+    name: "Payment Management",
+    path: "/admin/payment-management",
+  },
+  // {
+  //   icon: <TbBrandOffice size={25} />,
+  //   name: "Tenant Management",
+  //   path: "/admin/tenant-management",
+  // },
+  {
+    icon: <MdCardMembership size={25} />,
+    name: "Card Management",
+    path: "/admin/master-card",
+  },
+  {
+    name: "User Management",
     icon: <UserCircleIcon />,
-    name: "User Profile",
-    path: "/profile",
-  },
-
-  {
-    name: "Forms",
-    icon: <ListIcon />,
-    subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
-  },
-  {
-    name: "Tables",
-    icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  },
-  {
-    name: "Pages",
-    icon: <PageIcon />,
     subItems: [
-      { name: "Blank Page", path: "/blank", pro: false },
-      { name: "404 Error", path: "/error-404", pro: false },
-    ],
-  },
-];
-
-const othersItems: NavItem[] = [
-  {
-    icon: <PieChartIcon />,
-    name: "Charts",
-    subItems: [
-      { name: "Line Chart", path: "/line-chart", pro: false },
-      { name: "Bar Chart", path: "/bar-chart", pro: false },
-    ],
-  },
-  {
-    icon: <BoxCubeIcon />,
-    name: "UI Elements",
-    subItems: [
-      { name: "Alerts", path: "/alerts", pro: false },
-      { name: "Avatar", path: "/avatars", pro: false },
-      { name: "Badge", path: "/badge", pro: false },
-      { name: "Buttons", path: "/buttons", pro: false },
-      { name: "Images", path: "/images", pro: false },
-      { name: "Videos", path: "/videos", pro: false },
-    ],
-  },
-  {
-    icon: <PlugInIcon />,
-    name: "Authentication",
-    subItems: [
-      { name: "Sign In", path: "/signin", pro: false },
-      { name: "Sign Up", path: "/signup", pro: false },
+      { name: "User", path: "/admin/user-management/users", pro: false },
+      {
+        name: "Customers",
+        path: "/admin/user-management/customer",
+        pro: false,
+      },
+      { name: "Role", path: "/admin/user-management/role", pro: false },
+      // {
+      //   name: "Role Permission",
+      //   path: "/admin/user-management/role-permission",
+      //   pro: false,
+      // },
+      { name: "Menu", path: "/admin/user-management/menu", pro: false },
     ],
   },
 ];
@@ -98,10 +94,7 @@ const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
 
-  const renderMenuItems = (
-    navItems: NavItem[],
-    menuType: "main" | "others",
-  ) => (
+  const renderMenuItems = (navItems: NavItem[], menuType: "main") => (
     <ul className="flex flex-col gap-4">
       {navItems.map((nav, index) => (
         <li key={nav.name}>
@@ -225,7 +218,7 @@ const AppSidebar: React.FC = () => {
   );
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others";
+    type: "main";
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
@@ -234,32 +227,23 @@ const AppSidebar: React.FC = () => {
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // const isActive = (path: string) => path === pathname;
-  const isActive = useCallback((path: string) => path === pathname, [pathname]);
+  const isActive = useCallback(
+    (path: string) => {
+      return pathname === path || pathname.startsWith(`${path}/`);
+    },
+    [pathname],
+  );
 
   useEffect(() => {
-    // Check if the current path matches any submenu item
-    let submenuMatched = false;
-    ["main", "others"].forEach((menuType) => {
-      const items = menuType === "main" ? navItems : othersItems;
-      items.forEach((nav, index) => {
-        if (nav.subItems) {
-          nav.subItems.forEach((subItem) => {
-            if (isActive(subItem.path)) {
-              setOpenSubmenu({
-                type: menuType as "main" | "others",
-                index,
-              });
-              submenuMatched = true;
-            }
-          });
+    // Auto open submenu if current path matches any of its children
+    navItems.forEach((item, index) => {
+      if (item.subItems) {
+        const match = item.subItems.some((sub) => isActive(sub.path));
+        if (match) {
+          setOpenSubmenu({ type: "main", index });
         }
-      });
+      }
     });
-
-    // If no submenu item matches, close the open submenu
-    if (!submenuMatched) {
-      setOpenSubmenu(null);
-    }
   }, [pathname, isActive]);
 
   useEffect(() => {
@@ -275,7 +259,7 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {
+  const handleSubmenuToggle = (index: number, menuType: "main") => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -308,24 +292,32 @@ const AppSidebar: React.FC = () => {
         <Link href="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-              <Image
-                className="dark:hidden"
-                src="/images/logo/logo.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-              <Image
-                className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
+              <div className="flex items-end justify-end space-x-2">
+                <Image
+                  className="dark:hidden"
+                  src="/images/company/logo.png"
+                  alt="Logo"
+                  width={50}
+                  height={40}
+                />
+                <p className="text-theme-lg text-start font-medium text-gray-500 dark:hidden dark:text-gray-400">
+                  SKY Membership
+                </p>
+                <Image
+                  className="hidden dark:block"
+                  src="/images/company/logo-dark.png"
+                  alt="Logo"
+                  width={50}
+                  height={40}
+                />
+                <p className="text-theme-lg hidden text-start font-medium text-gray-500 dark:block dark:text-gray-400">
+                  SKY Membership
+                </p>
+              </div>
             </>
           ) : (
             <Image
-              src="/images/logo/logo-icon.svg"
+              src="/images/company/logo.png"
               alt="Logo"
               width={32}
               height={32}
@@ -352,26 +344,8 @@ const AppSidebar: React.FC = () => {
               </h2>
               {renderMenuItems(navItems, "main")}
             </div>
-
-            <div className="">
-              <h2
-                className={`mb-4 flex text-xs leading-[20px] text-gray-400 uppercase ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
-                ) : (
-                  <HorizontaLDots />
-                )}
-              </h2>
-              {renderMenuItems(othersItems, "others")}
-            </div>
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
       </div>
     </aside>
   );

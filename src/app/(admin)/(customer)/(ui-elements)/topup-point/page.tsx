@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useProviderByType } from "@/hooks/usePayment";
 import { useTopupContext } from "@/context/TopupContext";
 import HeaderPage from "@/components/header-page/page";
+import TermsAndCondition from "@/components/accordion/Termncondition";
 
 interface Option {
   id: string;
@@ -27,6 +28,7 @@ export default function TopupPage() {
   const [selectedProviders, setSelectedProviders] = useState<Option[]>([]);
   const [showModal, setShowModal] = useState(false);
   const { data: providerData } = useProviderByType(selectedMethod || undefined);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   const router = useRouter();
   const { setTopupData } = useTopupContext();
@@ -151,8 +153,16 @@ export default function TopupPage() {
 
         <div className="mt-3 flex w-full items-center justify-start gap-3 px-5">
           <Checkbox checked={isChecked} onChange={setIsChecked} />
-          <span className="block text-sm font-medium text-gray-700 dark:text-gray-400">
-            Saya menyetujui syarat dan ketentuan
+          <span className="text-start text-sm text-gray-600">
+            <button
+              type="button"
+              className="text-blue-600 underline hover:text-blue-800"
+              onClick={() => setShowTermsModal(true)}
+            >
+              <p className="text-start">
+                Saya telah membaca dan menyetujui syarat dan ketentuan
+              </p>
+            </button>
           </span>
         </div>
 
@@ -263,6 +273,14 @@ export default function TopupPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <TermsAndCondition
+        isVisible={showTermsModal}
+        onClose={() => {
+          setIsChecked(true); // otomatis setuju saat klik "Setuju" di modal
+          setShowTermsModal(false);
+        }}
+      />
     </div>
   );
 }

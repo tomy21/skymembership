@@ -4,7 +4,9 @@ import { useSidebar } from "@/context/SidebarContext";
 import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
+import Cookies from "js-cookie";
 
 export default function AdminLayout({
   children,
@@ -12,13 +14,56 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
-
+  const router = useRouter();
   // Dynamic class for main content margin based on sidebar state
   const mainContentMargin = isMobileOpen
     ? "ml-0"
     : isExpanded || isHovered
       ? "lg:ml-[290px]"
       : "lg:ml-[90px]";
+
+  useEffect(() => {
+    let token: string | undefined = undefined;
+
+    // 1. Cek di localStorage
+    if (typeof window !== "undefined") {
+      token = localStorage.getItem("userToken") || undefined;
+    }
+
+    // 2. Kalau tidak ada di localStorage, cek di Cookies
+    if (!token) {
+      token = Cookies.get("userToken");
+    }
+
+    console.log("Token ditemukan:", token);
+
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const isExpired = payload.exp * 1000 < Date.now();
+
+        if (isExpired) {
+          console.warn("Token expired");
+
+          // Hapus dari localStorage dan cookie
+          localStorage.removeItem("userToken");
+          Cookies.remove("userToken");
+
+          router.replace("/signin");
+        }
+      } catch (err) {
+        console.error("Token invalid atau corrupt", err);
+
+        localStorage.removeItem("userToken");
+        Cookies.remove("userToken");
+
+        router.replace("/signin");
+      }
+    } else {
+      console.warn("Token tidak ditemukan di localStorage atau cookie");
+      router.replace("/signin");
+    }
+  }, [router]);
 
   return (
     <div className="min-h-screen xl:flex">
@@ -27,12 +72,15 @@ export default function AdminLayout({
       <Backdrop />
       {/* Main Content Area */}
       <div
-        className={`flex-1 transition-all duration-300 ease-in-out ${mainContentMargin}`}
+        className={`w-full flex-1 transition-all duration-300 ease-in-out ${mainContentMargin}`}
       >
         {/* Header */}
         <AppHeader />
         {/* Page Content */}
-        <div className="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
+        <div
+          className="mx-auto max-w-[var(--breakpoint-xl)] p-4 md:p-6"
+          style={{ "--breakpoint-xl": "1400px" } as React.CSSProperties}
+        >
           {children}
         </div>
       </div>

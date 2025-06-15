@@ -1,9 +1,11 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 // import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import ChartTab from "../common/ChartTab";
 import dynamic from "next/dynamic";
+import axios from "axios";
+import { ScaleLoader } from "react-spinners";
 
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -11,6 +13,49 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 });
 
 export default function StatisticsChart() {
+  const [categories, setCategories] = useState<string[]>([
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ]);
+  const [seriesValue, setSeriesValue] = useState<number[]>([]);
+  const [seriesRevenue, setSeriesRevenue] = useState<number[]>([]);
+  const [tabValue, setTabValue] = useState<"week" | "month" | "year">("month");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabValue]);
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get("/api/dashboard-static", {
+        params: {
+          range: tabValue,
+        },
+      });
+
+      setCategories(response.data.categories);
+      setSeriesValue(response.data.series[0].data);
+      setSeriesRevenue(response.data.series[1].data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const options: ApexOptions = {
     legend: {
       show: false, // Hide legend
@@ -69,20 +114,7 @@ export default function StatisticsChart() {
     },
     xaxis: {
       type: "category", // Category-based x-axis
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      categories: categories,
       axisBorder: {
         show: false, // Hide x-axis border
       },
@@ -93,30 +125,44 @@ export default function StatisticsChart() {
         enabled: false, // Disable tooltip for x-axis points
       },
     },
-    yaxis: {
-      labels: {
-        style: {
-          fontSize: "12px", // Adjust font size for y-axis labels
-          colors: ["#6B7280"], // Color of the labels
+    yaxis: [
+      {
+        title: {
+          text: "Transactions",
+        },
+        labels: {
+          style: {
+            fontSize: "12px",
+            colors: ["#6B7280"],
+          },
         },
       },
-      title: {
-        text: "", // Remove y-axis title
-        style: {
-          fontSize: "0px",
+      {
+        opposite: true,
+        title: {
+          text: "Revenue (Rp)",
+        },
+        labels: {
+          formatter: function (val) {
+            return `Rp${val.toLocaleString("id-ID")}`;
+          },
+          style: {
+            fontSize: "12px",
+            colors: ["#6B7280"],
+          },
         },
       },
-    },
+    ],
   };
 
   const series = [
     {
-      name: "Sales",
-      data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
+      name: "Transaction",
+      data: seriesValue,
     },
     {
       name: "Revenue",
-      data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
+      data: seriesRevenue,
     },
   ];
   return (
@@ -127,22 +173,34 @@ export default function StatisticsChart() {
             Statistics
           </h3>
           <p className="text-theme-sm mt-1 text-gray-500 dark:text-gray-400">
-            Target you’ve set for each month
+            Target youve set for each month
           </p>
         </div>
         <div className="flex w-full items-start gap-3 sm:justify-end">
-          <ChartTab />
+          <ChartTab value={tabValue} onChange={setTabValue} />
         </div>
       </div>
 
       <div className="custom-scrollbar max-w-full overflow-x-auto">
-        <div className="min-w-[1000px] xl:min-w-full">
-          <ReactApexChart
-            options={options}
-            series={series}
-            type="area"
-            height={310}
-          />
+        <div className="min-h-[310px] min-w-[1000px] xl:min-w-full">
+          {isLoading ? (
+            <div className="m-auto flex items-center justify-center">
+              <ScaleLoader
+                height={100}
+                width={5}
+                margin={2}
+                color="#bbb"
+                loading={true}
+              />
+            </div>
+          ) : (
+            <ReactApexChart
+              options={options}
+              series={series}
+              type="area"
+              height={310}
+            />
+          )}
         </div>
       </div>
     </div>

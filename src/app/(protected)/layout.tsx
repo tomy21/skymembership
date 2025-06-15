@@ -21,9 +21,20 @@ export default function ProtectedLayout({
       "/forgot-password",
       "/register-success",
       "/change-password",
+      "/signin",
     ];
 
-    if (!refreshToken && !accessToken && !publicRoutes.includes(pathname)) {
+    const isPublic =
+      publicRoutes.includes(pathname) ||
+      pathname.startsWith("/admin") ||
+      pathname.startsWith("/api");
+
+    if (
+      !refreshToken &&
+      !accessToken &&
+      !publicRoutes.includes(pathname) &&
+      !isPublic
+    ) {
       router.push("/");
     }
   }, [router, pathname]);
