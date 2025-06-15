@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { locationCode: string } },
-) {
+interface Params {
+  params: {
+    locationCode: string;
+  };
+}
+
+export async function GET(request: NextRequest, { params }: Params) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
