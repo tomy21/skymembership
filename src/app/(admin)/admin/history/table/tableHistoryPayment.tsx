@@ -331,7 +331,7 @@ export default function TableHistoryPayment() {
                           {items.vehicle_type ?? "0"}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.price ?? "0"}
+                          {Number(items.price).toLocaleString("id") ?? "0"}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.transactionType ?? "0"}

@@ -4,7 +4,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Select from "react-select";
-// import Image from "next/image";
 import Loading from "@/components/Loading/Loading";
 import Button from "@/components/ui/button/Button";
 import { usePeriode, useProduct } from "@/hooks/useProduct";
@@ -44,7 +43,6 @@ interface responseDetailMembers {
 }
 
 export default function ExtendMembership() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [detailCard, setDetailCard] = useState<any>(null);
   const [modalActive, setModalActive] = useState(false);
   const [location, setLocation] = useState("");
@@ -150,9 +148,8 @@ export default function ExtendMembership() {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderMembershipCard = (membership: any) => {
-    const isExpired = new Date(membership.end_date) > new Date();
+    const isExpired = new Date(membership.end_date) < new Date();
     const isActive = membership.is_active;
 
     return (
@@ -184,12 +181,12 @@ export default function ExtendMembership() {
         <div className="flex w-full items-center justify-between">
           <span
             className={`rounded-lg px-3 py-3 text-xs font-semibold ${
-              isExpired && isActive
+              isActive
                 ? "bg-green-100 text-green-700"
                 : "bg-red-100 text-red-600"
             }`}
           >
-            {isExpired && isActive ? "Active" : "Expired"}
+            {isActive ? "Active" : "Expired"}
           </span>
           {!isActive ||
             (!isExpired && (
@@ -237,7 +234,7 @@ export default function ExtendMembership() {
           </div>
         </div>
 
-        <div className="mb-8 space-y-2">
+        <div className="mb-3 space-y-2">
           <div>
             <p className="mb-1 text-sm text-gray-500">RFID</p>
             <p className="font-medium">{detailCard.rfid}</p>
