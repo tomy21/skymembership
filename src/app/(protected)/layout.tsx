@@ -22,6 +22,7 @@ export default function ProtectedLayout({
       "/register-success",
       "/change-password",
       "/signin",
+      "/request-token",
     ];
 
     const isPublic =
