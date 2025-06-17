@@ -29,6 +29,7 @@ export default function CardVehicle({
   const [isModal, setIsModal] = useState(false);
   const { mutateAsync: updateRFID } = useUpdateRFID();
   const [isLoading, setIsLoading] = useState(false);
+  const [showManualInput, setShowManualInput] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -43,16 +44,24 @@ export default function CardVehicle({
     if ("NDEFReader" in window) {
       try {
         setIsLoading(true);
+        setShowManualInput(false);
+
         const ndef = new window.NDEFReader();
         await ndef.scan();
 
+        const timeoutId = setTimeout(() => {
+          setIsLoading(false);
+          setShowManualInput(true); // Tampilkan input manual
+        }, 10000);
+
         ndef.addEventListener("reading", (event: NDEFReadingEvent) => {
           const { serialNumber } = event;
-
+          clearTimeout(timeoutId);
           if (serialNumber) {
             const formattedRfid = serialNumber.replace(/:/g, "").toUpperCase();
             setRfid(formattedRfid);
             setIsModal(true);
+            setShowManualInput(false);
           }
 
           setIsLoading(false);
@@ -60,6 +69,7 @@ export default function CardVehicle({
       } catch (error) {
         console.error("Gagal membaca NFC:", error);
         setIsLoading(false);
+        setShowManualInput(false);
       }
     }
   };
@@ -170,13 +180,13 @@ export default function CardVehicle({
               Scan RFID
             </label>
             <div className="my-3 w-full border" />
-            {nfcSupported ? (
+            {nfcSupported && !showManualInput ? (
               <div className="flex flex-col items-center justify-center space-y-4 py-4">
                 {isLoading ? (
                   <>
                     <ClipLoader size={40} color="#0ea5e9" />
                     <p className="text-sm text-gray-700">
-                      Tempelkan kartu member Anda...
+                      Tempelkan kartu member Anda (maks 10 detik)...
                     </p>
                   </>
                 ) : (
@@ -189,7 +199,11 @@ export default function CardVehicle({
                 )}
                 <Button
                   type="button"
-                  onClick={() => setIsModal(false)}
+                  onClick={() => {
+                    setIsModal(false);
+                    setShowManualInput(false);
+                    setRfid("");
+                  }}
                   className="bg-red-500"
                 >
                   Batal
@@ -212,7 +226,11 @@ export default function CardVehicle({
                     <Button type="submit">Simpan</Button>
                     <Button
                       type="button"
-                      onClick={() => setIsModal(false)}
+                      onClick={() => {
+                        setIsModal(false);
+                        setShowManualInput(false);
+                        setRfid("");
+                      }}
                       className="bg-red-500"
                     >
                       Batal

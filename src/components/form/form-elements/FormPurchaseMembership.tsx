@@ -123,19 +123,27 @@ export default function BookingForm() {
   // MAPPING VEHICLE USER
   useEffect(() => {
     if (Array.isArray(dataVehicles?.data)) {
-      if (dataVehicles.data.length === 0) {
-        // Redirect ke halaman tambah kendaraan
-        router.push("/vehicle");
+      const vehicles = dataVehicles.data;
+
+      // Jika kendaraan kosong, hanya tampilkan "Tambah Kendaraan"
+      if (vehicles.length === 0) {
+        setVehicleUsers([
+          {
+            value: "__add",
+            label: "➕ Tambah Kendaraan",
+          },
+        ]);
       } else {
-        setVehicleUsers(
-          dataVehicles.data.map((v: Vehicle) => ({
-            value: v.plate_number,
-            label: v.plate_number.toUpperCase(),
-          })),
-        );
+        // Jika ada kendaraan, tampilkan kendaraan saja
+        const options = vehicles.map((v: Vehicle) => ({
+          value: v.plate_number,
+          label: v.plate_number.toUpperCase(),
+        }));
+
+        setVehicleUsers(options);
       }
     }
-  }, [dataVehicles, router]);
+  }, [dataVehicles]);
 
   // SET PRICE WHEN PRODUCT SELECTED
   useEffect(() => {
@@ -277,7 +285,13 @@ export default function BookingForm() {
         placeholder="Vehicle list..."
         options={vehicleUsers}
         value={vehicle}
-        onChange={(val) => setVehicle(val)}
+        onChange={(val) => {
+          if (val?.value === "__add") {
+            router.push("/vehicle");
+          } else {
+            setVehicle(val);
+          }
+        }}
         isDisabled={!product}
       />
 
