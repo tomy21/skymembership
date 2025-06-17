@@ -123,14 +123,19 @@ export default function BookingForm() {
   // MAPPING VEHICLE USER
   useEffect(() => {
     if (Array.isArray(dataVehicles?.data)) {
-      setVehicleUsers(
-        dataVehicles.data.map((v: Vehicle) => ({
-          value: v.plate_number,
-          label: v.plate_number.toUpperCase(),
-        })),
-      );
+      if (dataVehicles.data.length === 0) {
+        // Redirect ke halaman tambah kendaraan
+        router.push("/vehicle");
+      } else {
+        setVehicleUsers(
+          dataVehicles.data.map((v: Vehicle) => ({
+            value: v.plate_number,
+            label: v.plate_number.toUpperCase(),
+          })),
+        );
+      }
     }
-  }, [dataVehicles]);
+  }, [dataVehicles, router]);
 
   // SET PRICE WHEN PRODUCT SELECTED
   useEffect(() => {
