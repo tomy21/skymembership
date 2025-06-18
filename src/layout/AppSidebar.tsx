@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import {
+  BoxCubeIcon,
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
@@ -37,6 +38,11 @@ const navItems: NavItem[] = [
     icon: <MdLocationCity size={25} />,
     name: "Location",
     path: "/admin/location",
+  },
+  {
+    icon: <BoxCubeIcon size={25} />,
+    name: "Product",
+    path: "/admin/product",
   },
   {
     name: "History",

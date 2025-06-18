@@ -10,7 +10,7 @@ export default function CustomerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="m-auto flex min-h-screen w-full items-center justify-center bg-white sm:container sm:w-full md:container md:w-full xl:flex">
+    <div className="m-auto flex min-h-screen w-full items-center justify-center bg-white sm:container sm:w-full md:container md:w-1/4 xl:flex">
       <ProtectedLayout>
         <ProgressBarProvider>{children}</ProgressBarProvider>
         <Toaster richColors position="top-right" duration={1000} />
