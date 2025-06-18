@@ -1,5 +1,4 @@
 "use client";
-
 import { useForgotPassword } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -8,44 +7,35 @@ import { ClipLoader } from "react-spinners";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const router = useRouter();
   const forgotPassword = useForgotPassword();
+  const loading = forgotPassword.isPending;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    // selama SSR dan sebelum mount, tolak render interaktif
-    return null;
-  }
+  if (!mounted) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     const referralUrl = window.location.origin;
-    setLoading(true);
-    // Simulasi request
-    try {
-      forgotPassword.mutate(
-        { email, referralUrl },
-        {
-          onSuccess: () => {
-            setSubmitted(true);
-            setLoading(false);
-          },
+
+    forgotPassword.mutate(
+      { email, referralUrl },
+      {
+        onSuccess: () => {
+          setSubmitted(true);
         },
-      );
-    } catch (error) {
-      console.log(error);
-      setLoading(false);
-    } finally {
-      setLoading(false);
-    }
+        onError: (error) => {
+          console.error(error);
+        },
+      },
+    );
   };
 
   return (
@@ -95,6 +85,7 @@ export default function ForgotPassword() {
             </button>
           </form>
         )}
+
         <button
           type="button"
           className="mt-3 w-full rounded-lg bg-red-600 py-2 font-medium text-white transition duration-200 hover:bg-red-700"
