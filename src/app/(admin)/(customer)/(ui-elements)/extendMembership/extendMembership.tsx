@@ -152,8 +152,8 @@ export default function ExtendMembership() {
     const today = new Date();
     const fiveDaysBeforeEnd = new Date(membership.end_date);
     fiveDaysBeforeEnd.setDate(fiveDaysBeforeEnd.getDate() - 5);
-    const isExpired = new Date(membership.end_date) > new Date();
-    const isActive = today < fiveDaysBeforeEnd;
+    const isActive = new Date(membership.end_date) > new Date();
+    const isExpired = today < fiveDaysBeforeEnd;
 
     return (
       <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
@@ -191,16 +191,15 @@ export default function ExtendMembership() {
           >
             {isActive ? "Active" : "Expired"}
           </span>
-          {!isActive ||
-            (!isExpired && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => modalExtendCard(membership)}
-              >
-                Extend Membership
-              </Button>
-            ))}
+          {!isExpired && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => modalExtendCard(membership)}
+            >
+              Extend Membership
+            </Button>
+          )}
         </div>
       </div>
     );
