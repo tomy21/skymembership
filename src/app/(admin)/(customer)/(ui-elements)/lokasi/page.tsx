@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function Lokasi() {
   return (
-    <div className="relative min-h-screen w-full bg-white">
+    <div className="relative min-h-screen w-sm bg-white">
       <HeaderPage title="Lokasi Member" />
       <CardLocation />
     </div>

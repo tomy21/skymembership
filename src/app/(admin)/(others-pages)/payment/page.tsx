@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import React, { Suspense } from "react";
 import PaymentProcess from "../../(customer)/(ui-elements)/payment-process/PaymentProcess";
-import ProgressBarProvider from "@/components/ProgressBarProvider";
+import Loading from "@/components/Loading/Loading";
 
 export const metadata: Metadata = {
   title: "Payment | SKY Parking",
@@ -10,10 +10,10 @@ export const metadata: Metadata = {
 
 export default function page() {
   return (
-    <Suspense>
-      <ProgressBarProvider>
+    <Suspense fallback={<Loading />}>
+      <div className="relative mx-auto min-h-screen w-sm bg-white">
         <PaymentProcess />
-      </ProgressBarProvider>
+      </div>
     </Suspense>
   );
 }

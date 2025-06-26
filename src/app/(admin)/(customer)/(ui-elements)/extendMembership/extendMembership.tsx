@@ -213,7 +213,7 @@ export default function ExtendMembership() {
 
   return (
     <div className="min-h-screen">
-      <div className="mx-auto max-w-4xl p-8">
+      <div className="mx-auto max-w-3xl p-8">
         <div className="flex w-full items-center justify-between">
           <div className="mb-8 space-y-2">
             <p className="text-gray-600">Plate Number</p>
@@ -245,7 +245,7 @@ export default function ExtendMembership() {
         </div>
 
         <div className="max-h-[60vh] overflow-auto pr-2">
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-1">
             {detailCard.location.map((m: any, index: number) => (
               <div key={index}>{renderMembershipCard(m)}</div>
             ))}

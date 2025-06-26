@@ -11,7 +11,6 @@ import {
 import { usePaymentContext } from "@/context/PaymentContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePurchaseContext } from "@/context/PurchaseContext";
-import HeaderPage from "@/components/header-page/page";
 // import { CheckCircleIcon } from "@/icons";
 import { FiAlertCircle } from "react-icons/fi";
 import { Payment } from "../../../../../../libs/API/Payment";
@@ -428,14 +427,13 @@ export default function PinVerify() {
 
   return (
     <>
-      <div className="min-h-screen w-full overflow-y-auto bg-white">
-        <HeaderPage title="Verifikasi Pin" />
-        <div className="mt-10 flex w-full flex-col items-center px-5">
+      <div className="min-h-screen w-sm overflow-y-auto bg-white">
+        <div className="mt-10 flex w-sm flex-col items-center px-5">
           <h1 className="mb-6 text-xl font-semibold text-gray-700">
             Masukkan PIN
           </h1>
 
-          <div className="mb-5 flex justify-center space-x-3">
+          <div className="mb-5 flex w-sm justify-center space-x-3">
             {pin.map((val, idx) => (
               <div
                 key={idx}
