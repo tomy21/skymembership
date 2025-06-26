@@ -36,7 +36,7 @@ export default function CardLocation() {
         <input
           type="text"
           placeholder="Cari lokasi..."
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-yellow-400 focus:outline-none md:w-72"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-yellow-400 focus:outline-none"
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
@@ -54,7 +54,7 @@ export default function CardLocation() {
           Data lokasi tidak ditemukan.
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-1">
           {currentData.map((lokasi: Location) => (
             <div
               key={lokasi.id}

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function Profile() {
   return (
-    <div className="min-h-screen w-full bg-white">
+    <div className="mx-auto min-h-screen w-sm space-y-2 bg-white">
       <Suspense fallback={<Loading />}>
         <HeaderPage title="Profile" />
         <UserMetaCard />

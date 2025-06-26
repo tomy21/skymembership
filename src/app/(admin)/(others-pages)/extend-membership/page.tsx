@@ -17,7 +17,7 @@ const ExtendMembership = lazy(
 export default function page() {
   return (
     <Suspense fallback={<Loading />}>
-      <div className="relative min-h-screen w-full bg-white">
+      <div className="relative mx-auto min-h-screen w-sm bg-white">
         <HeaderPage title="Detail Card" />
         <ExtendMembership />
       </div>

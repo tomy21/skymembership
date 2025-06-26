@@ -1,7 +1,8 @@
 import { Metadata } from "next";
 import React, { Suspense } from "react";
 import PinVerify from "../../(customer)/(ui-elements)/pin-verifikasi/PinVerify";
-import ProgressBarProvider from "@/components/ProgressBarProvider";
+import Loading from "@/components/Loading/Loading";
+import HeaderPage from "@/components/header-page/page";
 
 export const metadata: Metadata = {
   title: "Verifikasi | SKY Parking",
@@ -10,10 +11,11 @@ export const metadata: Metadata = {
 
 export default function page() {
   return (
-    <Suspense>
-      <ProgressBarProvider>
+    <Suspense fallback={<Loading />}>
+      <div className="relative mx-auto min-h-screen w-sm bg-white">
+        <HeaderPage title="Verifikasi" />
         <PinVerify />
-      </ProgressBarProvider>
+      </div>
     </Suspense>
   );
 }
