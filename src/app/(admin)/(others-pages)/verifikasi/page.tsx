@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function page() {
   return (
     <Suspense fallback={<Loading />}>
-      <div className="relative mx-auto min-h-screen w-sm bg-white">
+      <div className="relative mx-auto min-h-screen w-full bg-white sm:w-sm">
         <HeaderPage title="Verifikasi" />
         <PinVerify />
       </div>

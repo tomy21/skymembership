@@ -23,6 +23,7 @@ export default function ProtectedLayout({
       "/change-password",
       "/signin",
       "/request-token",
+      "/tenant/login",
     ];
 
     const isPublic =

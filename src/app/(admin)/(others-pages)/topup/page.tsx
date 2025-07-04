@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function page() {
   return (
-    <div className="mx-auto min-h-screen w-sm space-y-2 bg-white">
+    <div className="mx-auto min-h-screen w-full space-y-2 bg-white sm:w-sm">
       <Suspense fallback={<Loading />}>
         <TopupPage />
       </Suspense>

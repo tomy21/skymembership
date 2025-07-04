@@ -161,7 +161,7 @@ export default function ConfirmationForm() {
 
   return (
     <>
-      <div className="min-h-screen">
+      <div className="min-h-screen p-5">
         <div className="mx-auto max-w-full py-6">
           <div className="flex w-full flex-col items-center justify-between space-y-3">
             <div className="w-full space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-5 shadow-sm">
@@ -260,7 +260,7 @@ export default function ConfirmationForm() {
             <AnimatePresence>
               {showModal && (
                 <motion.div
-                  className="fixed inset-0 z-50 mx-auto flex w-sm items-end justify-center bg-black/40"
+                  className="fixed inset-0 z-50 mx-auto flex w-full items-end justify-center bg-black/40 sm:w-sm"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}

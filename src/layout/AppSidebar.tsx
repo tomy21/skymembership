@@ -14,6 +14,7 @@ import {
 import { GoPeople } from "react-icons/go";
 import { MdCardMembership, MdLocationCity, MdPayments } from "react-icons/md";
 import { BiHistory, BiWalletAlt } from "react-icons/bi";
+import { TbBrandOffice } from "react-icons/tb";
 // import { TbBrandOffice } from "react-icons/tb";
 
 type NavItem = {
@@ -65,11 +66,11 @@ const navItems: NavItem[] = [
     name: "Payment Management",
     path: "/admin/payment-management",
   },
-  // {
-  //   icon: <TbBrandOffice size={25} />,
-  //   name: "Tenant Management",
-  //   path: "/admin/tenant-management",
-  // },
+  {
+    icon: <TbBrandOffice size={25} />,
+    name: "Tenant Management",
+    path: "/admin/tenant",
+  },
   {
     icon: <MdCardMembership size={25} />,
     name: "Card Management",

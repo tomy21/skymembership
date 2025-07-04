@@ -1,5 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminAPI, login, loginCMS, logout, Users } from "../../libs/API/Auth";
+import {
+  adminAPI,
+  login,
+  loginCMS,
+  loginTenant,
+  logout,
+  Users,
+} from "../../libs/API/Auth";
 import { AxiosError } from "axios";
 
 interface formData {
@@ -38,6 +45,21 @@ export const useLoginCMS = () => {
       password: string;
       rememberMe: boolean;
     }) => loginCMS({ identifier, password, rememberMe }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users-cms"] });
+    },
+  });
+};
+export const useLoginTenant = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      username,
+      password,
+    }: {
+      username: string;
+      password: string;
+    }) => loginTenant({ username, password }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users-cms"] });
     },
