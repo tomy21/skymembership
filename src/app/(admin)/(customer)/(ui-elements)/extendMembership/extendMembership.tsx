@@ -151,10 +151,12 @@ export default function ExtendMembership() {
   const renderMembershipCard = (membership: any) => {
     const today = new Date();
     const isDate20 = today.getDate() === 20;
+    const isDate6 = today.getDate() === 6;
     const fiveDaysBeforeEnd = new Date(membership.end_date);
     fiveDaysBeforeEnd.setDate(fiveDaysBeforeEnd.getDate() - 5);
-    const isActive = new Date(membership.end_date) > new Date();
-    const isExpired = isDate20;
+    const isActive =
+      new Date(membership.end_date) > new Date() && membership.is_active === 1;
+    const isExpired = isDate20 && isDate6 && new Date() > fiveDaysBeforeEnd;
 
     return (
       <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
