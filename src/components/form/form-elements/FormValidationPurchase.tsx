@@ -260,7 +260,7 @@ export default function ConfirmationForm() {
             <AnimatePresence>
               {showModal && (
                 <motion.div
-                  className="fixed inset-0 z-50 mx-auto flex w-sm items-end justify-center bg-black/40"
+                  className="fixed inset-0 z-50 mx-auto flex w-full items-end justify-center bg-black/40 sm:w-sm"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
