@@ -152,41 +152,57 @@ export default function RegisterPage() {
 
     if (!fullName) {
       newErrors.fullName = "Full name is required.";
+      toast.error("Full name is required.");
     } else if (fullName.length < 3) {
       newErrors.fullName = "Full name must be at least 3 characters.";
+      toast.error("Full name must be at least 3 characters.");
     }
 
     if (!username) {
       newErrors.username = "Username is required.";
+      toast.error("Username is required.");
     } else if (username.length < 3) {
       newErrors.username = "Username must be at least 3 characters.";
+      toast.error("Username must be at least 3 characters.");
     }
 
     if (!address) {
       newErrors.address = "Address is required.";
+      toast.error("Address is required.");
     } else if (address.length < 10) {
       newErrors.address = "Address must be at least 10 characters.";
+      toast.error("Address must be at least 10 characters.");
     }
 
     if (!email || !/\S+@\S+\.\S+/.test(email))
       newErrors.email = "Email not valid.";
-
+    toast.error("Email not valid.");
     if (!confirmPassword) {
       newErrors.confirmPassword = "Please confirm your password.";
+      toast.error("Please confirm your password.");
     } else if (confirmPassword !== password) {
       newErrors.confirmPassword = "Passwords do not match.";
+      toast.error("Passwords do not match.");
     }
 
     if (!phone) {
       newErrors.phone = "Phone number is required.";
+      toast.error("Phone number is required.");
     } else if (!phone.startsWith("+62")) {
       newErrors.phone = "Phone number must start with +62.";
+      toast.error("Phone number must start with +62.");
     } else if (!/^\+628\d{1,12}$/.test(phone)) {
       newErrors.phone =
         "Phone number must contain only numbers after +628 and be up to 16 characters total.";
+      toast.error(
+        "Phone number must contain only numbers after +628 and be up to 16 characters total.",
+      );
     }
 
-    if (!gender) newErrors.gender = "Gender is required.";
+    if (!gender) {
+      newErrors.gender = "Gender is required.";
+      toast.error("Gender is required.");
+    }
     if (!birthdate) {
       newErrors.birthdate = "Birthdate is required.";
     } else if (!isValidBirthdate(birthdate)) {
@@ -195,23 +211,35 @@ export default function RegisterPage() {
 
     if (!password) {
       newErrors.password = "Password is required.";
+      toast.error("Password is required.");
     } else if (password.length < 8) {
       newErrors.password = "Password must be at least 8 characters.";
+      toast.error("Password must be at least 8 characters.");
     } else if (!/[A-Z]/.test(password)) {
       newErrors.password =
         "Password must contain at least one uppercase letter.";
+      toast.error("Password must contain at least one uppercase letter.");
     } else if (!/[a-z]/.test(password)) {
       newErrors.password =
         "Password must contain at least one lowercase letter.";
+      toast.error("Password must contain at least one lowercase letter.");
     } else if (!/[0-9]/.test(password)) {
       newErrors.password = "Password must contain at least one number.";
+      toast.error("Password must contain at least one number.");
     } else if (!/[^A-Za-z0-9]/.test(password)) {
       newErrors.password =
         "Password must contain at least one special character.";
+      toast.error("Password must contain at least one special character.");
     }
 
-    if (inputCaptcha !== captcha) newErrors.captcha = "Captcha does not match.";
-    if (!agree) newErrors.agree = "You must agree to the terms and conditions.";
+    if (inputCaptcha !== captcha) {
+      toast.error("Captcha does not match.");
+      newErrors.captcha = "Captcha does not match.";
+    }
+    if (!agree) {
+      newErrors.agree = "You must agree to the terms and conditions.";
+      toast.error("You must agree to the terms and conditions.");
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

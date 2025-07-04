@@ -17,6 +17,7 @@ import { Payment } from "../../../../../../libs/API/Payment";
 import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
 import { useForgotPin } from "@/hooks/useAuth";
+import Loading from "@/components/Loading/Loading";
 
 type TopupPayload = {
   bank_id: string;
@@ -53,6 +54,7 @@ export default function PinVerify() {
   const [isModalLupaPin, setIsModalLupaPin] = useState(false);
   // const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmittingReset, setIsSubmittingReset] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -405,30 +407,34 @@ export default function PinVerify() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const referralUrl = window.location.origin;
-    setIsLoading(true);
-    // Simulasi request
+    setIsSubmittingReset(true);
+
     try {
       forgotPin.mutate(
         { referralUrl },
         {
           onSuccess: () => {
             setSubmitted(true);
-            setIsLoading(false);
+          },
+          onError: (err) => {
+            toast.error("Gagal mengirim reset PIN. Silakan coba lagi.");
+            console.error("Reset PIN error", err);
+          },
+          onSettled: () => {
+            setIsSubmittingReset(false);
           },
         },
       );
     } catch (error) {
       console.log(error);
-      setIsLoading(false);
-    } finally {
-      setIsLoading(false);
+      setIsSubmittingReset(false);
     }
   };
 
   return (
     <>
-      <div className="min-h-screen w-sm overflow-y-auto bg-white">
-        <div className="mt-10 flex w-sm flex-col items-center px-5">
+      <div className="min-h-screen w-full overflow-y-auto bg-white">
+        <div className="mt-10 flex w-full flex-col items-center px-5">
           <h1 className="mb-6 text-xl font-semibold text-gray-700">
             Masukkan PIN
           </h1>
@@ -466,20 +472,11 @@ export default function PinVerify() {
           </div>
         </div>
 
-        {isLoading && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="flex flex-col items-center space-y-3 rounded-xl bg-white px-6 py-4 shadow-lg">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
-              <p className="text-sm font-medium text-blue-600">
-                Process transaction . . . . .
-              </p>
-            </div>
-          </div>
-        )}
+        {isLoading && <Loading />}
       </div>
 
       {isModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-5">
+        <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/50 p-5">
           <div className="flex flex-col items-center justify-center space-y-3 rounded-xl bg-white px-6 py-4 shadow-lg">
             <FiAlertCircle className="h-8 w-8 text-red-500" />
             <p className="text-sm font-medium text-blue-600">
@@ -509,34 +506,60 @@ export default function PinVerify() {
 
             {/* Modal Content */}
             <motion.div
-              className="z-50 rounded-2xl bg-white p-6"
+              className="z-10 w-full space-y-3 rounded-2xl bg-white p-6 text-center"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
             >
               {submitted ? (
-                <div className="p-5 text-center font-medium text-green-600">
+                <div className="w-full p-5 text-center font-medium text-green-600">
                   Link reset telah dikirim ke email anda.
                 </div>
               ) : (
                 <>
-                  <h1 className="mb-4 text-sm font-medium">
-                    Anda yakin untuk reset PIN ?
-                  </h1>
-                  <div className="flex justify-end space-x-3">
-                    <button
-                      onClick={modalLupaPinClose}
-                      className="rounded bg-red-500 px-3 py-1 text-sm font-medium text-white"
-                    >
-                      Tidak
-                    </button>
-                    <button
-                      onClick={handleSubmit}
-                      className="rounded bg-blue-500 px-3 py-1 text-sm font-medium text-white"
-                    >
-                      Ya
-                    </button>
+                  <div className="w-full">
+                    <h1 className="mb-7 text-xl font-medium">
+                      Anda yakin untuk reset PIN ?
+                    </h1>
+                    <div className="flex w-full justify-center space-x-3">
+                      <button
+                        onClick={modalLupaPinClose}
+                        className="w-1/2 rounded bg-red-500 p-3 text-sm font-medium text-white"
+                      >
+                        Tidak
+                      </button>
+                      <button
+                        onClick={handleSubmit}
+                        className="flex w-1/2 items-center justify-center rounded bg-blue-500 p-3 text-sm font-medium text-white"
+                        disabled={isSubmittingReset}
+                      >
+                        {isSubmittingReset ? (
+                          <svg
+                            className="h-4 w-4 animate-spin text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                            ></path>
+                          </svg>
+                        ) : (
+                          "Ya"
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </>
               )}

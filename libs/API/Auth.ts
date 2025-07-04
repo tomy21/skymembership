@@ -25,6 +25,21 @@ export const loginCMS = async ({
   return response.data;
 };
 
+export const loginTenant = async ({
+  username,
+  password,
+}: {
+  username: string;
+  password: string;
+}) => {
+  const response = await axios.post("/api/tenant/login", {
+    username,
+    password,
+  });
+
+  return response.data;
+};
+
 export const logout = async () => {
   const response = await APIAPPS.get(`/v01/member/api/auth/logout`);
   return response.data;
