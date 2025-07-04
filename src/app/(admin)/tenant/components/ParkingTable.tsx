@@ -22,8 +22,8 @@ export default function ParkingTable({
 }: ParkingTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("All");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const [isLoading] = useState(false);
+  const [isError] = useState(false);
 
   const locations = Array.from(
     new Set(data.map((d) => d.Location ?? "")),

@@ -34,10 +34,10 @@ interface PurchaseResponse {
 
 export default function TableBillingPayment() {
   const [mounted, setMounted] = useState(false);
-  const [dataHistory, setDataHistory] = useState<PurchaseResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingExport, setIsLoadingExport] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const [dataHistory] = useState<PurchaseResponse[]>([]);
+  const [isLoading] = useState(false);
+  const [isLoadingExport] = useState(false);
+  const [isError] = useState(false);
 
   useEffect(() => {
     setMounted(true);
