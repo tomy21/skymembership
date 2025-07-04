@@ -176,7 +176,6 @@ export default function RegisterPage() {
 
     if (!email || !/\S+@\S+\.\S+/.test(email))
       newErrors.email = "Email not valid.";
-    toast.error("Email not valid.");
     if (!confirmPassword) {
       newErrors.confirmPassword = "Please confirm your password.";
       toast.error("Please confirm your password.");
