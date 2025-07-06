@@ -175,7 +175,7 @@ export default function HeaderHome() {
               onClick={() => router.push("/topup")}
               variant={"primary"}
               className="h-12 w-24 bg-emerald-500 disabled:cursor-not-allowed disabled:bg-gray-300"
-              disabled={true} // ganti ke kondisi seperti `disableTopup`
+              disabled={false} // ganti ke kondisi seperti `disableTopup`
             >
               Top up
             </Button>

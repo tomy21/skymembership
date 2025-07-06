@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 export default function CardHome() {
-  const [maintenance] = useState(true);
+  const [maintenance] = useState(false);
   const features = [
     {
       image: "/images/company/vehicles.png",
@@ -17,7 +17,7 @@ export default function CardHome() {
       image: "/images/company/membership.png",
       title: "Membership",
       path: "/membership",
-      disable: true,
+      disable: false,
     },
     {
       image: "/images/company/map.png",

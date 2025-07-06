@@ -1,9 +1,15 @@
+"use client";
 import { FaMoneyBillWave, FaShoppingCart, FaUsers } from "react-icons/fa";
 import DashboardCard from "../components/DashboardCard";
 import ParkingTable from "../components/ParkingTable";
 import TableBillingPayment from "./TableBillingPayment";
+import Button from "@/components/ui/button/Button";
+import { useState } from "react";
+import OrderModal from "../components/OrderContent"; // ini file modalnya
 
 export default function HomePage() {
+  const [modalOrder, setModalOrder] = useState(false);
+
   const stats = [
     {
       label: "Total Membership",
@@ -47,36 +53,50 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <main className="space-y-6 p-6">
-        {/* Welcome text */}
-        <h1 className="text-xl font-semibold text-gray-800">
-          Selamat datang, John Doe!
-        </h1>
+    <>
+      <div className="min-h-screen bg-gray-100">
+        <main className="space-y-6 p-6">
+          {/* Welcome Header */}
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-semibold text-gray-800">
+              Hi, Welcome jhon doe
+            </h1>
+            <Button
+              onClick={() => setModalOrder(true)}
+              variant="primary"
+              size="sm"
+            >
+              Order
+            </Button>
+          </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-          {stats.map((s, i) => (
-            <DashboardCard
-              key={i}
-              label={s.label}
-              value={s.value}
-              icon={s.icon}
-              bgColor={s.bgColor}
+          {/* Cards */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+            {stats.map((s, i) => (
+              <DashboardCard
+                key={i}
+                label={s.label}
+                value={s.value}
+                icon={s.icon}
+                bgColor={s.bgColor}
+              />
+            ))}
+          </div>
+
+          {/* Tables */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <TableBillingPayment />
+            <ParkingTable
+              title="Riwayat Parking"
+              columns={["Plate", "Start", "End", "Value"]}
+              data={historyOrders}
             />
-          ))}
-        </div>
+          </div>
+        </main>
+      </div>
 
-        {/* Tables */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <TableBillingPayment />
-          <ParkingTable
-            title="Riwayat Parking"
-            columns={["Plate", "Start", "End", "Value"]}
-            data={historyOrders}
-          />
-        </div>
-      </main>
-    </div>
+      {/* Modal Slide Order */}
+      {modalOrder && <OrderModal onClose={() => setModalOrder(false)} />}
+    </>
   );
 }
