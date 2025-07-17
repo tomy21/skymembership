@@ -25,6 +25,7 @@ interface membershipData {
   price: number;
   periode: string;
   statusPayment: string;
+  product_name: string;
   trxHistoryUser: {
     id: number;
     fullname: string;
@@ -242,7 +243,7 @@ export default function TableDetailMembers() {
                           {Number(items.price).toLocaleString("id-ID")}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">
-                          {items.periode === "" ? "-" : items.periode}
+                          {items.product_name === "" ? "-" : items.product_name}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-center font-medium text-gray-500 dark:text-gray-400">
                           <Badge

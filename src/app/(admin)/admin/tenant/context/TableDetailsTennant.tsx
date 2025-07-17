@@ -12,35 +12,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import axios from "axios";
-import { useRouter } from "next/navigation";
-import Badge from "@/components/ui/badge/Badge";
+import { useParams } from "next/navigation";
 // import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import Loading from "@/components/Loading/Loading";
 
 interface responseData {
-  Id: string;
-  tennant_code: string;
-  tennant_name: string;
-  address: string;
-  email: string;
-  username: string;
-  password: string;
-  phone_number: string;
-  is_active: number;
-  active_token: string;
-  expired_active: string;
-  reset_password_token: string;
-  reset_password_expired: string;
-  created_at: string;
-  updated_at: string;
-  create_by: string;
-  update_by: string;
-  last_login: string;
-  customer_no: string;
+  cust_id: number;
+  id: number;
+  member_customer_no: string;
+  plate_number: string;
+  rfid: string;
+  vehicle_type: string;
 }
 
-export default function TableTenant() {
+export default function TableDetailTennant() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLimit, setSelectedLimit] = useState<string>("10");
@@ -62,7 +48,8 @@ export default function TableTenant() {
     setCurrentPage(newPage);
   };
 
-  const router = useRouter();
+  const params = useParams();
+  const code = params.tennantCode;
 
   useEffect(() => {
     setMounted(true);
@@ -73,7 +60,7 @@ export default function TableTenant() {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          "/api/tenant/list-members/get-user-tennant",
+          "/api/tenant/list-members/get-details/" + code,
           {
             params: {
               page: currentPage,
@@ -82,6 +69,7 @@ export default function TableTenant() {
             },
           },
         );
+        console.log(response.data.data);
         setDataHistory(response.data.data); // ambil array data
         setTotalPages(response.data.totalPages); // ambil total halaman
       } catch (error) {
@@ -92,7 +80,7 @@ export default function TableTenant() {
       }
     };
     fetchData();
-  }, [currentPage, selectedLimit, search]);
+  }, [currentPage, selectedLimit, search, code]);
 
   const handleOpenModal = () => {
     setIsOpen(true);
@@ -196,38 +184,19 @@ export default function TableTenant() {
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Tenant
+                      Customer ID
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Username
+                      Vehicle
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Contact
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Address
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Status
-                    </TableCell>
-
-                    <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Action
+                      RFID
                     </TableCell>
                   </TableRow>
                 </TableHeader>
@@ -261,61 +230,20 @@ export default function TableTenant() {
                           {index + 1}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.tennant_code ?? "0"}
+                          {items.member_customer_no ?? "0"}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           <div className="flex flex-col items-start justify-start">
                             <h1 className="font-semibold whitespace-nowrap text-gray-500 dark:text-gray-400">
-                              {items.tennant_name}
+                              {items.plate_number}
                             </h1>
                             <h1 className="font-medium text-gray-300 dark:text-gray-200">
-                              {items.username}
-                            </h1>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          <div className="flex flex-col items-start justify-start">
-                            <h1 className="font-semibold whitespace-nowrap text-gray-500 dark:text-gray-400">
-                              {items.email}
-                            </h1>
-                            <h1 className="font-medium text-gray-300 dark:text-gray-200">
-                              {items.phone_number}
+                              {items.vehicle_type}
                             </h1>
                           </div>
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium text-wrap text-gray-500 dark:text-gray-400">
-                          {items.address ?? "0"}
-                        </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          <Badge
-                            size="sm"
-                            color={
-                              items.is_active === 1
-                                ? "success"
-                                : items.is_active === 0
-                                  ? "error"
-                                  : "warning"
-                            }
-                          >
-                            {items.is_active === 1
-                              ? "Active"
-                              : items.is_active === 0
-                                ? "FAILED"
-                                : "Pending"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          <Button
-                            onClick={() =>
-                              router.push(
-                                `/admin/tenant/details-tennant/${encodeURIComponent(items.tennant_code)}`,
-                              )
-                            }
-                            variant="outline"
-                            className="bg-blue-light-500 -p-2 text-sm"
-                          >
-                            Detail
-                          </Button>
+                          {items.rfid ?? "0"}
                         </TableCell>
                       </TableRow>
                     ))

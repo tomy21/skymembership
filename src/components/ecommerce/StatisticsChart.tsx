@@ -72,7 +72,7 @@ export default function StatisticsChart() {
       },
     },
     stroke: {
-      curve: "straight", // Define the line style (straight, smooth, or step)
+      curve: "smooth", // Define the line style (straight, smooth, or step)
       width: [2, 2], // Line width for each dataset
     },
 

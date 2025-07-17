@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import Badge from "@/components/ui/badge/Badge";
 import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
@@ -68,7 +68,7 @@ export default function TableHistoryPayment() {
     setCurrentPage(newPage);
   };
 
-  const router = useRouter();
+  // const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
@@ -86,7 +86,7 @@ export default function TableHistoryPayment() {
             search,
           },
         });
-        console.log(response.data.data);
+
         setDataHistory(response.data.data); // ambil array data
         setTotalPages(response.data.pagination.totalPages); // ambil total halaman
       } catch (error) {
@@ -232,7 +232,7 @@ export default function TableHistoryPayment() {
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Periode
+                      Product Name
                     </TableCell>
                     <TableCell
                       isHeader
@@ -259,12 +259,12 @@ export default function TableHistoryPayment() {
                       Status
                     </TableCell>
 
-                    <TableCell
+                    {/* <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
                       Action
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 </TableHeader>
 
@@ -325,7 +325,7 @@ export default function TableHistoryPayment() {
                           {items.purchase_type}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.periode ?? "0"}
+                          {items.product_name ?? "0"}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.vehicle_type ?? "0"}
@@ -351,7 +351,7 @@ export default function TableHistoryPayment() {
                           </Badge>
                         </TableCell>
 
-                        <TableCell className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
+                        {/* <TableCell className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           <Button
                             onClick={() =>
                               router.push(
@@ -363,7 +363,7 @@ export default function TableHistoryPayment() {
                           >
                             Detail
                           </Button>
-                        </TableCell>
+                        </TableCell> */}
                       </TableRow>
                     ))
                   )}
