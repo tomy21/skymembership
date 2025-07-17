@@ -5,27 +5,37 @@ import { DollarLineIcon, GroupIcon } from "@/icons";
 import axios from "axios";
 import { BiWallet } from "react-icons/bi";
 
-export const EcommerceMetrics = () => {
+export const EcommerceMetrics = ({
+  month,
+  year,
+}: {
+  month: string;
+  year: string;
+}) => {
   const [totalMemberActive, setTotalMemberActive] = useState(0);
   // const [totalMemberInActive, setTotalMemberInActive] = useState(0);
   const [income, setIncome] = useState(0);
   const [balance, setBalance] = useState(0);
 
   useEffect(() => {
+    const fetchData = async () => {
+      const monthYear = `${year ?? ""}-${month ?? ""}`;
+      try {
+        const response = await axios.get(`/api/dashboard-value`, {
+          params: {
+            month: monthYear,
+          },
+        });
+        setTotalMemberActive(response.data.totalMembershipActive);
+        // setTotalMemberInActive(response.data.totalMemberInActive);
+        setIncome(response.data.totalPrice.totalPrice);
+        setBalance(response.data.totalBalancePoint);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
     fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const response = await axios.get("/api/dashboard-value");
-      setTotalMemberActive(response.data.totalMembershipActive);
-      // setTotalMemberInActive(response.data.totalMemberInActive);
-      setIncome(response.data.totalPrice.totalPrice);
-      setBalance(response.data.totalBalancePoint);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+  }, [month, year]);
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-2">

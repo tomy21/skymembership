@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const month = searchParams.get("month") || "";
     const apiRes = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/cms/api/memberships/dashboard-value`,
+      `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/cms/api/memberships/summary-by-product`,
       {
         params: { month },
       },

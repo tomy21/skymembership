@@ -13,9 +13,10 @@ import {
 } from "@/components/ui/table";
 import axios from "axios";
 import Badge from "@/components/ui/badge/Badge";
-import { format } from "date-fns";
+// import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import Loading from "@/components/Loading/Loading";
+import { formatToWIB } from "@/utils/time";
 
 interface HistoryParkingData {
   id: string;
@@ -292,18 +293,12 @@ export default function TableHistoryParking() {
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.gate_in_time
-                            ? format(
-                                new Date(items.gate_in_time),
-                                "dd MMM yyyy HH:mm:ss",
-                              )
+                            ? formatToWIB(items.gate_in_time)
                             : "-"}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.gate_out_time
-                            ? format(
-                                new Date(items.gate_out_time),
-                                "dd MMM yyyy HH:mm:ss",
-                              )
+                            ? formatToWIB(items.gate_out_time)
                             : "-"}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
