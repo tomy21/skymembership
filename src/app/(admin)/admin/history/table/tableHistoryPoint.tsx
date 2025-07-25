@@ -13,37 +13,24 @@ import {
 } from "@/components/ui/table";
 import axios from "axios";
 // import { useRouter } from "next/navigation";
-import Badge from "@/components/ui/badge/Badge";
 import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
-import Loading from "@/components/Loading/Loading";
+// import Loading from "@/components/Loading/Loading";
 
-interface HistoryTransactionResponse {
-  id: number;
+interface HistoryPoint {
   user_id: number;
-  virtual_account: string;
-  trxId: string;
-  expired_date: string;
-  timestamp: string;
-  price: string;
-  product_name: string;
-  periode: string;
-  statusPayment: string;
-  transactionType: string;
-  location_code: string;
-  location_name: string;
-  invoice_id: string;
-  purchase_type: string;
-  vehicle_type: string;
-  createdAt: string;
-  updatedAt: string;
-  trxHistoryUser: {
-    fullname: string;
-    email: string;
-  };
+  user_name: string;
+  email: string;
+  total_point: number;
+  purchase_member: number;
+  start: string;
+  end: string;
+  sisa_point: number;
+  last_topup_date: string;
+  last_purchase_date: string;
 }
 
-export default function TableHistoryPayment() {
+export default function TableHistoryPoint() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLimit, setSelectedLimit] = useState<string>("10");
@@ -52,12 +39,9 @@ export default function TableHistoryPayment() {
   const [isOpen, setIsOpen] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [type] = useState("MEMBERSHIP");
-  const [dataHistory, setDataHistory] = useState<HistoryTransactionResponse[]>(
-    [],
-  );
+  const [dataHistory, setDataHistory] = useState<HistoryPoint[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingExport, setIsLoadingExport] = useState(false);
+  //   const [isLoadingExport, setIsLoadingExport] = useState(false);
   const [isError, setIsError] = useState(false);
   const limitOption = [
     { value: "10", label: "10" },
@@ -75,11 +59,11 @@ export default function TableHistoryPayment() {
   }, []);
 
   useEffect(() => {
-    console.log("Current Page:", currentPage);
+    // console.log("Current Page:", currentPage);
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get("/api/history-transaksi", {
+        const response = await axios.get("/api/history-point", {
           params: {
             page: currentPage,
             limit: selectedLimit,
@@ -106,59 +90,58 @@ export default function TableHistoryPayment() {
     setIsOpen(false);
   };
 
-  const handleExport = async () => {
-    try {
-      setIsLoadingExport(true);
-      const params = new URLSearchParams({
-        startDate,
-        endDate,
-        type,
-      });
+  //   const handleExport = async () => {
+  //     try {
+  //       setIsLoadingExport(true);
+  //       const params = new URLSearchParams({
+  //         startDate,
+  //         endDate,
+  //       });
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/cms/api/export-data-transaction?${params.toString()}`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            Accept:
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          },
-        },
-      );
+  //       const response = await fetch(
+  //         `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/cms/api/export-data-transaction?${params.toString()}`,
+  //         {
+  //           method: "GET",
+  //           credentials: "include",
+  //           headers: {
+  //             Accept:
+  //               "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  //           },
+  //         },
+  //       );
 
-      if (!response.ok) {
-        setIsLoadingExport(false);
-        throw new Error("Failed to export file");
-      }
+  //       if (!response.ok) {
+  //         setIsLoadingExport(false);
+  //         throw new Error("Failed to export file");
+  //       }
 
-      const blob = await response.blob();
+  //       const blob = await response.blob();
 
-      // Buat URL untuk file
-      const url = window.URL.createObjectURL(blob);
+  //       // Buat URL untuk file
+  //       const url = window.URL.createObjectURL(blob);
 
-      // Buat elemen link dan klik otomatis
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `history-export-${Date.now()}.xlsx`; // nama file
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+  //       // Buat elemen link dan klik otomatis
+  //       const a = document.createElement("a");
+  //       a.href = url;
+  //       a.download = `history-export-${Date.now()}.xlsx`; // nama file
+  //       document.body.appendChild(a);
+  //       a.click();
+  //       a.remove();
 
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Export error:", error);
-      alert("Gagal mengekspor data. Silakan coba lagi.");
-      setIsLoading(false);
-    } finally {
-      onClose();
-      setIsLoadingExport(false);
-      setStartDate("");
-      setEndDate("");
-    }
-  };
+  //       window.URL.revokeObjectURL(url);
+  //     } catch (error) {
+  //       console.error("Export error:", error);
+  //       alert("Gagal mengekspor data. Silakan coba lagi.");
+  //       setIsLoading(false);
+  //     } finally {
+  //       onClose();
+  //       setIsLoadingExport(false);
+  //       setStartDate("");
+  //       setEndDate("");
+  //     }
+  //   };
 
-  if (isLoadingExport) return <Loading />;
+  //   if (isLoadingExport) return <Loading />;
 
   if (!mounted) {
     return null;
@@ -186,7 +169,7 @@ export default function TableHistoryPayment() {
         </div>
 
         <div className="max-w-full border-t-2 border-gray-300">
-          <div className="flex max-h-[600px] min-h-[100px] min-w-[1102px] flex-col">
+          <div className="flex max-h-[670px] min-h-[500px] min-w-[1102px] flex-col">
             <div className="flex-1 overflow-auto">
               <Table>
                 {/* Table Header */}
@@ -202,75 +185,50 @@ export default function TableHistoryPayment() {
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Transaction Date
+                      User
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Invoice
+                      Total Point
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Trx Id
+                      Price Member
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Customer
+                      Remaining
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Location
+                      Start Date
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Payment Type
+                      End Date
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Product Name
+                      Last Topup
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Vehicle Type
+                      Purchase Date
                     </TableCell>
-                    <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Price
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Transaction Type
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Status
-                    </TableCell>
-
-                    {/* <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Action
-                    </TableCell> */}
                   </TableRow>
                 </TableHeader>
 
@@ -304,75 +262,52 @@ export default function TableHistoryPayment() {
                           {index + 1}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.timestamp
-                            ? format(
-                                new Date(items.timestamp),
-                                "dd MMM yyyy HH:mm:ss",
-                              )
-                            : "-"}
-                        </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.invoice_id ?? "0"}
-                        </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.trxId ?? "0"}
-                        </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           <div className="flex flex-col items-start justify-start">
                             <h1 className="font-semibold whitespace-nowrap text-gray-500 dark:text-gray-400">
-                              {items.trxHistoryUser.fullname}
+                              {items.user_name}
                             </h1>
                             <h1 className="font-medium text-gray-300 dark:text-gray-200">
-                              {items.trxHistoryUser?.email}
+                              {items.email}
                             </h1>
                           </div>
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.location_code} - {items.location_name}
+                          {Number(items.total_point).toLocaleString("id") ?? 0}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.purchase_type}
+                          {Number(items.purchase_member).toLocaleString("id") ??
+                            0}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.product_name ?? "0"}
+                          {Number(items.sisa_point).toLocaleString("id") ?? 0}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.vehicle_type ?? "0"}
+                          {items.start
+                            ? format(new Date(items.start), "dd MMM yyyy HH:mm")
+                            : "-"}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {Number(items.price).toLocaleString("id") ?? "0"}
+                          {items.end
+                            ? format(new Date(items.end), "dd MMM yyyy HH:mm")
+                            : "-"}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.transactionType ?? "0"}
-                        </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          <Badge
-                            size="sm"
-                            color={
-                              items.statusPayment === "PAID"
-                                ? "success"
-                                : "warning"
-                            }
-                          >
-                            {items.statusPayment === "PAID"
-                              ? "Paid"
-                              : "Pending"}
-                          </Badge>
-                        </TableCell>
-
-                        {/* <TableCell className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          <Button
-                            onClick={() =>
-                              router.push(
-                                `/admin/list-membership/${encodeURIComponent(items.location_name)}`,
+                          {/* {Number(items.price).toLocaleString("id") ?? "0"} */}
+                          {items.last_topup_date
+                            ? format(
+                                new Date(items.last_topup_date),
+                                "dd MMM yyyy HH:mm",
                               )
-                            }
-                            variant="outline"
-                            className="bg-blue-light-500 -p-2 text-sm"
-                          >
-                            Detail
-                          </Button>
-                        </TableCell> */}
+                            : "-"}
+                        </TableCell>
+                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
+                          {items.last_purchase_date
+                            ? format(
+                                new Date(items.last_purchase_date),
+                                "dd MMM yyyy HH:mm",
+                              )
+                            : "-"}
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
@@ -459,7 +394,7 @@ export default function TableHistoryPayment() {
                   {/* Export Button */}
                   <div className="flex justify-end space-x-2 pt-4">
                     <button
-                      onClick={handleExport}
+                      //   onClick={handleExport}
                       className="bg-brand-500 hover:bg-brand-600 rounded-md px-4 py-3 text-sm font-medium text-white"
                     >
                       Export

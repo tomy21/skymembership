@@ -7,35 +7,14 @@ export const login = async (data: { data: string }) => {
   return response.data;
 };
 
-export const loginCMS = async ({
-  identifier,
-  password,
-  rememberMe,
-}: {
-  identifier: string;
-  password: string;
-  rememberMe: boolean;
-}) => {
-  const response = await axios.post("/api/login-admin", {
-    identifier,
-    password,
-    rememberMe,
-  });
+export const loginCMS = async (data: { data: string }) => {
+  const response = await axios.post("/api/login-admin", data);
 
   return response.data;
 };
 
-export const loginTenant = async ({
-  username,
-  password,
-}: {
-  username: string;
-  password: string;
-}) => {
-  const response = await axios.post("/api/tenant/login", {
-    username,
-    password,
-  });
+export const loginTenant = async (data: { data: string }) => {
+  const response = await axios.post("/api/tenant/login", data);
 
   return response.data;
 };

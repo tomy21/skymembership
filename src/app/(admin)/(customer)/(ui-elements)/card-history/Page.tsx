@@ -1,6 +1,7 @@
 import React from "react";
 import { cn } from "../../../../../../libs/utils";
 import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { id } from "date-fns/locale";
 // opsional jika pakai clsx atau cn helper
 
@@ -16,6 +17,8 @@ type CardHistoryProps = {
   isMember?: boolean;
   onClick?: () => void;
 };
+
+const timeZone = "Asia/Jakarta";
 
 export default function CardHistory({
   type,
@@ -60,9 +63,13 @@ export default function CardHistory({
           <div className="mb-7 flex items-start justify-between">
             <span className="text-xs text-gray-500">
               {date !== "-" &&
-                format(new Date(date), "dd MMMM yyyy, HH:mm", {
-                  locale: id,
-                })}
+                format(
+                  toZonedTime(new Date(date), timeZone),
+                  "dd MMMM yyyy, HH:mm",
+                  {
+                    locale: id,
+                  },
+                )}
             </span>
             <span className="rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-600 capitalize">
               {product}

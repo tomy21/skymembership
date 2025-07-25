@@ -36,15 +36,7 @@ export const useLogin = () => {
 export const useLoginCMS = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      identifier,
-      password,
-      rememberMe,
-    }: {
-      identifier: string;
-      password: string;
-      rememberMe: boolean;
-    }) => loginCMS({ identifier, password, rememberMe }),
+    mutationFn: (data: string) => loginCMS({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users-cms"] });
     },
@@ -53,15 +45,9 @@ export const useLoginCMS = () => {
 export const useLoginTenant = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      username,
-      password,
-    }: {
-      username: string;
-      password: string;
-    }) => loginTenant({ username, password }),
+    mutationFn: (data: string) => loginTenant({ data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users-cms"] });
+      queryClient.invalidateQueries({ queryKey: ["users-tenant"] });
     },
   });
 };

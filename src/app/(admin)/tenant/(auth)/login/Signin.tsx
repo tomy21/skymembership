@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useLoginTenant } from "@/hooks/useAuth";
 import { useAuth } from "@/context/AuthContext";
+import { decryptData, encryptData } from "@/app/libs/secretSecure";
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -40,17 +41,24 @@ export default function SignInPage() {
     try {
       setIsLoading(true);
 
-      const response = await loginMutation({
-        username: identify,
+      const dataForm = {
+        identifier: identify,
         password,
-      });
+        rememberMe: isChecked,
+      };
 
-      if (response.status === true) {
+      const data = encryptData(dataForm);
+
+      const response = await loginMutation(data);
+
+      const dataDecrypt = decryptData(response.data);
+      console.log(dataDecrypt);
+      if (dataDecrypt && dataDecrypt.status === "success") {
         toast.success("Login berhasil!");
-        login(response?.token);
+        login(dataDecrypt?.token);
         setTimeout(() => {
           setIsLoading(false);
-          router.push("/tenant/home");
+          router.push("/tenant/dashboard");
         }, 500);
       }
 

@@ -1,5 +1,5 @@
 "use client";
-import { decryptData } from "@/app/libs/secretSecure";
+import { decryptData, encryptData } from "@/app/libs/secretSecure";
 import Checkbox from "@/components/form/input/Checkbox";
 import Input from "@/components/form/input/InputField";
 import Loading from "@/components/Loading/Loading";
@@ -41,11 +41,13 @@ export default function SignInPage() {
     try {
       setIsLoading(true);
 
-      const response = await loginMutation({
+      const dataForm = {
         identifier: identify,
         password,
         rememberMe: isChecked,
-      });
+      };
+      const data = encryptData(dataForm);
+      const response = await loginMutation(data);
 
       const dataDecrypt = decryptData(response.data);
 

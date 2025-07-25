@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { DollarLineIcon, GroupIcon } from "@/icons";
 import axios from "axios";
 import { BiWallet } from "react-icons/bi";
+import { ScaleLoader } from "react-spinners";
 
 export const EcommerceMetrics = ({
   month,
@@ -16,9 +17,11 @@ export const EcommerceMetrics = ({
   // const [totalMemberInActive, setTotalMemberInActive] = useState(0);
   const [income, setIncome] = useState(0);
   const [balance, setBalance] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true);
       const monthYear = `${year ?? ""}-${month ?? ""}`;
       try {
         const response = await axios.get(`/api/dashboard-value`, {
@@ -30,6 +33,7 @@ export const EcommerceMetrics = ({
         // setTotalMemberInActive(response.data.totalMemberInActive);
         setIncome(response.data.totalPrice.totalPrice);
         setBalance(response.data.totalBalancePoint);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -51,7 +55,19 @@ export const EcommerceMetrics = ({
               Member Active
             </span>
             <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
-              {totalMemberActive ?? 0}
+              {isLoading ? (
+                <div className="m-auto flex h-10 items-center justify-center text-center text-gray-400">
+                  <ScaleLoader
+                    height={10}
+                    width={5}
+                    margin={2}
+                    color="#bbb"
+                    loading={true}
+                  />
+                </div>
+              ) : (
+                Number(totalMemberActive).toLocaleString("id-ID")
+              )}
             </h4>
           </div>
           {/* <Badge color="success">
@@ -76,7 +92,19 @@ export const EcommerceMetrics = ({
               Total Income
             </span>
             <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
-              {Number(income).toLocaleString("id-ID")}
+              {isLoading ? (
+                <div className="m-auto flex h-10 items-center justify-center text-center text-gray-400">
+                  <ScaleLoader
+                    height={10}
+                    width={5}
+                    margin={2}
+                    color="#bbb"
+                    loading={true}
+                  />
+                </div>
+              ) : (
+                Number(income).toLocaleString("id-ID")
+              )}
             </h4>
           </div>
 
@@ -97,7 +125,19 @@ export const EcommerceMetrics = ({
               Total Balance
             </span>
             <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
-              {Number(balance).toLocaleString("id-ID")}
+              {isLoading ? (
+                <div className="m-auto flex h-10 items-center justify-center text-center text-gray-400">
+                  <ScaleLoader
+                    height={10}
+                    width={5}
+                    margin={2}
+                    color="#bbb"
+                    loading={true}
+                  />
+                </div>
+              ) : (
+                Number(balance).toLocaleString("id-ID")
+              )}
             </h4>
           </div>
 

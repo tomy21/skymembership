@@ -4,17 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
-import {
-  BoxCubeIcon,
-  ChevronDownIcon,
-  GridIcon,
-  HorizontaLDots,
-  UserCircleIcon,
-} from "../icons/index";
+import { ChevronDownIcon, GridIcon, HorizontaLDots } from "../icons/index";
 import { GoPeople } from "react-icons/go";
-import { MdCardMembership, MdLocationCity, MdPayments } from "react-icons/md";
-import { BiHistory, BiWalletAlt } from "react-icons/bi";
-import { TbBrandOffice } from "react-icons/tb";
+import { MdLocationCity } from "react-icons/md";
 // import { TbBrandOffice } from "react-icons/tb";
 
 type NavItem = {
@@ -40,65 +32,9 @@ const navItems: NavItem[] = [
     name: "Location",
     path: "/admin/location",
   },
-  {
-    icon: <BoxCubeIcon size={25} />,
-    name: "Product",
-    path: "/admin/product",
-  },
-  {
-    name: "History",
-    icon: <BiHistory size={25} />,
-    subItems: [
-      { name: "Transactions", path: "/admin/history/transaction", pro: false },
-      { name: "Parkings", path: "/admin/history/parking", pro: false },
-      { name: "Points", path: "/admin/history/point", pro: false },
-    ],
-  },
-  {
-    name: "Transaction",
-    icon: <BiWalletAlt size={25} />,
-    subItems: [
-      { name: "Purchase", path: "/admin/purchase", pro: false },
-      { name: "Topup", path: "/admin/topup", pro: false },
-    ],
-  },
-  {
-    icon: <MdPayments size={25} />,
-    name: "Payment Management",
-    path: "/admin/payment-management",
-  },
-  {
-    icon: <TbBrandOffice size={25} />,
-    name: "Tenant Management",
-    path: "/admin/tenant",
-  },
-  {
-    icon: <MdCardMembership size={25} />,
-    name: "Card Management",
-    path: "/admin/master-card",
-  },
-  {
-    name: "User Management",
-    icon: <UserCircleIcon />,
-    subItems: [
-      { name: "User", path: "/admin/user-management/users", pro: false },
-      {
-        name: "Customers",
-        path: "/admin/user-management/customer",
-        pro: false,
-      },
-      { name: "Role", path: "/admin/user-management/role", pro: false },
-      // {
-      //   name: "Role Permission",
-      //   path: "/admin/user-management/role-permission",
-      //   pro: false,
-      // },
-      { name: "Menu", path: "/admin/user-management/menu", pro: false },
-    ],
-  },
 ];
 
-const AppSidebar: React.FC = () => {
+const AppSidebarTennant: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
 
@@ -359,4 +295,4 @@ const AppSidebar: React.FC = () => {
   );
 };
 
-export default AppSidebar;
+export default AppSidebarTennant;

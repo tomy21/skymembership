@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     const apiRes = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL_PAYMENT}/v1/tennant/login-tennant`,
+      `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/member/api/tenant/login`,
       body,
       {
         headers: {
