@@ -208,13 +208,7 @@ export default function TableHistoryPayment() {
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Invoice
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Trx Id
+                      Transaction Code
                     </TableCell>
                     <TableCell
                       isHeader
@@ -227,12 +221,6 @@ export default function TableHistoryPayment() {
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
                       Location
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Payment Type
                     </TableCell>
                     <TableCell
                       isHeader
@@ -305,14 +293,8 @@ export default function TableHistoryPayment() {
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.timestamp
-                            ? format(
-                                new Date(items.timestamp),
-                                "dd MMM yyyy HH:mm:ss",
-                              )
+                            ? format(new Date(items.timestamp), "dd MMM yyyy")
                             : "-"}
-                        </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.invoice_id ?? "0"}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.trxId ?? "0"}
@@ -328,10 +310,7 @@ export default function TableHistoryPayment() {
                           </div>
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.location_code} - {items.location_name}
-                        </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.purchase_type}
+                          {items.location_name}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.product_name ?? "0"}
@@ -343,7 +322,9 @@ export default function TableHistoryPayment() {
                           {Number(items.price).toLocaleString("id") ?? "0"}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.transactionType ?? "0"}
+                          {items.transactionType === "VIRTUAL_ACCOUNT"
+                            ? "VIRTUAL ACCOUNT"
+                            : items.transactionType}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           <Badge

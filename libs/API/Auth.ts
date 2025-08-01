@@ -144,6 +144,7 @@ export const Users = {
   getByUserId: async () => {
     try {
       const response = await APIAPPS.get(`/v01/member/api/auth/userById`);
+
       return response.data;
     } catch (error) {
       return error;

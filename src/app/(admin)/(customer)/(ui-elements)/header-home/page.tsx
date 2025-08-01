@@ -46,8 +46,17 @@ export default function HeaderHome() {
   const router = useRouter();
   const [sliderRef] = useKeenSlider<HTMLDivElement>({
     slideChanged(slider) {
-      setCurrentSlide(slider.track.details.rel); // rel = slide aktif (0-index)
+      setCurrentSlide(slider.track.details.rel);
     },
+    breakpoints: {
+      "(min-width: 768px)": {
+        slides: { perView: 2, spacing: 15 },
+      },
+      "(min-width: 1024px)": {
+        slides: { perView: 3, spacing: 20 },
+      },
+    },
+    slides: { perView: 1, spacing: 10 }, // default mobile
   });
 
   const getInitials = (fullname: string) => {
@@ -88,7 +97,7 @@ export default function HeaderHome() {
 
   return (
     <>
-      <header className="relative flex aspect-[4/3] w-full flex-col items-center justify-start bg-yellow-400 px-3 py-2">
+      <header className="relative flex w-full flex-col items-center bg-yellow-400 px-3 py-4 pb-12">
         <div className="flex w-full items-center justify-between">
           <div className="flex flex-row items-center justify-center space-x-3">
             <ProfileDropdown initial={getInitials(data?.data?.fullname)} />
@@ -131,10 +140,10 @@ export default function HeaderHome() {
               .map((item: responseCard, index: number) => (
                 <div
                   key={index}
-                  className="keen-slider__slide relative flex flex-col items-center rounded-xl bg-transparent p-2"
+                  className="keen-slider__slide flex flex-col items-center p-2"
                   onClick={() => handleCekDetails(item.rfid)}
                 >
-                  <div className="relative aspect-[3/2] w-full max-w-[230px] overflow-hidden rounded-xl">
+                  <div className="relative aspect-[3/2] w-[270px] overflow-hidden rounded-xl sm:w-[280px]">
                     <Image
                       src={
                         item.vehicle_type === "MOBIL"
@@ -142,11 +151,12 @@ export default function HeaderHome() {
                           : "/images/company/card02.png"
                       }
                       alt="Card Image"
-                      fill
+                      width={400}
+                      height={400}
                       className="rounded-xl object-cover"
                       priority
                     />
-                    <div className="absolute bottom-6 left-2 rounded-md px-2 py-1 text-xs font-semibold text-white">
+                    <div className="absolute bottom-12 left-7 rounded-md bg-black/50 px-2 py-1 text-xs font-semibold text-white">
                       {item.rfid.toUpperCase()}
                     </div>
                   </div>
@@ -156,7 +166,7 @@ export default function HeaderHome() {
         </div>
 
         {totalSlides > 0 && (
-          <div className="text-sm font-medium text-gray-600">
+          <div className="-mt-5 text-sm font-medium text-gray-700">
             {currentSlide + 1} of {totalSlides}
           </div>
         )}

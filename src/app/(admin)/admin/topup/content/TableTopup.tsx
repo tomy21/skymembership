@@ -11,41 +11,31 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import axios from "axios";
-import Badge from "@/components/ui/badge/Badge";
 import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import Loading from "@/components/Loading/Loading";
+import { FiEye } from "react-icons/fi";
+import { useRouter } from "next/navigation";
 
 interface TopupResponse {
-  id: number;
-  user_id: number;
-  virtual_account: string;
-  trxId: string;
-  expired_date: string;
-  timestamp: string;
-  price: string;
-  product_name: string;
-  periode: string;
-  statusPayment: string;
-  transactionType: string;
-  location_code: string;
-  location_name: string;
-  invoice_id: string;
-  purchase_type: string;
-  vehicle_type: string;
-  createdAt: string;
-  updatedAt: string;
-  trxHistoryUser: {
-    fullname: string;
-    email: string;
-  };
+  tanggal: string;
+  paid: number;
+  total_topup: number;
+  total_fee: number;
+  membership: number;
+  casual: number;
+  total: number;
+  titipan: number;
 }
 
-export default function TablePurchase() {
-  const [search, setSearch] = useState("");
+export default function TableTopup() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLimit, setSelectedLimit] = useState<string>("10");
   const [totalPages, setTotalPages] = useState(1);
+  const [topup, setTopup] = useState(0);
+  const [casual, setCasual] = useState(0);
+  const [titipan, setTitipan] = useState(0);
+  const [membership, setMembership] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [dataHistory, setDataHistory] = useState<TopupResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -54,12 +44,17 @@ export default function TablePurchase() {
   const [isOpen, setIsOpen] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [type] = useState("TOPUP");
+  const [selectedMonth, setSelectedMonth] = useState<string>("");
+  const [listYear, setListYear] = useState<string[]>([]);
+  const [selectedYear, setSelectedYear] = useState<string>("");
   const limitOption = [
     { value: "10", label: "10" },
     { value: "20", label: "20" },
     { value: "50", label: "50" },
   ];
+
+  const router = useRouter();
+
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
@@ -69,18 +64,20 @@ export default function TablePurchase() {
   }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const now = new Date();
+    const currentMonth = String(now.getMonth() + 1); // bulan 0-11, jadi +1
+    const currentYear = String(now.getFullYear());
+
+    setSelectedMonth(currentMonth);
+    setSelectedYear(currentYear);
+  }, []);
+
+  useEffect(() => {
+    const fetchDataYear = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get("/api/topup", {
-          params: {
-            page: currentPage,
-            limit: selectedLimit,
-            search,
-          },
-        });
-        setDataHistory(response.data.data); // ambil array data
-        setTotalPages(response.data.pagination.totalPages); // ambil total halaman
+        const response = await axios.get("/api/year-transaction");
+        setListYear(response.data.data);
       } catch (error) {
         console.error(error);
         setIsError(true);
@@ -88,8 +85,38 @@ export default function TablePurchase() {
         setIsLoading(false);
       }
     };
+    fetchDataYear();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!selectedMonth || !selectedYear) return;
+      try {
+        setIsLoading(true);
+        const response = await axios.get("/api/topup/summary-topup", {
+          params: {
+            page: currentPage,
+            limit: selectedLimit,
+            month: selectedMonth,
+            year: selectedYear,
+          },
+        });
+        setTopup(response.data.summary.total_topup);
+        setCasual(response.data.summary.casual);
+        setMembership(response.data.summary.membership);
+        setTitipan(response.data.summary.titipan);
+        setDataHistory(response.data.data); // ambil array data
+        setTotalPages(response.data.totalPage); // ambil total halaman
+      } catch (error) {
+        console.error(error);
+        setIsError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchData();
-  }, [currentPage, selectedLimit, search]);
+  }, [currentPage, selectedLimit, selectedMonth, selectedYear]);
 
   const handleOpenModal = () => {
     setIsOpen(true);
@@ -104,7 +131,7 @@ export default function TablePurchase() {
       const params = new URLSearchParams({
         startDate,
         endDate,
-        type,
+        type: "TOPUP",
       });
 
       const response = await fetch(
@@ -158,14 +185,84 @@ export default function TablePurchase() {
     <>
       <div className="max-w-full overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="flex items-center justify-between p-3">
-          <input
-            type="text"
-            placeholder="Search by name..."
-            className="w-1/3 rounded-md border p-2"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <div className="flex">
+            <div className="flex w-full flex-row justify-between space-x-10">
+              {/* Month & Year Filter */}
+              <div className="flex flex-col items-start justify-start space-y-2">
+                <p className="text-xs text-gray-800 dark:text-gray-400">
+                  Total Topup
+                </p>
+                <p className="text-gray-500 dark:text-gray-400">
+                  {Number(topup).toLocaleString("id")}
+                </p>
+              </div>
+              <div className="flex flex-col items-start justify-start space-y-2">
+                <p className="text-xs text-gray-800 dark:text-gray-400">
+                  Total Membership
+                </p>
+                <p className="text-gray-500 dark:text-gray-400">
+                  {Number(membership).toLocaleString("id")}
+                </p>
+              </div>
+              <div className="flex flex-col items-start justify-start space-y-2">
+                <p className="text-xs text-gray-800 dark:text-gray-400">
+                  Total casual
+                </p>
+                <p className="text-gray-500 dark:text-gray-400">
+                  {Number(casual).toLocaleString("id")}
+                </p>
+              </div>
+              <div className="flex flex-col items-start justify-start space-y-2">
+                <p className="text-xs text-gray-800 dark:text-gray-400">
+                  Titipan
+                </p>
+                <p className="text-gray-500 dark:text-gray-400">
+                  {Number(titipan).toLocaleString("id")}
+                </p>
+              </div>
+            </div>
+          </div>
           <div className="flex flex-row items-center justify-center space-x-2">
+            <div className="flex flex-row items-center gap-2">
+              <select
+                className="rounded-md border p-2 text-gray-500"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+              >
+                <option value="">All Months</option>
+                {[
+                  "January",
+                  "February",
+                  "March",
+                  "April",
+                  "May",
+                  "June",
+                  "July",
+                  "August",
+                  "September",
+                  "October",
+                  "November",
+                  "December",
+                ].map((month, index) => (
+                  <option key={index} value={index + 1}>
+                    {month}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                className="rounded-md border p-2 text-gray-500"
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+              >
+                <option value="">All Years</option>
+                {listYear.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
             <Button
               onClick={handleOpenModal}
               variant="primary"
@@ -193,63 +290,50 @@ export default function TablePurchase() {
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Transaction Date
+                      Date
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Invoice
+                      Top Up Qty
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Virtual Account
-                    </TableCell>
-                    {/* <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Location
-                    </TableCell> */}
-                    {/* <TableCell
-                    isHeader
-                    className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                  >
-                    Payment Type
-                  </TableCell> */}
-                    <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Bank Name
+                      Top Up Amount
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Amount
+                      Fee
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="text-theme-sm bg-blue-300 px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-white"
+                    >
+                      Purchase Membership
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="text-theme-sm bg-blue-300 px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-white"
+                    >
+                      Parking Casual
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Product
+                      Titipan
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Status
-                    </TableCell>
-
-                    {/* <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
                       Action
-                    </TableCell> */}
+                    </TableCell>
                   </TableRow>
                 </TableHeader>
 
@@ -283,66 +367,41 @@ export default function TablePurchase() {
                           {index + 1}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.createdAt
-                            ? format(
-                                new Date(items.createdAt),
-                                "dd MMM yyyy HH:mm:ss",
-                              )
+                          {items.tanggal
+                            ? format(new Date(items.tanggal), "dd MMM yyyy")
                             : "-"}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.invoice_id ?? "0"}
+                          {Number(items.total_topup).toLocaleString("id-ID")}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.virtual_account}
-                        </TableCell>
-                        {/* <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.location_name}
-                        </TableCell> */}
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.transactionType}
-                        </TableCell>
-                        {/* <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                        {items.purchase_type ?? "0"}
-                      </TableCell> */}
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {Number(items.price).toLocaleString("id-ID")}
+                          {Number(items.paid).toLocaleString("id-ID")}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.product_name ?? "0"}
+                          {Number(items.total_fee).toLocaleString("id-ID")}
+                        </TableCell>
+                        <TableCell className="text-theme-sm bg-blue-200 px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-white">
+                          {Number(items.membership).toLocaleString("id-ID")}
+                        </TableCell>
+                        <TableCell className="text-theme-sm bg-blue-200 px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-white">
+                          {Number(items.casual).toLocaleString("id-ID")}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          <Badge
-                            size="sm"
-                            color={
-                              items.statusPayment === "PAID"
-                                ? "success"
-                                : items.statusPayment === "FAILED"
-                                  ? "error"
-                                  : "warning"
-                            }
-                          >
-                            {items.statusPayment === "PAID"
-                              ? "PAID"
-                              : items.statusPayment === "FAILED"
-                                ? "FAILED"
-                                : "PENDING"}
-                          </Badge>
+                          {Number(items.titipan).toLocaleString("id-ID")}
                         </TableCell>
-
-                        {/* <TableCell className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
+                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           <Button
                             onClick={() =>
                               router.push(
-                                `/admin/list-membership/${encodeURIComponent(items.location_name)}`,
+                                `/admin/topup/${encodeURIComponent(items.tanggal)}`,
                               )
                             }
                             variant="outline"
-                            className="bg-blue-light-500 -p-2 text-sm"
+                            className="bg-blue-light-500 text-sm"
                           >
-                            Detail
+                            <FiEye />
                           </Button>
-                        </TableCell> */}
+                        </TableCell>
                       </TableRow>
                     ))
                   )}

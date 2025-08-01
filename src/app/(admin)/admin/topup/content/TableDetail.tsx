@@ -2,7 +2,6 @@
 import Pagination from "@/components/tables/Pagination";
 import Button from "@/components/ui/button/Button";
 import Select from "@/components/form/Select";
-// import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import {
   Table,
@@ -12,58 +11,79 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import axios from "axios";
-import { useRouter } from "next/navigation";
-import Badge from "@/components/ui/badge/Badge";
-import { format } from "date-fns";
+// import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import Loading from "@/components/Loading/Loading";
+// import { FiEye } from "react-icons/fi";
+import { useParams } from "next/navigation";
 
-interface PurchaseResponse {
-  id: string;
-  trx_id: string;
-  inquiry_request_id: string;
-  external_id: string;
+interface DetailResponse {
+  id: number;
+  user_id: number;
+  virtual_account: string;
+  trxId: string;
   expired_date: string;
-  invoice_number: string;
-  virtual_account_number: string;
-  virtual_account_name: string;
-  virtual_account_email: string;
-  payment_using: string;
-  module_name: string;
-  status_transaction: string;
-  paid_amount: number;
-  app_module: string;
-  RRN: string;
+  timestamp: string;
+  price: string;
   product_name: string;
+  periode: string;
+  statusPayment: string;
+  transactionType: string;
+  location_code: string;
   location_name: string;
-  no_tiket: string;
-  created_at: string;
-  updated_at: string;
+  invoice_id: string;
+  purchase_type: string;
+  vehicle_type: string;
+  rfid: string;
+  createdAt: string;
+  updatedAt: string;
+  trxHistoryUser: {
+    fullname: string;
+    email: string;
+    points: number;
+  };
 }
 
-export default function TablePurchase() {
-  const [search, setSearch] = useState("");
+export default function TableTopupDetail() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLimit, setSelectedLimit] = useState<string>("10");
   const [totalPages, setTotalPages] = useState(1);
   const [mounted, setMounted] = useState(false);
-  const [dataHistory, setDataHistory] = useState<PurchaseResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingExport, setIsLoadingExport] = useState(false);
+  const [dataHistory, setDataHistory] = useState<DetailResponse[]>([]);
   const [isError, setIsError] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<string>("");
   const limitOption = [
     { value: "10", label: "10" },
     { value: "20", label: "20" },
     { value: "50", label: "50" },
   ];
+
+  const params = useParams();
+  const dateTrx = params.date;
+  // const date = Array.isArray(dateTrx)
+  //   ? decodeURIComponent(locationFilterParam[0])
+  //   : decodeURIComponent(locationFilterParam || "");
+
+  console.log(dateTrx);
+
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
 
-  const router = useRouter();
+  useEffect(() => {
+    const now = new Date();
+    const currentMonth = String(now.getMonth() + 1); // bulan 0-11, jadi +1
+    const currentYear = String(now.getFullYear());
+
+    setSelectedMonth(currentMonth);
+    setSelectedYear(currentYear);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -73,15 +93,16 @@ export default function TablePurchase() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get("/api/purchase", {
+        const response = await axios.get("/api/topup/detail-topup", {
           params: {
             page: currentPage,
             limit: selectedLimit,
-            search,
+            date: dateTrx,
           },
         });
-        setDataHistory(response.data.data); // ambil array data
-        setTotalPages(response.data.pagination.totalPages); // ambil total halaman
+        setTotalPages(response.data.pagination.totalPages);
+        setDataHistory(response.data.data);
+        console.log(response.data);
       } catch (error) {
         console.error(error);
         setIsError(true);
@@ -89,8 +110,9 @@ export default function TablePurchase() {
         setIsLoading(false);
       }
     };
+
     fetchData();
-  }, [currentPage, selectedLimit, search]);
+  }, [currentPage, dateTrx, selectedLimit, selectedMonth, selectedYear]);
 
   const handleOpenModal = () => {
     setIsOpen(true);
@@ -105,10 +127,11 @@ export default function TablePurchase() {
       const params = new URLSearchParams({
         startDate,
         endDate,
+        // type,
       });
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/cms/api/export-data-payment?${params.toString()}`,
+        `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/cms/api/export-data-transaction?${params.toString()}`,
         {
           method: "GET",
           credentials: "include",
@@ -138,8 +161,6 @@ export default function TablePurchase() {
       a.remove();
 
       window.URL.revokeObjectURL(url);
-
-      setIsLoadingExport(false);
     } catch (error) {
       console.error("Export error:", error);
       alert("Gagal mengekspor data. Silakan coba lagi.");
@@ -152,21 +173,14 @@ export default function TablePurchase() {
     }
   };
 
+  if (isLoadingExport) return <Loading />;
   if (!mounted) {
     return null;
   }
   return (
     <>
-      {isLoadingExport && <Loading />}
       <div className="max-w-full overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="flex items-center justify-between p-3">
-          <input
-            type="text"
-            placeholder="Search by name..."
-            className="w-1/3 rounded-md border p-2"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
           <div className="flex flex-row items-center justify-center space-x-2">
             <Button
               onClick={handleOpenModal}
@@ -182,6 +196,7 @@ export default function TablePurchase() {
           <div className="flex max-h-[600px] min-h-[100px] min-w-[1102px] flex-col">
             <div className="flex-1 overflow-auto">
               <Table>
+                {/* Table Header */}
                 <TableHeader className="sticky top-0 z-10 border-b border-gray-300 bg-gray-100 dark:border-white/[1] dark:bg-black">
                   <TableRow>
                     <TableCell
@@ -194,7 +209,7 @@ export default function TablePurchase() {
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Transaction Date
+                      User
                     </TableCell>
                     <TableCell
                       isHeader
@@ -202,77 +217,38 @@ export default function TablePurchase() {
                     >
                       Virtual Account
                     </TableCell>
-                    {/* <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Location
-                    </TableCell> */}
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Payment Type
+                      Top Up Amount
                     </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Bank Name
-                    </TableCell>
-                    {/* <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      RRN
-                    </TableCell> */}
-                    <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Amount
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Product
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Status
-                    </TableCell>
-
-                    <TableCell
-                      isHeader
-                      className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
-                    >
-                      Action
+                      Fee
                     </TableCell>
                   </TableRow>
                 </TableHeader>
+
                 {/* Table Body */}
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                   {isLoading ? (
                     <TableRow>
-                      <td colSpan={11} className="p-5 text-center">
+                      <td colSpan={5} className="p-5 text-center">
                         Loading...
                       </td>
                     </TableRow>
                   ) : isError ? (
                     <TableRow>
-                      <td colSpan={11} className="p-5 text-center text-red-500">
+                      <td colSpan={5} className="p-5 text-center text-red-500">
                         Failed to load roles.
                       </td>
                     </TableRow>
                   ) : dataHistory.length === 0 ? (
                     <TableRow>
-                      <td
-                        colSpan={11}
-                        className="p-5 text-center text-gray-500"
-                      >
+                      <td colSpan={5} className="p-5 text-center text-gray-500">
                         Data not found.
                       </td>
                     </TableRow>
@@ -283,72 +259,23 @@ export default function TablePurchase() {
                           {index + 1}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.created_at
-                            ? format(
-                                new Date(items.created_at),
-                                "dd MMM yyyy HH:mm:ss",
-                              )
-                            : "-"}
-                        </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          <div className="flex flex-col items-start justify-start">
-                            <h1 className="font-semibold whitespace-nowrap text-gray-500 dark:text-gray-400">
-                              {items.virtual_account_number}
+                          <div className="item-start flex flex-col justify-start">
+                            <h1 className="text-semibold text-sm dark:text-gray-50">
+                              {items.trxHistoryUser?.fullname}
                             </h1>
-                            <h1 className="font-medium text-gray-300 dark:text-gray-200">
-                              {items.virtual_account_name}
+                            <h1 className="text-normal text-xs dark:text-gray-50">
+                              {items.trxHistoryUser?.email}
                             </h1>
                           </div>
                         </TableCell>
-                        {/* <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.location_name}
-                        </TableCell> */}
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.payment_using}
+                          {Number(items.virtual_account)}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.module_name ?? "-"}
-                        </TableCell>
-                        {/* <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.RRN ?? "-"}
-                        </TableCell> */}
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {Number(items.paid_amount).toLocaleString("id-ID")}
+                          {Number(items.price).toLocaleString("id-ID")}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.app_module ?? "-"}
-                        </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          <Badge
-                            size="sm"
-                            color={
-                              items.status_transaction === "COMPLETED"
-                                ? "success"
-                                : items.status_transaction === "FAILED"
-                                  ? "error"
-                                  : "warning"
-                            }
-                          >
-                            {items.status_transaction === "COMPLETED"
-                              ? "Paid"
-                              : items.status_transaction === "FAILED"
-                                ? "FAILED"
-                                : "Pending"}
-                          </Badge>
-                        </TableCell>
-
-                        <TableCell className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          <Button
-                            onClick={() =>
-                              router.push(
-                                `/admin/list-membership/${encodeURIComponent(items.location_name)}`,
-                              )
-                            }
-                            variant="outline"
-                            className="bg-blue-light-500 -p-2 text-sm"
-                          >
-                            Detail
-                          </Button>
+                          {5000}
                         </TableCell>
                       </TableRow>
                     ))
@@ -356,7 +283,6 @@ export default function TablePurchase() {
                 </TableBody>
               </Table>
             </div>
-
             <div className="shrink-0 border-t border-slate-300 bg-white dark:bg-black">
               <div className="flex w-full items-center justify-between p-3">
                 <div className="flex w-44 items-center space-x-3">
@@ -385,7 +311,7 @@ export default function TablePurchase() {
         {isOpen && (
           <>
             <motion.div
-              className="bg-opacity-50 fixed inset-0 z-99 bg-black/50"
+              className="bg-opacity-50 fixed inset-0 z-999 bg-black/50"
               onClick={onClose}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -433,6 +359,8 @@ export default function TablePurchase() {
                       onChange={(e) => setEndDate(e.target.value)}
                     />
                   </div>
+
+                  {/* Type */}
 
                   {/* Export Button */}
                   <div className="flex justify-end space-x-2 pt-4">

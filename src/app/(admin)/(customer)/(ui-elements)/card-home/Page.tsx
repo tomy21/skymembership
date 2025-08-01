@@ -51,7 +51,8 @@ export default function CardHome() {
                 <Image
                   src={item.image}
                   alt={item.title}
-                  fill
+                  width={100}
+                  height={100}
                   className="object-contain"
                 />
               </div>

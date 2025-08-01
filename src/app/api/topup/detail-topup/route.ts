@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const search = searchParams.get("search") || "";
+    const date = searchParams.get("date") || "";
 
     if (isNaN(page) || isNaN(limit)) {
       return NextResponse.json(
@@ -16,9 +17,9 @@ export async function GET(request: NextRequest) {
     }
 
     const apiRes = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/member/api/history/transaction-topup`,
+      `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/member/api/history/transaction-detail-topup`,
       {
-        params: { page, limit, search },
+        params: { page, limit, search, date },
       },
     );
 

@@ -62,6 +62,7 @@ export default function TableMembership() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!selectedMonth || !selectedYear) return;
       try {
         setIsLoading(true);
         const response = await axios.get("/api/location-member", {
