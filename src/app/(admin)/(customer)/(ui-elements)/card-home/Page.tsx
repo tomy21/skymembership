@@ -1,11 +1,16 @@
 "use client";
 
+import { useAuth } from "@/context/AuthContext";
+import { useCardList } from "@/hooks/useVehicle";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+// import { MdOutlineAnnouncement } from "react-icons/md";
 
 export default function CardHome() {
   const [maintenance] = useState(false);
+  const [totalSlides, setTotalSlides] = useState(0);
+  const { isAuthenticated } = useAuth();
   const features = [
     {
       image: "/images/company/vehicles.png",
@@ -15,7 +20,7 @@ export default function CardHome() {
     },
     {
       image: "/images/company/membership.png",
-      title: "Membership",
+      title: "New Member",
       path: "/membership",
       disable: false,
     },
@@ -32,10 +37,26 @@ export default function CardHome() {
       disable: false,
     },
   ];
+
+  const { data: dataCard, refetch: refetchCard } = useCardList(isAuthenticated);
+
+  useEffect(() => {
+    refetchCard();
+    setTotalSlides(dataCard?.data.length || 0);
+  }, [dataCard?.data.length, refetchCard]);
+
   const router = useRouter();
   return (
     <div className="p-5">
-      <div className="mt-12 grid grid-cols-4 gap-2 md:grid-cols-4">
+      {totalSlides > 0 && (
+        <p className="mt-12 mb-3 text-center text-sm font-light italic">
+          Untuk meperpanjang membership anda, silahkan klik pada gambar kartu
+          yang ada di atas !
+        </p>
+      )}
+      <div
+        className={`grid grid-cols-4 gap-2 md:grid-cols-4 ${totalSlides > 0 ? "" : "mt-12"}`}
+      >
         {features.map((item, index) => (
           <div
             key={index}
@@ -61,8 +82,9 @@ export default function CardHome() {
           </div>
         ))}
       </div>
+
       {maintenance && (
-        <div className="bg-warning-50 border-warning-200 mt-5 mb-3 flex w-full items-center justify-between rounded-xl border p-3">
+        <div className="bg-warning-50 border-warning-200 mb-3 flex w-full items-center justify-between rounded-xl border p-3">
           <h1 className="text-xs">
             Maaf transaksi anda terganggu saat ini kami sedang lakukan perbaikan
             untuk proses pembelian ataupun topup

@@ -5,10 +5,12 @@ import React, { useEffect, useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { useDetailAdmin } from "@/hooks/useAuth";
+// import { useRouter } from "next/navigation";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { data, refetch } = useDetailAdmin();
+  // const routes = useRouter();
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation();
@@ -17,6 +19,9 @@ export default function UserDropdown() {
 
   useEffect(() => {
     refetch();
+    // if (!data?.data?.fullname) {
+    //   routes.push("/signin");
+    // }
   }, [refetch]);
 
   const getInitials = (fullname: string) => {
@@ -32,6 +37,7 @@ export default function UserDropdown() {
   function closeDropdown() {
     setIsOpen(false);
   }
+
   return (
     <div className="relative">
       <button

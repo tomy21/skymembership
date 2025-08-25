@@ -156,7 +156,7 @@ export default function HeaderHome() {
                       className="rounded-xl object-cover"
                       priority
                     />
-                    <div className="absolute bottom-12 left-7 rounded-md bg-black/50 px-2 py-1 text-xs font-semibold text-white">
+                    <div className="absolute bottom-10 left-6 rounded-md bg-black/50 px-2 py-1 text-xs font-semibold text-white">
                       {item.rfid.toUpperCase()}
                     </div>
                   </div>

@@ -15,6 +15,7 @@ import { GoPeople } from "react-icons/go";
 import { MdCardMembership, MdLocationCity, MdPayments } from "react-icons/md";
 import { BiHistory, BiWalletAlt } from "react-icons/bi";
 import { TbBrandOffice } from "react-icons/tb";
+import { FaMoneyCheck } from "react-icons/fa";
 // import { TbBrandOffice } from "react-icons/tb";
 
 type NavItem = {
@@ -44,6 +45,14 @@ const navItems: NavItem[] = [
     icon: <BoxCubeIcon size={25} />,
     name: "Product",
     path: "/admin/product",
+  },
+  {
+    icon: <FaMoneyCheck size={25} />,
+    name: "Reconsiliasi",
+    subItems: [
+      { name: "Bayarind", path: "/admin/reconsiliasi/bayarind", pro: false },
+      { name: "Nobu", path: "/admin/reconsiliasi/nobu", pro: false },
+    ],
   },
   {
     name: "History",
