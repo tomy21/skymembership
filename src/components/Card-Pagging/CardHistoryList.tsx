@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { CardHistoryProps } from "@/hooks/useVehicle";
-import CardHistory from "@/app/(admin)/(customer)/(ui-elements)/card-history/Page";
+import CardHistory from "@/app/(customer)/(ui-elements)/card-history/Page";
 
 type CardHistoryListProps = {
   data: CardHistoryProps[];

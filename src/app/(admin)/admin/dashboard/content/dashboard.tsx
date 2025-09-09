@@ -36,18 +36,23 @@ export default function Dashboard() {
     fetchDataYear();
   }, []);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div className="dark:text-white">Loading...</div>;
   if (isError) return <div>Error</div>;
 
   return (
     <>
       <div className="-mt-3 flex flex-wrap items-center justify-between gap-3 p-3">
         {/* Input Search */}
-        <div className="flex w-full flex-row justify-end space-x-2">
+        <div className="flex w-full flex-row items-center justify-between space-x-2">
           {/* Month & Year Filter */}
+          <div className="text-sm">
+            <p className="text-gray-500 dark:text-white">
+              Data dari tanggal 26 sampai 25
+            </p>
+          </div>
           <div className="flex flex-row items-center gap-2">
             <select
-              className="rounded-md border p-2 text-gray-500"
+              className="rounded-md border p-2 text-gray-500 dark:bg-gray-500 dark:text-white"
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
             >
@@ -73,7 +78,7 @@ export default function Dashboard() {
             </select>
 
             <select
-              className="rounded-md border p-2 text-gray-500"
+              className="rounded-md border p-2 text-gray-500 dark:bg-gray-500 dark:text-white"
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
             >

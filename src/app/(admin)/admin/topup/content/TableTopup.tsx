@@ -411,7 +411,7 @@ export default function TableTopup() {
             <div className="shrink-0 border-t border-slate-300 bg-white dark:bg-black">
               <div className="flex w-full items-center justify-between p-3">
                 <div className="flex w-44 items-center space-x-3">
-                  <p className="w-1/2 text-right">Per page:</p>
+                  <p className="w-1/2 text-right dark:text-white">Per page:</p>
                   <div className="w-20">
                     <Select
                       options={limitOption}

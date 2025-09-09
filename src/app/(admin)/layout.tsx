@@ -15,7 +15,12 @@ export default function AdminLayout({
       <AuthProvider>
         <PaymentProvider>
           <ProgressBarProvider>{children}</ProgressBarProvider>
-          <Toaster richColors position="top-right" duration={1000} />
+          <Toaster
+            richColors
+            position="top-right"
+            duration={1000}
+            style={{ zIndex: 99999 }}
+          />
         </PaymentProvider>
       </AuthProvider>
     </div>

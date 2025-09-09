@@ -100,6 +100,7 @@ const AppHeader: React.FC = () => {
               className="dark:hidden"
               src="/images/company/logo.png"
               alt="Logo"
+              style={{ width: "auto" }}
             />
             <Image
               width={50}
@@ -107,6 +108,7 @@ const AppHeader: React.FC = () => {
               className="hidden dark:block"
               src="/images/company/logo-dark.png"
               alt="Logo"
+              style={{ width: "auto" }}
             />
           </Link>
 

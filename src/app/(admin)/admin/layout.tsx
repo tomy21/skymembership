@@ -35,7 +35,7 @@ export default function AdminLayout({
       token = Cookies.get("userToken");
     }
 
-    console.log("Token ditemukan:", token);
+    // console.log("Token ditemukan:", token);
 
     if (token) {
       try {

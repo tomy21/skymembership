@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import axios from "axios";
 import { ApexOptions } from "apexcharts";
 import { ScaleLoader } from "react-spinners";
+import { format } from "date-fns";
 
 // Disable SSR untuk ApexChart
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
@@ -19,6 +20,10 @@ export const DonutChart = ({
   const [series, setSeries] = useState<number[]>([]);
   const [labels, setLabels] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  // const [totalRevenue, setTotalRevenue] = useState(0);
+  const [range, setRange] = useState<{ start: string; end: string } | null>(
+    null,
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,12 +35,16 @@ export const DonutChart = ({
         });
 
         const data = res.data.data || [];
+        // setTotalRevenue(res.data.totalRevenue || 0);
+        setRange(res.data.range || null);
         setLabels(data.map((item: any) => item.product_name ?? ""));
         setSeries(data.map((item: any) => item.totalRevenue ?? 0));
       } catch (error) {
         console.error("Error fetching chart data:", error);
         setLabels([]);
         setSeries([]);
+        // setTotalRevenue(0);
+        setRange(null);
       } finally {
         setLoading(false);
       }
@@ -45,85 +54,110 @@ export const DonutChart = ({
   }, [month, year]);
 
   const options: ApexOptions = {
-    chart: {
-      type: "donut" as const,
-      fontFamily: "Inter, sans-serif",
-    },
+    chart: { type: "donut", fontFamily: "Inter, sans-serif" },
     labels,
     legend: {
-      position: "bottom" as const,
-      fontSize: "14px",
+      position: "bottom",
+      fontSize: "13px",
       fontWeight: 400,
-      labels: {
-        colors: "#6B7280",
-      },
+      labels: { colors: "#6B7280" },
     },
     dataLabels: {
       enabled: true,
-      formatter: function (val: number) {
-        return `${val.toFixed(1)}%`;
-      },
+      formatter: (val: number) => `${val.toFixed(1)}%`,
       style: {
-        fontSize: "14px",
+        fontSize: "12px",
         fontWeight: "bold",
-        colors: ["#fff"],
-      },
-      dropShadow: {
-        enabled: true,
-        top: 1,
-        left: 1,
-        blur: 2,
-        color: "#000",
-        opacity: 0.45,
+        colors: ["#6B7280"],
       },
     },
-    stroke: {
-      show: false,
-    },
-    colors: [
-      "#6366F1", // indigo-500
-      "#10B981", // emerald-500
-      "#F59E0B", // amber-500
-      "#EF4444", // red-500
-      "#3B82F6", // blue-500
-      "#8B5CF6", // violet-500
-      "#14B8A6", // teal-500
-      "#F97316", // orange-500
-    ],
-    responsive: [
-      {
-        breakpoint: 480,
-        options: {
-          chart: { width: 280 },
-          legend: { position: "bottom" },
+    plotOptions: {
+      pie: {
+        donut: {
+          labels: {
+            show: true,
+            name: {
+              show: true,
+              offsetY: -5,
+              color: "#fff",
+            },
+            value: {
+              show: true,
+              fontSize: "16px",
+              fontWeight: "bold",
+              formatter: (val: string) => {
+                const num = Number(val);
+                return `Rp ${num.toLocaleString("id-ID")}`;
+              },
+              color: "#111827",
+            },
+            total: {
+              show: true,
+              label: "Total",
+              color: "#6B7280",
+              fontSize: "14px",
+              formatter: (w) => {
+                const sum = w.globals.seriesTotals.reduce(
+                  (a: number, b: number) => a + b,
+                  0,
+                );
+                return `Rp ${sum.toLocaleString("id-ID")}`;
+              },
+            },
+          },
         },
       },
+    },
+    tooltip: {
+      theme: "dark", // background gelap
+      style: {
+        fontSize: "13px",
+        // @ts-expect-error Apex type tidak kenal 'color'
+        color: "#fff", // teks putih
+      },
+      y: {
+        formatter: (val: number) => `Rp ${val.toLocaleString("id-ID")}`,
+      },
+    },
+    stroke: { show: false },
+    colors: [
+      "#6366F1",
+      "#10B981",
+      "#F59E0B",
+      "#EF4444",
+      "#3B82F6",
+      "#8B5CF6",
+      "#14B8A6",
+      "#F97316",
     ],
   };
 
   return (
-    <div className="mx-auto w-full max-w-xl rounded-2xl bg-white p-6 ring-1 ring-gray-200 transition duration-300 hover:shadow-xl">
-      <div className="flex flex-col items-start justify-start">
-        <h2 className="text-start text-lg font-semibold text-gray-700">
+    <div className="rounded-2xl border border-gray-200 bg-white px-5 pt-5 pb-6 sm:px-6 sm:pt-6 dark:border-gray-800 dark:bg-white/[0.03]">
+      {/* Header dengan summary */}
+      <div className="mb-3 flex flex-col gap-1">
+        <h2 className="text-base font-semibold text-gray-700 dark:text-white">
           Purchase by Product
         </h2>
-        <p className="text-start text-sm text-gray-500">
-          Summary of purchase by product
-        </p>
+        <div className="flex flex-wrap justify-between text-sm text-gray-500 dark:text-white/50">
+          <span>
+            {range
+              ? `${format(new Date(range.start), "dd-MMM-yyyy")} s/d ${format(
+                  new Date(range.end),
+                  "dd-MMM-yyyy",
+                )}`
+              : "-"}
+          </span>
+        </div>
       </div>
 
+      {/* Chart */}
       {loading ? (
-        <div className="m-auto flex h-[348px] items-center justify-center text-center text-gray-400">
-          <ScaleLoader
-            height={100}
-            width={5}
-            margin={2}
-            color="#bbb"
-            loading={true}
-          />
+        <div className="m-auto flex h-[260px] items-center justify-center text-gray-400">
+          <ScaleLoader height={80} width={4} margin={2} color="#bbb" />
         </div>
       ) : !series.length || !labels.length ? (
-        <div className="m-auto flex h-[348px] items-center justify-center text-center text-gray-400">
+        <div className="m-auto flex h-[260px] items-center justify-center text-gray-400">
           No data available
         </div>
       ) : (
@@ -131,7 +165,7 @@ export const DonutChart = ({
           options={options}
           series={series}
           type="donut"
-          height={348}
+          height={345}
         />
       )}
     </div>

@@ -1,24 +1,41 @@
+// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
-  const refreshToken = request.cookies.get("refreshToken");
-
-  // URL yang ingin kamu proteksi
-  const protectedRoutes = ["/*"];
-
-  const isProtected = protectedRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route),
-  );
-
-  if (isProtected && !refreshToken) {
-    return NextResponse.redirect(new URL("/", request.url));
+export function middleware(req: NextRequest) {
+  const token = req.cookies.get("refreshToken")?.value;
+  console.log(token);
+  // Jika tidak ada token, redirect ke login
+  if (!token) {
+    return NextResponse.redirect(new URL("/signin", req.url));
   }
 
-  return NextResponse.next();
+  try {
+    // Decode payload JWT (tanpa verifikasi signature, hanya client-side check)
+    const payload = JSON.parse(
+      Buffer.from(token.split(".")[1], "base64").toString(),
+    );
+
+    const isExpired = payload.exp * 1000 < Date.now();
+    if (isExpired) {
+      console.warn("Token expired");
+      return NextResponse.redirect(new URL("/signin", req.url));
+    }
+
+    // Hanya izinkan akses admin
+    if (req.nextUrl.pathname.startsWith("/admin")) {
+      if (payload.role !== "admin") {
+        return NextResponse.redirect(new URL("/403", req.url)); // bisa buat page Forbidden
+      }
+    }
+
+    return NextResponse.next();
+  } catch (err) {
+    console.error("Invalid token", err);
+    return NextResponse.redirect(new URL("/signin", req.url));
+  }
 }
 
-// Tentukan route mana saja yang middleware-nya aktif
 export const config = {
-  matcher: ["/:path*"], // sesuaikan
+  matcher: ["/admin/:path*"], // middleware hanya jalan untuk route admin
 };

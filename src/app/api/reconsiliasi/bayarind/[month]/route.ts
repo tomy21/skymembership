@@ -1,21 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
-interface Params {
-  params: {
-    month: string;
-  };
-}
-
-export async function GET(request: NextRequest, { params }: Params) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { month: string } },
+) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const bankName = searchParams.get("bank") || "";
-    const monthParams = params.month;
+    const month = params.month ?? "";
 
+    console.log("bank:", bankName);
     if (isNaN(page) || isNaN(limit)) {
       return NextResponse.json(
         { error: "Invalid page or limit" },
@@ -26,7 +24,7 @@ export async function GET(request: NextRequest, { params }: Params) {
     const apiRes = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/member/api/summary-by-month`,
       {
-        params: { page, limit, search, bankName, month: monthParams },
+        params: { page, limit, search, bankName, month },
       },
     );
 

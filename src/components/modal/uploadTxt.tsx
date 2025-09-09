@@ -5,22 +5,38 @@ interface UploadTxtModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpload: (file: File) => void;
+  bankName: string;
 }
 
 const UploadTxtModal: React.FC<UploadTxtModalProps> = ({
   isOpen,
   onClose,
   onUpload,
+  bankName,
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string>("");
 
   // validasi file
   const validateFile = (file: File | null): string => {
+    const MAX_FILE_SIZE_MB =
+      bankName === "BAYARIND_BCA_VIRTUAL_ACCOUNT" ? 2 : 10;
+
     if (!file) return "File tidak ditemukan.";
-    if (file.type !== "text/plain")
-      return "Hanya file .txt yang diperbolehkan.";
-    if (file.size > 2 * 1024 * 1024) return "Ukuran maksimal 2MB.";
+
+    if (bankName === "BAYARIND_BCA_VIRTUAL_ACCOUNT") {
+      // hanya txt
+      if (!file.name.endsWith(".txt"))
+        return "Hanya file .txt yang diperbolehkan.";
+    } else {
+      // selain Bayarind → Excel
+      if (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls"))
+        return "Hanya file .xlsx / .xls yang diperbolehkan.";
+    }
+
+    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+      return `Ukuran maksimal ${MAX_FILE_SIZE_MB}MB.`;
+    }
     return "";
   };
 
@@ -38,28 +54,32 @@ const UploadTxtModal: React.FC<UploadTxtModalProps> = ({
   };
 
   // handle drag n drop
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const droppedFile = e.dataTransfer.files[0];
-    const validationError = validateFile(droppedFile);
-    if (validationError) {
-      setError(validationError);
-      setFile(null);
-    } else {
-      setError("");
-      setFile(droppedFile);
-    }
-  }, []);
+  const handleDrop = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      const droppedFile = e.dataTransfer.files[0];
+      const validationError = validateFile(droppedFile);
+      if (validationError) {
+        setError(validationError);
+        setFile(null);
+      } else {
+        setError("");
+        setFile(droppedFile);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   const handleUpload = () => {
     if (!file) {
-      setError("Silakan pilih file .txt terlebih dahulu.");
+      setError("Silakan pilih file terlebih dahulu.");
       return;
     }
-    onUpload(file); // kirim ke parent
+    onUpload(file);
     onClose();
   };
-
+  console.log(bankName);
   return (
     <AnimatePresence>
       {isOpen && (
@@ -86,7 +106,11 @@ const UploadTxtModal: React.FC<UploadTxtModalProps> = ({
               onClick={(e) => e.stopPropagation()}
             >
               <h2 className="mb-4 text-lg font-semibold text-gray-800">
-                Upload File Mutasi Bank (.txt)
+                Upload File Mutasi Bank (
+                {bankName === "BAYARIND_BCA_VIRTUAL_ACCOUNT"
+                  ? ".txt"
+                  : ".xlsx / .xls"}
+                )
               </h2>
 
               {/* Drag & Drop Area */}
@@ -101,12 +125,20 @@ const UploadTxtModal: React.FC<UploadTxtModalProps> = ({
                   </p>
                 ) : (
                   <p className="text-sm text-gray-500">
-                    Drag & Drop file .txt di sini atau klik tombol pilih file
+                    Drag & Drop file{" "}
+                    {bankName === "BAYARIND_BCA_VIRTUAL_ACCOUNT"
+                      ? ".txt"
+                      : ".xlsx / .xls"}{" "}
+                    di sini atau klik tombol pilih file
                   </p>
                 )}
                 <input
                   type="file"
-                  accept=".txt"
+                  accept={
+                    bankName === "BAYARIND_BCA_VIRTUAL_ACCOUNT"
+                      ? ".txt"
+                      : ".xlsx,.xls"
+                  }
                   onChange={handleFileChange}
                   className="hidden"
                   id="fileInput"

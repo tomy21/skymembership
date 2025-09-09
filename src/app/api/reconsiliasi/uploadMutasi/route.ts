@@ -23,11 +23,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(bytes);
     const fileContent = buffer.toString("utf-8");
 
-    console.log("Isi file:", fileContent.substring(0, 200)); // debug
-
-    // 🔑 di sini kamu bisa:
-    // 1. kirim langsung ke backend Express pakai fetch/axios
-    // 2. atau langsung proses di Next API (kalau mau semua logic pindah ke Next)
+    console.log("Isi file:", fileContent.substring(0, 200));
 
     // contoh: forward ke backend Express
     const apiRes = await fetch(

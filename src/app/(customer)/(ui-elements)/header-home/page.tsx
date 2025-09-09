@@ -1,0 +1,197 @@
+"use client";
+
+import Button from "@/components/ui/button/Button";
+import { useKeenSlider } from "keen-slider/react";
+import "keen-slider/keen-slider.min.css";
+import Image from "next/image";
+import React, { useEffect, useState } from "react";
+import { FaWallet } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+import { useDetailCustomer } from "@/hooks/useAuth";
+import { ClipLoader } from "react-spinners";
+import ProfileDropdown from "@/components/user-profile/ProfilDropdown";
+import NotificationDropdown from "@/components/header/NotificationDropdown";
+import { useCardList } from "@/hooks/useVehicle";
+import { useAuth } from "@/context/AuthContext";
+
+interface responseCard {
+  id: number;
+  vehicle_id: number;
+  member_customer_no: string;
+  plate_number: string;
+  rfid: string;
+  is_active: boolean;
+  vehicle_type: string;
+}
+
+export default function HeaderHome() {
+  const { data, isLoading, isError, refetch } = useDetailCustomer();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [totalSlides, setTotalSlides] = useState(0);
+  const { isAuthenticated } = useAuth();
+
+  const {
+    data: dataCard,
+    isLoading: isLoadingCardData,
+    isError: isErrorCardData,
+    refetch: refetchCard,
+  } = useCardList(isAuthenticated);
+
+  useEffect(() => {
+    refetch();
+    refetchCard();
+    setTotalSlides(dataCard?.data.length || 0);
+  }, [dataCard?.data.length, refetch, refetchCard]);
+
+  const router = useRouter();
+  const [sliderRef] = useKeenSlider<HTMLDivElement>({
+    slideChanged(slider) {
+      setCurrentSlide(slider.track.details.rel);
+    },
+    breakpoints: {
+      "(min-width: 768px)": {
+        slides: { perView: 2, spacing: 15 },
+      },
+      "(min-width: 1024px)": {
+        slides: { perView: 3, spacing: 20 },
+      },
+    },
+    slides: { perView: 1, spacing: 10 }, // default mobile
+  });
+
+  const getInitials = (fullname: string) => {
+    if (!fullname) return "";
+
+    const names = fullname.trim().split(" ");
+    const first = names[0]?.charAt(0).toUpperCase() || "";
+    const second = names[1]?.charAt(0).toUpperCase() || "";
+
+    return first + second;
+  };
+
+  const handleCekDetails = (id: string) => {
+    router.push(`/extend-membership?idCard=${id}`);
+  };
+
+  if (isLoading || isLoadingCardData || isErrorCardData) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="flex flex-col items-center justify-center p-6">
+          <ClipLoader size={50} color="#3b82f6" />
+          <p className="mt-4 text-gray-700">Mohon menunggu . . .</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || isErrorCardData) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="flex flex-col items-center justify-center p-6">
+          <ClipLoader size={50} color="#3b82f6" />
+          <p className="mt-4 text-gray-700">Mohon menunggu . . ..</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <header className="relative flex w-full flex-col items-center bg-yellow-400 px-3 py-4 pb-12">
+        <div className="flex w-full items-center justify-between">
+          <div className="flex flex-row items-center justify-center space-x-3">
+            <ProfileDropdown initial={getInitials(data?.data?.fullname)} />
+            <div className="flex flex-col items-start justify-start">
+              <h1 className="text-sm font-semibold">{data?.data?.fullname}</h1>
+              <p
+                className={`text-sm ${data?.data?.is_active === 0 ? "text-red-500" : "text-green-500"}`}
+              >
+                {data?.data?.is_active === 0 ? "Inactive" : "Active"}
+              </p>
+            </div>
+          </div>
+          <NotificationDropdown />
+        </div>
+
+        <div ref={sliderRef} className="keen-slider mt-4 w-full">
+          {isLoadingCardData ? (
+            // Skeleton loading
+            [...Array(2)].map((_, index) => (
+              <div key={index} className="keen-slider__slide p-2">
+                <div className="aspect-[3/2] w-full max-w-[230px] animate-pulse rounded-xl bg-gray-300" />
+              </div>
+            ))
+          ) : dataCard?.data?.filter((item: responseCard) => item.rfid)
+              ?.length === 0 ? (
+            // Kalau kosong
+            <div className="m-auto flex w-full flex-col items-center justify-center overflow-hidden rounded-xl">
+              <Image
+                src="/images/company/card-member.png"
+                alt="Empty Image"
+                width={100}
+                height={100}
+              />
+              <h1>Kamu belum memiliki kartu</h1>
+            </div>
+          ) : (
+            // Data kartu
+            dataCard?.data
+              ?.filter((item: responseCard) => item.rfid)
+              .map((item: responseCard, index: number) => (
+                <div
+                  key={`${item.rfid}-${index}`}
+                  className="keen-slider__slide flex flex-col items-center p-2"
+                  onClick={() => handleCekDetails(item.rfid)}
+                >
+                  <div className="relative aspect-[3/2] w-[270px] overflow-hidden rounded-xl sm:w-[280px]">
+                    <Image
+                      src={
+                        item.vehicle_type === "MOBIL"
+                          ? "/images/company/card03.png"
+                          : "/images/company/card02.png"
+                      }
+                      alt="Card Image"
+                      width={400}
+                      height={400}
+                      className="rounded-xl object-cover"
+                      priority
+                    />
+                    <div className="absolute bottom-10 left-6 rounded-md bg-black/50 px-2 py-1 text-xs font-semibold text-white">
+                      {item.rfid.toUpperCase()}
+                    </div>
+                  </div>
+                </div>
+              ))
+          )}
+        </div>
+
+        {totalSlides > 0 && (
+          <div className="-mt-5 text-sm font-medium text-gray-700">
+            {currentSlide + 1} of {totalSlides}
+          </div>
+        )}
+        <div className="absolute -bottom-12 h-20 w-[90%] rounded-lg bg-white p-4 shadow-lg">
+          <div className="flex w-full items-center justify-between">
+            <div className="flex flex-row items-center justify-start space-x-3">
+              <FaWallet size={30} className="text-yellow-400" />
+              <div className="flex flex-col items-start justify-start">
+                <h1 className="text-sm font-semibold">Points</h1>
+                <p className="text-md text-slate-400">
+                  {data?.data?.points.toLocaleString()}
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={() => router.push("/topup")}
+              variant={"primary"}
+              className="h-12 w-24 bg-emerald-500 disabled:cursor-not-allowed disabled:bg-gray-300"
+              disabled={false} // ganti ke kondisi seperti `disableTopup`
+            >
+              Top up
+            </Button>
+          </div>
+        </div>
+      </header>
+    </>
+  );
+}

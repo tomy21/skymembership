@@ -739,3 +739,20 @@ span.flatpickr-weekday,
   opacity: 0.8;
   cursor: grabbing; /* Changes the cursor to indicate dragging */
 }
+
+/* .apexcharts-tooltip {
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+} */
+
+.apexcharts-datalabel-label {
+  transition: fill 0.2s ease-in-out;
+}
+
+.apexcharts-series:hover .apexcharts-datalabel-label {
+  fill: white !important; /* teks persentase jadi putih saat hover */
+}

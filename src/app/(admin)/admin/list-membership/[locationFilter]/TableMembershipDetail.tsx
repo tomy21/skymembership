@@ -21,7 +21,7 @@ interface membershipData {
   location_name: string;
   vehicle_type: string;
   rfid: string;
-  timestamp: string;
+  updatedAt: string;
   price: number;
   periode: string;
   statusPayment: string;
@@ -39,6 +39,8 @@ export default function TableDetailMembers() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLimit, setSelectedLimit] = useState<string>("10");
   const [totalPages, setTotalPages] = useState(1);
+  const [totalData, setTotalData] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [membershipTrx, setMembershipTrx] = useState<membershipData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -83,8 +85,10 @@ export default function TableDetailMembers() {
             },
           },
         );
-        setMembershipTrx(response.data.data); // ambil array data
-        setTotalPages(response.data.totalPages); // ambil total halaman
+        setMembershipTrx(response.data.data);
+        setTotalPages(response.data.totalPages);
+        setTotalData(response.data.totalItems);
+        setTotalPrice(response.data.totalPrice);
       } catch (error) {
         console.error(error);
         setIsError(true);
@@ -94,6 +98,37 @@ export default function TableDetailMembers() {
     };
     fetchData();
   }, [currentPage, selectedLimit, search, params, locationFilter, month, year]);
+
+  const handleExportData = async () => {
+    try {
+      const res = await fetch(
+        `/api/export/export-detail-transaction/${locationFilter}?month=${month}&year=${year}`,
+      );
+      if (!res.ok) throw new Error("Failed to export data");
+
+      const blob = await res.blob();
+
+      // Ambil filename dari header Content-Disposition
+      const disposition = res.headers.get("Content-Disposition");
+      let filename = "data.xlsx";
+
+      if (disposition) {
+        const match = disposition.match(/filename="(.+)"/);
+        if (match && match[1]) {
+          filename = match[1];
+        }
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename; // filename dari API
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export failed:", err);
+    }
+  };
 
   if (!mounted) {
     return null;
@@ -106,18 +141,34 @@ export default function TableDetailMembers() {
           <input
             type="text"
             placeholder="Search by name..."
-            className="w-1/3 rounded-md border p-2"
+            className="w-1/3 rounded-md border p-2 dark:text-white"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <div className="flex flex-row items-center justify-center space-x-2">
-            <Button
-              //   onClick={handleModalAdd}
-              variant="primary"
-              className="bg-blue-light-500"
-            >
-              Export Data
-            </Button>
+          <div className="flex flex-row items-center justify-end gap-x-4">
+            <div className="flex flex-col">
+              <h1 className="text-xs font-light text-gray-400">
+                Total Members
+              </h1>
+              <h1 className="text-sm font-semibold text-gray-500">
+                {totalData}
+              </h1>
+            </div>
+            <div className="flex flex-col">
+              <h1 className="text-xs font-light text-gray-400">Total Amount</h1>
+              <h1 className="text-sm font-semibold text-gray-500">
+                {Number(totalPrice).toLocaleString("id-ID")}
+              </h1>
+            </div>
+            <div className="flex flex-row items-center justify-center space-x-2">
+              <Button
+                onClick={handleExportData}
+                variant="primary"
+                className="bg-blue-light-500"
+              >
+                Export Data
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -190,7 +241,10 @@ export default function TableDetailMembers() {
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                   {isLoading ? (
                     <TableRow>
-                      <td colSpan={8} className="p-5 text-center">
+                      <td
+                        colSpan={8}
+                        className="p-5 text-center dark:text-white"
+                      >
                         Loading...
                       </td>
                     </TableRow>
@@ -235,8 +289,8 @@ export default function TableDetailMembers() {
                           {items.vehicle_type === "" ? "-" : items.vehicle_type}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">
-                          {items.timestamp
-                            ? format(new Date(items.timestamp), "dd MMM yyyy")
+                          {items.updatedAt
+                            ? format(new Date(items.updatedAt), "dd MMM yyyy")
                             : "-"}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">
@@ -266,7 +320,7 @@ export default function TableDetailMembers() {
             <div className="shrink-0 border-t border-slate-300 bg-white dark:bg-black">
               <div className="flex w-full items-center justify-between p-3">
                 <div className="flex w-44 items-center space-x-3">
-                  <p className="w-1/2 text-right">Per page:</p>
+                  <p className="w-1/2 text-right dark:text-white">Per page:</p>
                   <div className="w-20">
                     <Select
                       options={limitOption}

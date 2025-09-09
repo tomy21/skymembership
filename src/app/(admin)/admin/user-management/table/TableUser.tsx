@@ -13,11 +13,11 @@ import Select from "@/components/form/Select";
 import axios from "axios";
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
-// import Button from "@/components/ui/button/Button";
-import { AnimatePresence, motion } from "framer-motion";
+import Button from "@/components/ui/button/Button";
+import RegisterModal from "../components/modalUsers";
 
 interface UserData {
-  id: string;
+  id: number;
   fullname: string;
   email: string;
   phone_number: string;
@@ -40,13 +40,36 @@ export default function TableUser() {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [dataUser, setDataUser] = useState<UserData[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+  const [selectedUser, setSelectedUser] = useState<Partial<UserData> | null>(
+    null,
+  );
 
   const limitOption = [
     { value: "10", label: "10" },
     { value: "20", label: "20" },
     { value: "50", label: "50" },
   ];
+
+  const handleAddUser = () => {
+    setSelectedUser(null);
+    setModalMode("create");
+    setIsModalOpen(true);
+  };
+
+  const handleEditUser = (user: UserData) => {
+    setSelectedUser(user);
+    setModalMode("edit");
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedUser(null); // reset initialData
+    setModalMode("create"); // reset mode ke default
+  };
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -57,7 +80,6 @@ export default function TableUser() {
   }, []);
 
   useEffect(() => {
-    console.log("Current Page:", currentPage);
     const fetchData = async () => {
       try {
         setIsLoading(true);
@@ -81,13 +103,6 @@ export default function TableUser() {
     fetchData();
   }, [currentPage, selectedLimit, search]);
 
-  // const handleOpenModal = () => {
-  //   setIsOpen(true);
-  // };
-  const onClose = () => {
-    setIsOpen(false);
-  };
-
   if (!mounted) {
     return null;
   }
@@ -103,15 +118,16 @@ export default function TableUser() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          {/* <div className="flex flex-row items-center justify-center space-x-2">
+          <div className="flex flex-row items-center justify-center space-x-2">
             <Button
-              onClick={handleOpenModal}
+              type="button"
+              onClick={handleAddUser}
               variant="primary"
               className="bg-blue-light-500"
             >
               Add Users
             </Button>
-          </div> */}
+          </div>
         </div>
 
         <div className="max-w-full border-t-2 border-gray-300">
@@ -163,12 +179,12 @@ export default function TableUser() {
                     >
                       Status
                     </TableCell>
-                    {/* <TableCell
+                    <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
                       Action
-                    </TableCell> */}
+                    </TableCell>
                   </TableRow>
                 </TableHeader>
 
@@ -203,10 +219,7 @@ export default function TableUser() {
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.created_at
-                            ? format(
-                                new Date(items.created_at),
-                                "dd MMM yyyy HH:mm:ss",
-                              )
+                            ? format(new Date(items.created_at), "dd MMM yyyy")
                             : "-"}
                         </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
@@ -249,19 +262,17 @@ export default function TableUser() {
                           </Badge>
                         </TableCell>
 
-                        {/* <TableCell className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
+                        <TableCell className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           <Button
-                            // onClick={() =>
-                            //   router.push(
-                            //     `/admin/list-membership/${encodeURIComponent(items.location_name)}`,
-                            //   )
-                            // }
+                            onClick={() => {
+                              handleEditUser(items);
+                            }}
                             variant="outline"
                             className="bg-blue-light-500 -p-2 text-sm"
                           >
-                            Detail
+                            Edit
                           </Button>
-                        </TableCell> */}
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
@@ -292,40 +303,12 @@ export default function TableUser() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            <motion.div
-              className="bg-opacity-50 fixed inset-0 z-999 bg-black/50"
-              onClick={onClose}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-
-            <motion.div
-              className="fixed inset-0 z-9999 flex items-center justify-center p-4"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div
-                className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="space-y-4">edd</div>
-                <button
-                  onClick={onClose}
-                  className="rounded-md bg-red-500 px-4 py-3 text-sm font-medium text-white hover:bg-red-600"
-                >
-                  Cancel
-                </button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <RegisterModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        mode={modalMode}
+        initialData={selectedUser}
+      />
     </>
   );
 }

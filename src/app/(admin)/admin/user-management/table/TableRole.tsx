@@ -12,8 +12,7 @@ import axios from "axios";
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import Button from "@/components/ui/button/Button";
-import { AnimatePresence, motion } from "framer-motion";
-import toast from "react-hot-toast";
+import Wizard from "@/components/modal/wizard";
 
 interface RoleData {
   id: number;
@@ -34,8 +33,6 @@ export default function TableCustomer() {
   const [isError, setIsError] = useState(false);
   const [dataUser, setDataUser] = useState<RoleData[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [roleName, setRoleName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const limitOption = [
     { value: "10", label: "10" },
@@ -79,50 +76,6 @@ export default function TableCustomer() {
 
   const handleOpenModal = () => {
     setIsOpen(true);
-  };
-  const onClose = () => {
-    setIsOpen(false);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!roleName.trim()) return alert("Role name is required");
-
-    try {
-      setIsSubmitting(true);
-      if (!roleName.trim()) {
-        alert("Role name is required");
-        return;
-      }
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/cms/api/auth/create-role`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({ name: roleName }),
-        },
-      );
-
-      console.log(response.status);
-      if (response.status !== 200) return toast.error("Failed to create role");
-
-      toast.success("Role created successfully!");
-      // Refresh data
-      setCurrentPage(1); // optionally reset page
-      setSearch(""); // optionally reset search
-      setIsOpen(false); // close modal
-      setRoleName(""); // reset form
-      fetchData();
-    } catch (error) {
-      console.error("Failed to create role:", error);
-      toast.error("Failed to create role");
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
   if (!mounted) {
@@ -183,12 +136,12 @@ export default function TableCustomer() {
                       Created By
                     </TableCell>
 
-                    {/* <TableCell
+                    <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
                       Action
-                    </TableCell> */}
+                    </TableCell>
                   </TableRow>
                 </TableHeader>
 
@@ -232,7 +185,7 @@ export default function TableCustomer() {
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.created_by}
                         </TableCell>
-                        {/* <TableCell className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
+                        <TableCell className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           <Button
                             // onClick={() =>
                             //   router.push(
@@ -244,7 +197,7 @@ export default function TableCustomer() {
                           >
                             Edit
                           </Button>
-                        </TableCell> */}
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
@@ -275,73 +228,13 @@ export default function TableCustomer() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            <motion.div
-              className="bg-opacity-50 fixed inset-0 z-999 bg-black/50"
-              onClick={onClose}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-
-            <motion.div
-              className="fixed inset-0 z-9999 flex items-center justify-center p-4"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div
-                className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <h2 className="mb-4 text-xl font-semibold text-gray-800 dark:text-white">
-                  Add New Role
-                </h2>
-
-                {/* Role Form */}
-                <form className="space-y-5" onSubmit={handleSubmit}>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Role Name
-                    </label>
-                    <input
-                      type="text"
-                      value={roleName}
-                      onChange={(e) => setRoleName(e.target.value)}
-                      placeholder="Enter role name"
-                      className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-neutral-800 dark:text-white"
-                    />
-                  </div>
-
-                  <div className="flex justify-end gap-3">
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-neutral-800"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className={`rounded-md px-4 py-2 text-sm font-medium text-white ${
-                        isSubmitting
-                          ? "bg-blue-300"
-                          : "bg-blue-600 hover:bg-blue-700"
-                      }`}
-                    >
-                      {isSubmitting ? "Saving..." : "Save Role"}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {isOpen && (
+        <Wizard
+          open={isOpen}
+          setOpen={() => setIsOpen(false)}
+          onSuccess={fetchData}
+        />
+      )}
     </>
   );
 }

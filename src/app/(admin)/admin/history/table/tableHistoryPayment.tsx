@@ -170,7 +170,7 @@ export default function TableHistoryPayment() {
           <input
             type="text"
             placeholder="Search by name..."
-            className="w-1/3 rounded-md border p-2"
+            className="w-1/3 rounded-md border p-2 dark:text-white"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -266,7 +266,10 @@ export default function TableHistoryPayment() {
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                   {isLoading ? (
                     <TableRow>
-                      <td colSpan={11} className="p-5 text-center">
+                      <td
+                        colSpan={11}
+                        className="p-5 text-center dark:text-white"
+                      >
                         Loading...
                       </td>
                     </TableRow>
@@ -363,7 +366,7 @@ export default function TableHistoryPayment() {
             <div className="shrink-0 border-t border-slate-300 bg-white dark:bg-black">
               <div className="flex w-full items-center justify-between p-3">
                 <div className="flex w-44 items-center space-x-3">
-                  <p className="w-1/2 text-right">Per page:</p>
+                  <p className="w-1/2 text-right dark:text-white">Per page:</p>
                   <div className="w-20">
                     <Select
                       options={limitOption}

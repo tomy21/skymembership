@@ -8,7 +8,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Select from "@/components/form/Select";
-import axios from "axios";
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import Button from "@/components/ui/button/Button";
@@ -83,16 +82,16 @@ export default function TableMenu() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get("/api/user-management/menu", {
-          params: {
-            page: currentPage,
-            limit: selectedLimit,
-            search,
+        const response = await fetch("/api/menu/get-menus", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
           },
         });
-        console.log(response.data.data);
-        setDataUser(response.data.data); // ambil array data
-        setTotalPages(response.data.totalPages); // ambil total halaman
+        const data = await response.json();
+        console.log(data.data);
+        setDataUser(data.data.menus); // ambil array data
+        setTotalPages(data.data.totalPages); // ambil total halaman
       } catch (error) {
         console.error(error);
         setIsError(true);
@@ -125,15 +124,15 @@ export default function TableMenu() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          {/* <div className="flex flex-row items-center justify-center space-x-2">
+          <div className="flex flex-row items-center justify-center space-x-2">
             <Button
-              onClick={handleOpenModal}
+              // onClick={handleOpenModal}
               variant="primary"
               className="bg-blue-light-500"
             >
-              Add Role
+              Add Menu
             </Button>
-          </div> */}
+          </div>
         </div>
 
         <div className="max-w-full border-t-2 border-gray-300">
