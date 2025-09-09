@@ -72,7 +72,7 @@ export default function TableBillingPayment() {
           },
         );
         const data = await response.json();
-        console.log(data);
+
         if (response.ok) {
           // const data = await response.json();
           setTotalPages(data.pagination.totalPages);

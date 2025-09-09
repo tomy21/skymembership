@@ -18,6 +18,7 @@ import Loading from "@/components/Loading/Loading";
 import { format } from "date-fns";
 import Badge from "@/components/ui/badge/Badge";
 import UploadTxtModal from "@/components/modal/uploadTxt";
+import { toast } from "sonner";
 
 interface responseData {
   month: string;
@@ -101,7 +102,10 @@ export default function TableRecon({ bankName }: propsBank) {
     };
     fetchDataYear();
     fetchData();
-  }, [bankName, currentPage, selectedLimit]);
+    const now = new Date();
+    const currentYear = String(now.getFullYear());
+    setSelectedYear(currentYear);
+  }, [bankName, currentPage, selectedLimit, selectedYear]);
 
   const handleOpenModal = () => {
     setIsOpen(true);
@@ -145,17 +149,16 @@ export default function TableRecon({ bankName }: propsBank) {
           credentials: "include",
         },
       );
-      console.log(res);
+
       if (!res.ok) throw new Error("Upload gagal");
       const data = await res.json();
 
-      alert(
+      toast.success(
         `Upload selesai ✅\nTotal: ${data.data.data.total}\nBerhasil: ${data.data.data.inserted}\nGagal (duplikat): ${data.data.data.skipped}`,
       );
       fetchData();
     } catch (err: any) {
-      console.error(err);
-      alert("Upload gagal ❌: " + err.message);
+      toast.error("Upload gagal ❌: " + err.message);
     } finally {
       setIsLoadingExport(false);
     }

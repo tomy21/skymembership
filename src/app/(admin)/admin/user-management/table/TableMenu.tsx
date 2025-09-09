@@ -89,7 +89,7 @@ export default function TableMenu() {
           },
         });
         const data = await response.json();
-        console.log(data.data);
+
         setDataUser(data.data.menus); // ambil array data
         setTotalPages(data.data.totalPages); // ambil total halaman
       } catch (error) {

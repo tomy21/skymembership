@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     const searchParams = new URL(request.url).searchParams;
     const bankName = searchParams.get("bankName") || "-";
     const date = searchParams.get("date") || "-";
-    console.log("bankName", bankName);
+
     const apiRes = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/member/api/export-data-mutasi`,
       {

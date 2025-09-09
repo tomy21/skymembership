@@ -13,7 +13,6 @@ export async function GET(
     const bankName = searchParams.get("bank") || "";
     const month = params.month ?? "";
 
-    console.log("bank:", bankName);
     if (isNaN(page) || isNaN(limit)) {
       return NextResponse.json(
         { error: "Invalid page or limit" },

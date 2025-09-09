@@ -12,7 +12,6 @@ export async function GET(
       `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/cms/api/auth/get-menu-byrole/${roleId}`,
     );
 
-    console.log("roleId:", apiRes.data);
     return NextResponse.json(apiRes.data, {
       status: apiRes.status,
     });

@@ -69,7 +69,6 @@ export default function TableHistoryParking() {
   }, []);
 
   useEffect(() => {
-    console.log("Current Page:", currentPage);
     const fetchData = async () => {
       try {
         setIsLoading(true);

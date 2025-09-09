@@ -22,8 +22,6 @@ export async function GET(request: NextRequest) {
       },
     );
 
-    console.log("API Response:", apiRes.data);
-
     return NextResponse.json(apiRes.data, {
       status: apiRes.status,
     });

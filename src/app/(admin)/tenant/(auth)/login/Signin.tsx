@@ -52,7 +52,7 @@ export default function SignInPage() {
       const response = await loginMutation(data);
 
       const dataDecrypt = decryptData(response.data);
-      console.log(dataDecrypt);
+
       if (dataDecrypt && dataDecrypt.status === "success") {
         toast.success("Login berhasil!");
         login(dataDecrypt?.token);
@@ -61,10 +61,10 @@ export default function SignInPage() {
           router.push("/tenant/dashboard");
         }, 500);
       }
-
-      console.log(response);
     } catch (error) {
       console.log(error);
+      toast.error("Login gagal!");
+      setIsLoading(false);
     }
   };
 

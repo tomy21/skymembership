@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   adminAPI,
@@ -8,6 +9,7 @@ import {
   Users,
 } from "../../libs/API/Auth";
 import { AxiosError } from "axios";
+import { toast } from "sonner";
 
 interface formData {
   fullname: string;
@@ -39,6 +41,9 @@ export const useLoginCMS = () => {
     mutationFn: (data: string) => loginCMS({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users-cms"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Login gagal, coba lagi");
     },
   });
 };

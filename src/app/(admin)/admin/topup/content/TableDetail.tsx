@@ -70,8 +70,6 @@ export default function TableTopupDetail() {
   //   ? decodeURIComponent(locationFilterParam[0])
   //   : decodeURIComponent(locationFilterParam || "");
 
-  console.log(dateTrx);
-
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
@@ -102,7 +100,6 @@ export default function TableTopupDetail() {
         });
         setTotalPages(response.data.pagination.totalPages);
         setDataHistory(response.data.data);
-        console.log(response.data);
       } catch (error) {
         console.error(error);
         setIsError(true);

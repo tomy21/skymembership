@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { decryptData, encryptData } from "@/app/libs/secretSecure";
 import Checkbox from "@/components/form/input/Checkbox";
@@ -47,25 +48,28 @@ export default function SignInPage() {
         rememberMe: isChecked,
       };
       const data = encryptData(dataForm);
+
+      // ✅ gunakan mutateAsync biar bisa pakai await
       const response = await loginMutation(data);
 
       const dataDecrypt = decryptData(response.data);
 
-      if (dataDecrypt && dataDecrypt.status === "success") {
+      if (dataDecrypt?.status === "success") {
         toast.success("Login berhasil!");
         login(dataDecrypt?.token);
+
         setTimeout(() => {
           setIsLoading(false);
           router.push("/admin/dashboard");
         }, 500);
       } else {
-        setIsLoading(false);
         toast.error(dataDecrypt?.message || "Login gagal.");
+        setIsLoading(false);
         router.push("/signin");
       }
-      console.log(response);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error.message || "Terjadi kesalahan server");
+      setIsLoading(false);
     }
   };
 

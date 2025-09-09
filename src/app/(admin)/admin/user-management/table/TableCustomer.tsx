@@ -74,7 +74,7 @@ export default function TableCustomer() {
             search,
           },
         });
-        console.log(response.data.data);
+
         setDataUser(response.data.data); // ambil array data
         setTotalPages(response.data.totalPages); // ambil total halaman
       } catch (error) {

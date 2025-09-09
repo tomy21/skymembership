@@ -102,7 +102,6 @@ export default function RegisterModal({
       });
 
       const data = await res.json();
-      console.log("Response:", data);
 
       if (res.ok) {
         toast.success(data.message || "Request success");

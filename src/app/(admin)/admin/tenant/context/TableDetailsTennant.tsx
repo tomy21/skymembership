@@ -69,7 +69,7 @@ export default function TableDetailTennant() {
             },
           },
         );
-        console.log(response.data.data);
+
         setDataHistory(response.data.data); // ambil array data
         setTotalPages(response.data.totalPages); // ambil total halaman
       } catch (error) {

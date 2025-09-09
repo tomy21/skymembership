@@ -1,4 +1,5 @@
 "use client";
+import DevToolsWarning from "@/components/DevToolsWarning";
 import ProgressBarProvider from "@/components/ProgressBarProvider";
 import { AuthProvider } from "@/context/AuthContext";
 import { PaymentProvider } from "@/context/PaymentContext";
@@ -14,6 +15,7 @@ export default function AdminLayout({
     <div>
       <AuthProvider>
         <PaymentProvider>
+          <DevToolsWarning />
           <ProgressBarProvider>{children}</ProgressBarProvider>
           <Toaster
             richColors

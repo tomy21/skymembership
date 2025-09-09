@@ -69,7 +69,6 @@ export default function TableLocation() {
     fetchData();
   }, [currentPage, selectedLimit, search]);
 
-  console.log(location);
   if (!mounted) {
     return null;
   }

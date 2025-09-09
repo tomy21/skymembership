@@ -32,8 +32,6 @@ export default function PageKartuHilang() {
 
   const [mounted, setMounted] = useState(false);
 
-  console.log(selectedCard);
-
   useEffect(() => {
     setMounted(true);
     refetchCard();

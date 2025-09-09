@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     if (!file.name.endsWith(".txt")) {
       return NextResponse.json({ message: "File harus .txt" }, { status: 400 });
     }
-    console.log("File received:", file.name, file.size);
+
     // baca isi file
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);

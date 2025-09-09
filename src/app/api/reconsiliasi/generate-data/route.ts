@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/member/api/recon/send-mutation-bank`,
       { date, bank },
     );
-    console.log("Backend response data:", apiRes.data);
+
     return NextResponse.json(apiRes.data, { status: apiRes.status });
   } catch (error: any) {
     console.error(

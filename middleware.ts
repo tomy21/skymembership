@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
   const token = req.cookies.get("refreshToken")?.value;
-  console.log(token);
+
   // Jika tidak ada token, redirect ke login
   if (!token) {
     return NextResponse.redirect(new URL("/signin", req.url));

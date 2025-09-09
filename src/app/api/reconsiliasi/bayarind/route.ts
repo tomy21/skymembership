@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const bankName = searchParams.get("bank") || "";
     const year = searchParams.get("year") || "2025";
-    console.log("bank name", bankName);
 
     if (isNaN(page) || isNaN(limit)) {
       return NextResponse.json(

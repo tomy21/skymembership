@@ -75,7 +75,6 @@ export default function TableHistoryPayment() {
   }, []);
 
   useEffect(() => {
-    console.log("Current Page:", currentPage);
     const fetchData = async () => {
       setIsLoading(true);
       try {

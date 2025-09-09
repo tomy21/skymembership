@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { APIAPPS, APISERVICES } from "../ApiServices";
 import axios, { AxiosError } from "axios";
 
@@ -8,9 +9,17 @@ export const login = async (data: { data: string }) => {
 };
 
 export const loginCMS = async (data: { data: string }) => {
-  const response = await axios.post("/api/login-admin", data);
-
-  return response.data;
+  try {
+    const response = await axios.post("/api/login-admin", data, {
+      withCredentials: true, // 🔥 penting kalau backend pakai cookie
+    });
+    return response.data;
+  } catch (error: any) {
+    // ambil pesan error dari proxy Next.js (error.response.data)
+    const message =
+      error.response?.data?.message || "Login failed, please try again";
+    throw new Error(message); // lempar ke React Query
+  }
 };
 
 export const loginTenant = async (data: { data: string }) => {

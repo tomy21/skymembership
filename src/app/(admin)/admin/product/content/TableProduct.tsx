@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import axios from "axios";
-import Button from "@/components/ui/button/Button";
+// import Button from "@/components/ui/button/Button";
 import { AnimatePresence, motion } from "framer-motion";
 import { addMonths, endOfMonth, startOfMonth } from "date-fns";
 
@@ -96,7 +96,7 @@ export default function TableProduct() {
             search,
           },
         });
-        console.log(response.data.data);
+
         setProduct(response.data.data); // ambil array data
         setTotalPages(response.data.totalPages); // ambil total halaman
       } catch (error) {
@@ -109,9 +109,9 @@ export default function TableProduct() {
     fetchData();
   }, [currentPage, selectedLimit, search]);
 
-  const openModalAdd = () => {
-    setIsOpen(true);
-  };
+  // const openModalAdd = () => {
+  //   setIsOpen(true);
+  // };
 
   const onClose = () => {
     setIsOpen(false);
@@ -179,7 +179,7 @@ export default function TableProduct() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <div className="flex flex-row items-center justify-center space-x-2">
+          {/* <div className="flex flex-row items-center justify-center space-x-2">
             <Button
               onClick={openModalAdd}
               variant="primary"
@@ -187,7 +187,7 @@ export default function TableProduct() {
             >
               Add Product
             </Button>
-          </div>
+          </div> */}
         </div>
 
         <div className="max-w-full border-t-2 border-gray-300">

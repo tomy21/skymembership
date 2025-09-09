@@ -36,8 +36,6 @@ export default function TennantLayout({
       token = Cookies.get("userToken");
     }
 
-    console.log("Token ditemukan:", token);
-
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));

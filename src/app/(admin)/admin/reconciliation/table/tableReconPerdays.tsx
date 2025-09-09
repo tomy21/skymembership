@@ -58,7 +58,7 @@ export default function TableReconPerDate({
     { value: "20", label: "20" },
     { value: "50", label: "50" },
   ];
-  console.log(date, bank);
+
   const params = useParams();
   const monthParams = params.month;
   const monthFilter = Array.isArray(monthParams)
