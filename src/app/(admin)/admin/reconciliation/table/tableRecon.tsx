@@ -335,8 +335,8 @@ export default function TableRecon({ bankName }: propsBank) {
                             }
                           >
                             {items.unmatchedCount === "0"
-                              ? "Complated"
-                              : "Uncomplated"}
+                              ? "Completed"
+                              : "Incompleted"}
                           </Badge>
                         </TableCell>
 
