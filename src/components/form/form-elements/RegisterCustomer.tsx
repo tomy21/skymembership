@@ -18,7 +18,8 @@ import { useRouter } from "next/navigation";
 import TextArea from "@/components/form/input/TextArea";
 import getMaxBirthdate from "./getMaxBirthDate";
 import TermsAndCondition from "@/components/accordion/Termncondition";
-// import CustomDatePicker from "../date-picker";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function RegisterPage() {
   const [captcha, setCaptcha] = useState("");
@@ -38,7 +39,7 @@ export default function RegisterPage() {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [gender, setGender] = useState("");
-  const [birthdate, setBirthdate] = useState("");
+  const [birthdate, setBirthdate] = useState<Date | null>(null);
   const [pin, setPin] = useState("");
   const [agree, setAgree] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -136,7 +137,7 @@ export default function RegisterPage() {
     }
   };
 
-  const isValidBirthdate = (dateStr: string) => {
+  const isValidBirthdate = (dateStr: Date) => {
     const date = new Date(dateStr);
     // const now = new Date();
     const minDate = new Date("1900-01-01");
@@ -301,7 +302,7 @@ export default function RegisterPage() {
       setPhone("");
       setPin("");
       setGender("");
-      setBirthdate("");
+      setBirthdate(null);
       setAgree(false);
       refreshString();
     }
@@ -337,7 +338,7 @@ export default function RegisterPage() {
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block font-semibold">Fullname</label>
+          <label className="block font-semibold">Nama Lengkap</label>
           <Input
             type="text"
             id="fullName"
@@ -463,7 +464,7 @@ export default function RegisterPage() {
           )}
         </div>
 
-        <div>
+        {/* <div>
           <label className="block font-semibold">PIN</label>
           <Input
             type="password"
@@ -479,17 +480,19 @@ export default function RegisterPage() {
           {errors.pin && (
             <p className="mt-1 text-sm text-red-500">{errors.pin}</p>
           )}
-        </div>
+        </div> */}
 
         <div className="relative">
-          <label className="block font-semibold">Phone Number</label>
-          <span
-            className={`absolute top-1/2 left-3 ${errors.phone ? "-translate-y-[100%]" : "translate-y-1/5"} border-r-2 pr-3 text-sm text-gray-500`}
-          >
+          <label className="mb-1 block font-semibold">Nomor Telepon</label>
+
+          {/* Prefix +62 */}
+          <span className="absolute top-12 left-3 -translate-y-1/2 border-r-2 pr-3 text-sm text-gray-500">
             +62
           </span>
+
+          {/* Input */}
           <Input
-            type="number"
+            type="tel"
             name="phone"
             id="phone"
             onChange={(e) => {
@@ -497,17 +500,18 @@ export default function RegisterPage() {
               setPhone("+62" + numeric);
             }}
             maxLength={16}
-            className="input h-10 pl-16"
-            placeholder="8123456789"
+            className="w-full rounded-lg border px-3 py-2 pl-16 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            placeholder="8123456789" // ✅ placeholder jelas
             defaultValue={phone.replace("+62", "")}
           />
+
           {errors.phone && (
             <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
           )}
         </div>
 
         <div>
-          <label className="block font-semibold">Gender</label>
+          <label className="block font-semibold">Jenis Kelamin</label>
           <div className="flex space-x-4">
             <div className="flex gap-4">
               <Radio
@@ -533,17 +537,15 @@ export default function RegisterPage() {
           )}
         </div>
 
-        <div>
-          <label className="block font-semibold">Birthdate</label>
-          <input
-            type="date"
-            name="birthdate"
-            id="birthdate"
-            onChange={(e) => setBirthdate(e.target.value)}
+        <div className="w-full">
+          <label className="block font-semibold">Tanggal Lahir</label>
+          <DatePicker
+            selected={birthdate}
+            onChange={(date) => setBirthdate(date)}
+            dateFormat="yyyy-MM-dd"
+            placeholderText="yyyy-mm-dd" // ✅ placeholder manual
             className="w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            value={birthdate}
-            max={getMaxBirthdate()}
-            min="1900-01-01"
+            wrapperClassName="w-full" // ✅ pastikan wrapper juga full
           />
 
           {errors.birthdate && (
@@ -552,7 +554,7 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block font-semibold">Address</label>
+          <label className="block font-semibold">Alamat</label>
           <TextArea
             name="address"
             value={address}

@@ -13,7 +13,7 @@ export default function FormValidationPurchasePage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <div className="relative mx-auto min-h-screen w-full bg-white">
-        <HeaderPage title="Transaction" />
+        <HeaderPage title="Pembayaran" />
         <FormValidationPurchase />
       </div>
     </Suspense>

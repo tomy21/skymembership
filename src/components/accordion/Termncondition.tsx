@@ -13,7 +13,7 @@ const TermsAndCondition: React.FC<Props> = ({ isVisible, onClose }) => {
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 z-10 mx-auto w-sm bg-black/30"
+            className="fixed inset-0 z-10 mx-auto w-full bg-black/30"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -24,7 +24,7 @@ const TermsAndCondition: React.FC<Props> = ({ isVisible, onClose }) => {
           <motion.div
             role="dialog"
             aria-modal="true"
-            className="fixed bottom-0 z-20 mx-auto h-[75vh] w-sm overflow-y-auto rounded-t-3xl border border-slate-200 bg-white px-6 py-5 shadow-2xl"
+            className="fixed right-0 bottom-0 left-0 z-999 mx-auto h-[75vh] w-full overflow-y-auto rounded-t-3xl border border-slate-200 bg-white px-6 py-5 shadow-2xl"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}

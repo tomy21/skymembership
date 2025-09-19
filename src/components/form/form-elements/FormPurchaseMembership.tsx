@@ -3,8 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Select, { GroupBase, OptionsOrGroups } from "react-select";
 import { useRouter } from "next/navigation";
-// import { useAllLocation } from '@/hooks/useLocation';
-import { usePeriode, useProduct, useTypeVehicle } from "@/hooks/useProduct";
+import { usePeriode, useTypeVehicle } from "@/hooks/useProduct";
 import { useVehicleActive } from "@/hooks/useVehicle";
 import { AsyncPaginate } from "react-select-async-paginate";
 import { Location } from "../../../../libs/API/Location";
@@ -14,28 +13,18 @@ type OptionType = {
   label: string;
 };
 
-// interface LocationRequest {
-//   location_code: string;
-//   location_name: string;
-// }
-
 interface VehicleType {
   vehicle_type: string;
 }
-
 interface Periode {
+  id: string;
   periode: string;
+  price: number;
+  product_name: string;
 }
-
 interface LocationRequest {
   location_code: string;
   location_name: string;
-}
-
-interface Product {
-  id: string;
-  product_name: string;
-  price: number;
 }
 
 interface Vehicle {
@@ -47,43 +36,33 @@ export default function BookingForm() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // STATE
   const [selectedLocation, setSelectedLocation] = useState<OptionType | null>(
     null,
   );
   const [locationValue, setLocationValue] = useState<OptionType | null>(null);
   const [type, setType] = useState<OptionType | null>(null);
   const [period, setPeriod] = useState<OptionType | null>(null);
-  const [product, setProduct] = useState<OptionType | null>(null);
   const [vehicle, setVehicle] = useState<OptionType | null>(null);
   const [price, setPrice] = useState<number>(0);
+  const [productName, setProductName] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // HOOK DATA
-  // const { data: dataLocation } = useAllLocation(page, 5, search);
   const { data: dataVehicle } = useTypeVehicle(selectedLocation?.value);
   const { data: dataPeriode } = usePeriode(
     type?.value,
     selectedLocation?.value,
   );
-  const { data: dataProduct } = useProduct(
-    selectedLocation?.value,
-    type?.value,
-    period?.value,
-  );
+
   const { data: dataVehicles } = useVehicleActive(
     type?.value,
     selectedLocation?.value,
   );
 
-  // OPTION STATES
-  // const [locationData, setLocationData] = useState<OptionType[]>([]);
   const [vehicleData, setVehicleData] = useState<OptionType[]>([]);
   const [periodData, setPeriodData] = useState<OptionType[]>([]);
-  const [productData, setProductData] = useState<OptionType[]>([]);
   const [vehicleUsers, setVehicleUsers] = useState<OptionType[]>([]);
   const defaultAdditional = useMemo(() => ({ page: 1, limit: 5 }), []);
 
-  // MAPPING VEHICLE TYPE
   useEffect(() => {
     if (Array.isArray(dataVehicle?.data)) {
       setVehicleData(
@@ -96,95 +75,71 @@ export default function BookingForm() {
     setMounted(true);
   }, [dataVehicle]);
 
-  // MAPPING PERIODE
   useEffect(() => {
     if (Array.isArray(dataPeriode?.data)) {
       setPeriodData(
         dataPeriode.data.map((p: Periode) => ({
-          value: p.periode,
+          value: p.id,
           label: p.periode,
         })),
       );
     }
   }, [dataPeriode]);
 
-  // MAPPING PRODUCT
-  useEffect(() => {
-    if (Array.isArray(dataProduct?.data)) {
-      setProductData(
-        dataProduct.data.map((p: Product) => ({
-          value: p.id,
-          label: p.product_name,
-        })),
-      );
-    }
-  }, [dataProduct]);
-
-  // MAPPING VEHICLE USER
   useEffect(() => {
     if (Array.isArray(dataVehicles?.data)) {
       const vehicles = dataVehicles.data;
-
-      // Jika kendaraan kosong, hanya tampilkan "Tambah Kendaraan"
       if (vehicles.length === 0) {
-        setVehicleUsers([
-          {
-            value: "__add",
-            label: "➕ Tambah Kendaraan",
-          },
-        ]);
+        setVehicleUsers([{ value: "__add", label: "➕ Tambah Kendaraan" }]);
       } else {
-        // Jika ada kendaraan, tampilkan kendaraan saja
-        const options = vehicles.map((v: Vehicle) => ({
-          value: v.plate_number,
-          label: v.plate_number.toUpperCase(),
-        }));
-
-        setVehicleUsers(options);
+        setVehicleUsers(
+          vehicles.map((v: Vehicle) => ({
+            value: v.plate_number,
+            label: v.plate_number.toUpperCase(),
+          })),
+        );
       }
     }
   }, [dataVehicles]);
 
-  // SET PRICE WHEN PRODUCT SELECTED
   useEffect(() => {
-    if (product && Array.isArray(dataProduct?.data)) {
-      const selected = dataProduct.data.find(
-        (p: Product) => p.id === product.value,
+    if (period && Array.isArray(dataPeriode?.data)) {
+      const selected = dataPeriode.data.find(
+        (p: Periode) => p.id === period.value,
       );
-      if (selected) {
-        setPrice(selected.price);
-      }
-    }
-  }, [product, dataProduct]);
 
-  // SUBMIT
+      if (selected) setPrice(selected.price);
+      if (selected) setProductName(selected.product_name);
+    }
+  }, [period, dataPeriode]);
+
   const handleSubmit = () => {
-    if (selectedLocation && type && period && product && vehicle) {
+    if (selectedLocation && type && period && vehicle) {
+      setIsSubmitting(true);
+
       const query = new URLSearchParams({
-        idProduct: product.value,
+        idProduct: period.value,
         location: selectedLocation.label,
         type: type.label,
         period: period.label,
-        product: product.label,
+        product: productName,
         vehicle: vehicle.label,
         typeProduct: "New Membership",
         price: price.toString(),
       }).toString();
 
-      router.push(`/form-validation-purchase?${query}`);
+      setTimeout(() => {
+        router.push(`/form-validation-purchase?${query}`);
+      }, 1000);
     }
   };
 
   const loadLocationOptions = useCallback(
     async (
       inputValue: string,
-      loadedOptions: OptionsOrGroups<OptionType, GroupBase<OptionType>>,
+      _loadedOptions: OptionsOrGroups<OptionType, GroupBase<OptionType>>,
       additional: { page: number; limit: number } = { page: 1, limit: 5 },
-    ): Promise<{
-      options: OptionType[];
-      hasMore: boolean;
-      additional: { page: number; limit: number };
-    }> => {
+    ) => {
       setIsLoadingMore(true);
       try {
         const data = await Location.getAllLocation(
@@ -192,31 +147,21 @@ export default function BookingForm() {
           additional.limit,
           inputValue,
         );
-
         const newOptions: OptionType[] = (data?.data as LocationRequest[]).map(
           (loc) => ({
             value: loc.location_code,
             label: loc.location_name,
           }),
         );
-
         const hasMore = data?.data.length === additional.limit;
-
         return {
           options: newOptions,
           hasMore,
-          additional: {
-            page: additional.page + 1,
-            limit: additional.limit,
-          },
+          additional: { page: additional.page + 1, limit: additional.limit },
         };
       } catch (error) {
         console.error("Error fetching location data:", error);
-        return {
-          options: [],
-          hasMore: false,
-          additional,
-        };
+        return { options: [], hasMore: false, additional };
       } finally {
         setIsLoadingMore(false);
       }
@@ -224,88 +169,126 @@ export default function BookingForm() {
     [],
   );
 
-  if (!mounted) {
-    // selama SSR dan sebelum mount, tolak render interaktif
-    return null;
-  }
+  if (!mounted) return null;
 
   return (
-    <div className="mx-auto max-w-xl space-y-5 rounded-lg p-6">
-      <AsyncPaginate
-        placeholder="Pilih Lokasi..."
-        value={locationValue}
-        loadOptions={loadLocationOptions}
-        onChange={(val) => {
-          setLocationValue(val);
-          setSelectedLocation(val);
-        }}
-        isSearchable
-        additional={defaultAdditional}
-        isLoading={isLoadingMore}
-        loadingMessage={() => "Memuat lokasi..."}
-      />
+    <div className="mx-auto min-h-screen max-w-xl rounded-2xl bg-white p-6 shadow-lg">
+      <div className="space-y-4">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-600">
+            Pilih Lokasi
+          </label>
+          <AsyncPaginate
+            placeholder="Cari lokasi..."
+            value={locationValue}
+            loadOptions={loadLocationOptions}
+            onChange={(val) => {
+              setLocationValue(val);
+              setSelectedLocation(val);
+            }}
+            isSearchable
+            additional={defaultAdditional}
+            isLoading={isLoadingMore}
+            loadingMessage={() => "Memuat lokasi..."}
+            className="react-select-container"
+          />
+        </div>
 
-      <Select
-        placeholder="Tipe Kendaraan..."
-        options={vehicleData}
-        value={type}
-        onChange={(val) => {
-          setType(val);
-          setPeriod(null);
-          setProduct(null);
-          setVehicle(null);
-        }}
-        isDisabled={!selectedLocation}
-      />
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-600">
+            Tipe Kendaraan
+          </label>
+          <Select
+            placeholder="Tipe kendaraan..."
+            options={vehicleData}
+            value={type}
+            onChange={(val) => {
+              setType(val);
+              setPeriod(null);
+              setVehicle(null);
+            }}
+            isDisabled={!selectedLocation}
+          />
+        </div>
 
-      <Select
-        placeholder="Periode Member..."
-        options={periodData}
-        value={period}
-        onChange={(val) => {
-          setPeriod(val);
-          setProduct(null);
-          setVehicle(null);
-        }}
-        isDisabled={!type}
-      />
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-600">
+            Periode
+          </label>
+          <Select
+            placeholder="Pilih periode..."
+            options={periodData}
+            value={period}
+            onChange={(val) => {
+              setPeriod(val);
+              setVehicle(null);
+            }}
+            isDisabled={!type}
+          />
+        </div>
 
-      <Select
-        placeholder="Product..."
-        options={productData}
-        value={product}
-        onChange={(val) => {
-          setProduct(val);
-          setVehicle(null);
-        }}
-        isDisabled={!period}
-      />
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-600">
+            Kendaraan
+          </label>
+          <Select
+            placeholder="Pilih kendaraan..."
+            options={vehicleUsers}
+            value={vehicle}
+            onChange={(val) => {
+              if (val?.value === "__add") {
+                router.push("/vehicle");
+              } else {
+                setVehicle(val);
+              }
+            }}
+            isDisabled={!period}
+          />
+        </div>
 
-      <Select
-        placeholder="Vehicle list..."
-        options={vehicleUsers}
-        value={vehicle}
-        onChange={(val) => {
-          if (val?.value === "__add") {
-            router.push("/vehicle");
-          } else {
-            setVehicle(val);
+        <div className="mt-4 rounded-lg bg-green-50 p-4 text-center">
+          <span className="text-gray-600">Total:</span>{" "}
+          <span className="text-xl font-bold text-green-600">
+            Rp {price.toLocaleString("id-ID")}
+          </span>
+        </div>
+
+        <button
+          onClick={handleSubmit}
+          disabled={
+            !selectedLocation || !type || !period || !vehicle || isSubmitting
           }
-        }}
-        isDisabled={!product}
-      />
-
-      <div className="text-center text-xl font-semibold text-green-600">
-        Total: Rp {price.toLocaleString("id-ID")}
+          className="flex w-full items-center justify-center rounded bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:bg-gray-400"
+        >
+          {isSubmitting ? (
+            <span className="flex items-center gap-2">
+              <svg
+                className="h-5 w-5 animate-spin text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                />
+              </svg>
+              Memproses data...
+            </span>
+          ) : (
+            "Lanjut ke Pembayaran"
+          )}
+        </button>
       </div>
-
-      <button
-        onClick={handleSubmit}
-        className="w-full rounded bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:bg-gray-400"
-        disabled={!selectedLocation || !type || !period || !product || !vehicle}
-      >
-        Lanjut ke Pembayaran
-      </button>
     </div>
   );
 }

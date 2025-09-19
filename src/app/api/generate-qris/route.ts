@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const date = new Date();
     const apiRes = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL_QRIS}v1/payment/qris/lostmember/generate-payment`,
+      `${process.env.NEXT_PUBLIC_API_URL_QRIS}/v1/payment/qris/lostmember/generate-payment`,
       {
         LocationCode: body.LocationCode,
         invoiceNumber: `INV/${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}/${date.getHours()}/${date.getMinutes()}/${date.getSeconds()}/${body.customerNo}`,

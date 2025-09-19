@@ -90,7 +90,7 @@ export const useExtendByPoint = () => {
 };
 
 export const usePaymentByVA = (VA: string) => {
-  return useQuery({
+  const query = useQuery({
     queryKey: ["historyTransacton", VA],
     queryFn: () => Payment.getAllHistoryVa(VA),
     enabled: !!VA,
@@ -98,6 +98,13 @@ export const usePaymentByVA = (VA: string) => {
     retry: 1,
     refetchOnWindowFocus: false,
   });
+
+  return {
+    data: query.data ?? null,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+  };
 };
 
 export const useHistoryTransaction = (trxId: string) => {

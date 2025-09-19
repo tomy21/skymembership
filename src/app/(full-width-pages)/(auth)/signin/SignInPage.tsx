@@ -8,7 +8,7 @@ import Loading from "@/components/Loading/Loading";
 import Button from "@/components/ui/button/Button";
 import { EyeCloseIcon, EyeIcon } from "@/icons";
 import Image from "next/image";
-// import Link from "next/link";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -136,12 +136,12 @@ export default function SignInPage() {
                       Keep me logged in
                     </span>
                   </div>
-                  {/* <Link
+                  <Link
                     href="/reset-password"
                     className="text-brand-500 hover:text-brand-600 dark:text-brand-400 text-sm"
                   >
                     Forgot password?
-                  </Link> */}
+                  </Link>
                 </div>
                 <div>
                   <Button type="submit" className="w-full" size="sm">

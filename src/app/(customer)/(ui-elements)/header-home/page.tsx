@@ -114,15 +114,8 @@ export default function HeaderHome() {
         </div>
 
         <div ref={sliderRef} className="keen-slider mt-4 w-full">
-          {isLoadingCardData ? (
-            // Skeleton loading
-            [...Array(2)].map((_, index) => (
-              <div key={index} className="keen-slider__slide p-2">
-                <div className="aspect-[3/2] w-full max-w-[230px] animate-pulse rounded-xl bg-gray-300" />
-              </div>
-            ))
-          ) : dataCard?.data?.filter((item: responseCard) => item.rfid)
-              ?.length === 0 ? (
+          {dataCard?.data?.filter((item: responseCard) => item.rfid)?.length ===
+          0 ? (
             // Kalau kosong
             <div className="m-auto flex w-full flex-col items-center justify-center overflow-hidden rounded-xl">
               <Image

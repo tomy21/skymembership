@@ -11,6 +11,8 @@ import {
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 
+const isBrowser = typeof window !== "undefined";
+
 interface formData {
   fullname: string;
   username: string;
@@ -21,7 +23,7 @@ interface formData {
   phone_number: string;
   pin: string;
   gender: string;
-  dob: string;
+  dob: Date | null;
 }
 
 export const useLogin = () => {
@@ -190,6 +192,9 @@ export const useDetailCustomer = () => {
     staleTime: 1000 * 60 * 5,
     retry: 1,
     refetchOnWindowFocus: false,
+    initialData: isBrowser
+      ? JSON.parse(localStorage.getItem("userData") || "null")
+      : null,
   });
 };
 export const useDetailAdmin = () => {

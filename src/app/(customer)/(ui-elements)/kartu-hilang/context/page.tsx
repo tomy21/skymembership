@@ -48,10 +48,10 @@ export default function PageKartuHilang() {
         body: JSON.stringify({
           LocationCode: selectedCard?.customer_membership_detail.location_id, // kirim rfid lama
           customerNo: selectedCard?.member_customer_no, // kirim rfid baru
-          externalStoreId: newCardNumber, // kirim rfid baru
-          ProductName: newCardNumber, // kirim rfid baru
-          amount: newCardNumber, // kirim rfid baru
-          expiry: newCardNumber, // kirim rfid baru
+          externalStoreId: "ID2020028299770", // kirim rfid baru
+          ProductName: "lost card", // kirim rfid baru
+          amount: 200000, // kirim rfid baru
+          expiry: "5000", // kirim rfid baru
         }),
       });
       const data = await res.json();

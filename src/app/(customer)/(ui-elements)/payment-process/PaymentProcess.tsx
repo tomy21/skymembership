@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import Accordion from "@/components/accordion/page";
 import Button from "@/components/ui/button/Button";
@@ -22,23 +23,19 @@ export default function PaymentProcess() {
   const [isLoading, setIsLoading] = useState(false);
 
   const searchParams = useSearchParams();
-  const idTransaction = searchParams.get("idTransaction") || "";
+
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [dataSessionJson, setDataSessionJson] = useState<any>(null);
+  const [topupData, setTopupData] = useState<any>(null);
+  const [localStorageDataJson, setLocalStorageDataJson] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
 
-  const dataSession = sessionStorage.getItem("transactionData");
-  const dataSessionJson = dataSession ? JSON.parse(dataSession) : null;
-
-  const topup = localStorage.getItem("topupData");
-  const topupData = topup ? JSON.parse(topup) : null;
-
-  const localStorageData = localStorage.getItem("purchaseData");
-  const localStorageDataJson = localStorageData
-    ? JSON.parse(localStorageData)
-    : null;
-
+  const idTransaction =
+    searchParams.get("idTransaction") || dataSessionJson?.trxId;
   const paymentHistory = usePaymentByVA(idTransaction);
+  const dataTransaksiPayment = paymentHistory?.data?.data;
+
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} berhasil disalin!`);
@@ -82,6 +79,7 @@ export default function PaymentProcess() {
   };
 
   const getBankName = (moduleName: string) => {
+    console.log("moduleName", moduleName);
     switch (moduleName.toUpperCase()) {
       case "BAYARIND_BCA_VIRTUAL_ACCOUNT":
         return "BCA Virtual Account";
@@ -108,6 +106,15 @@ export default function PaymentProcess() {
 
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: ["userById"] });
+    const dataSession = sessionStorage.getItem("transactionData");
+    const topup = localStorage.getItem("topupData");
+    const localStorageData = localStorage.getItem("purchaseData");
+    setLocalStorageDataJson(
+      localStorageData ? JSON.parse(localStorageData) : null,
+    );
+    setTopupData(topup ? JSON.parse(topup) : null);
+
+    setDataSessionJson(dataSession ? JSON.parse(dataSession) : null);
     setMounted(true);
   }, [queryClient]);
 
@@ -244,8 +251,8 @@ export default function PaymentProcess() {
             }
 
             const statusTransaction =
-              paymentHistory.data?.data.status_transaction;
-            const statusPayment = paymentHistory.data?.data.statusPayment;
+              paymentHistory.data?.data?.status_transaction;
+            const statusPayment = paymentHistory.data?.data?.statusPayment;
 
             if (statusTransaction === "FAILED") {
               return (
@@ -277,11 +284,11 @@ export default function PaymentProcess() {
         <h2 className="text-lg font-medium text-orange-800">
           {(() => {
             if (idTransaction === "") {
-              return "Pesanan berhasil dibuat";
+              return "Total yang harus pembayaran";
             }
 
             const statusTransaction =
-              paymentHistory.data?.data.status_transaction;
+              paymentHistory.data?.data?.status_transaction;
             const statusPayment = paymentHistory.data?.data.statusPayment;
 
             if (
@@ -297,18 +304,18 @@ export default function PaymentProcess() {
               return "Transaksi di batalkan oleh sistem";
             }
 
-            return "Pesanan berhasil dibuat";
+            return "Total yang harus dibayar";
           })()}
         </h2>
         {idTransaction !== "" ? (
           <p className="text-3xl font-bold text-orange-900">
             Rp.{" "}
-            {paymentHistory.data?.data.paid_amount != null &&
-            paymentHistory.data?.data.paid_amount !== 0
-              ? Number(paymentHistory.data.data.paid_amount).toLocaleString(
+            {paymentHistory.data?.data?.paid_amount != null &&
+            paymentHistory.data?.data?.paid_amount !== 0
+              ? Number(paymentHistory.data?.data?.paid_amount).toLocaleString(
                   "id-ID",
                 )
-              : Number(paymentHistory.data?.data.price || 0).toLocaleString(
+              : Number(paymentHistory.data?.data?.price || 0).toLocaleString(
                   "id-ID",
                 )}
           </p>
@@ -323,7 +330,7 @@ export default function PaymentProcess() {
 
         <div
           className={`${
-            paymentHistory.data?.data.status_transaction === "FAILED"
+            dataTransaksiPayment?.status_transaction === "FAILED"
               ? ""
               : "bg-orange-200"
           } mt-2 rounded-lg p-3 text-orange-900`}
@@ -331,9 +338,9 @@ export default function PaymentProcess() {
           {(() => {
             if (idTransaction !== "") {
               const statusTransaction =
-                paymentHistory.data?.data.status_transaction;
-              const statusPayment = paymentHistory.data?.data.statusPayment;
-              const expiredDate = paymentHistory.data?.data?.expired_date;
+                dataTransaksiPayment?.status_transaction;
+              const statusPayment = dataTransaksiPayment?.statusPayment;
+              const expiredDate = dataTransaksiPayment?.expired_date;
 
               if (
                 statusTransaction === "COMPLETED" ||
@@ -386,16 +393,14 @@ export default function PaymentProcess() {
               Account an.
             </div>
             <div className="mb-2 text-sm text-gray-900">
-              {data?.data.username}
+              {data?.data?.username}
             </div>
           </div>
 
           <div className="mt-5 mb-2 flex w-full items-center justify-between">
             <div className="text-sm font-semibold text-gray-500">
               {idTransaction !== "" ? (
-                <p>
-                  {getBankName(paymentHistory?.data?.data.module_name ?? "-")}
-                </p>
+                <p>{getBankName(dataTransaksiPayment?.module_name ?? "-")}</p>
               ) : (
                 <p>
                   {getBankName(

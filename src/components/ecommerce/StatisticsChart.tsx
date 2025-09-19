@@ -29,7 +29,7 @@ export default function StatisticsChart() {
   ]);
   const [seriesValue, setSeriesValue] = useState<number[]>([]);
   const [seriesRevenue, setSeriesRevenue] = useState<number[]>([]);
-  const [tabValue, setTabValue] = useState<"week" | "month" | "year">("month");
+  const [tabValue, setTabValue] = useState<"day" | "month" | "year">("month");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -172,8 +172,9 @@ export default function StatisticsChart() {
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
             Statistics
           </h3>
-          <p className="text-theme-sm mt-1 text-gray-500 dark:text-gray-400">
-            Target youve set for each month
+          <p className="text-theme-xs mt-1 text-gray-500 dark:text-gray-400">
+            Monthly total transactions (from the 1st to the last day of the
+            month).
           </p>
         </div>
         <div className="flex w-full items-start gap-3 sm:justify-end">
