@@ -12,6 +12,7 @@ WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN rm -rf .next
 RUN yarn build
 
 # Step 3: Jalankan app
