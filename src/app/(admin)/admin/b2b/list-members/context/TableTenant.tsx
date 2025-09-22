@@ -36,6 +36,7 @@ interface responseData {
   updated_at: string;
   create_by: string;
   update_by: string;
+  totalTenant: number;
   last_login: string;
   customer_no: string;
 }
@@ -220,6 +221,12 @@ export default function TableTenant() {
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
+                      Total Members
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
+                    >
                       Status
                     </TableCell>
 
@@ -289,6 +296,9 @@ export default function TableTenant() {
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium text-wrap text-gray-500 dark:text-gray-400">
                           {items.address ?? "0"}
                         </TableCell>
+                        <TableCell className="text-theme-sm px-5 py-3 text-center font-medium text-wrap text-gray-500 dark:text-gray-400">
+                          {items.totalTenant ?? 0}
+                        </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           <Badge
                             size="sm"
@@ -311,7 +321,7 @@ export default function TableTenant() {
                           <Button
                             onClick={() =>
                               router.push(
-                                `/admin/tenant/details-tennant/${encodeURIComponent(items.tennant_code)}`,
+                                `/admin/b2b/list-members/details-tennant/${encodeURIComponent(items.tennant_code)}`,
                               )
                             }
                             variant="outline"

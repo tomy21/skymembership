@@ -48,10 +48,10 @@ const AppSidebar: React.FC = () => {
           method: "GET",
           credentials: "include",
         });
-        // console.log("ini Payload? ", payload);
         if (!res.ok) throw new Error("Gagal ambil menu");
         const MenuData = await res.json();
         const data: NavItemType[] = MenuData.data;
+        // console.log("ini Payload? ", data);
 
         setNavItems(data);
       } catch (err) {
@@ -87,7 +87,7 @@ const AppSidebar: React.FC = () => {
             style={{ width: "auto" }}
           />
           {(isExpanded || isHovered) && (
-            <span className="text-xl font-bold whitespace-nowrap dark:text-white">
+            <span className="text-xl font-semibold whitespace-nowrap dark:text-white">
               SKY Membership
             </span>
           )}

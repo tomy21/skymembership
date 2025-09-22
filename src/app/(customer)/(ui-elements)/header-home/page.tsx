@@ -28,6 +28,7 @@ export default function HeaderHome() {
   const { data, isLoading, isError, refetch } = useDetailCustomer();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [totalSlides, setTotalSlides] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
   const { isAuthenticated } = useAuth();
 
   const {
@@ -175,7 +176,7 @@ export default function HeaderHome() {
               </div>
             </div>
             <Button
-              onClick={() => router.push("/topup")}
+              onClick={() => setModalOpen(true)}
               variant={"primary"}
               className="h-12 w-24 bg-emerald-500 disabled:cursor-not-allowed disabled:bg-gray-300"
               disabled={false} // ganti ke kondisi seperti `disableTopup`
@@ -185,6 +186,32 @@ export default function HeaderHome() {
           </div>
         </div>
       </header>
+
+      {modalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={() => setModalOpen(false)} // klik backdrop -> close
+        >
+          <div
+            className="relative w-80 items-center justify-center rounded-xl bg-white p-6 shadow-lg"
+            onClick={(e) => e.stopPropagation()} // biar klik dalam modal gak nutup
+          >
+            <Image
+              src="/images/company/down-time.png"
+              alt="Logo"
+              width={100}
+              height={100}
+              className="mx-auto mb-4 opacity-35"
+            />
+            <div className="mt-4 flex flex-col items-center justify-center">
+              <h1 className="text-lg font-semibold">Top Up Points</h1>
+              <p className="mt-2 text-center text-sm text-gray-600">
+                Maaf saat ini topup sedang ada perbaikan
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -43,13 +43,13 @@ export default function Dashboard() {
     <>
       <div className="-mt-3 flex flex-wrap items-center justify-between gap-3 p-3">
         {/* Input Search */}
-        <div className="flex w-full flex-row items-center justify-between space-x-2">
+        <div className="flex w-full flex-row items-center justify-end space-x-2">
           {/* Month & Year Filter */}
-          <div className="text-sm">
+          {/* <div className="text-sm">
             <p className="text-gray-500 dark:text-white">
               Data dari tanggal 26 sampai 25
             </p>
-          </div>
+          </div> */}
           <div className="flex flex-row items-center gap-2">
             <select
               className="rounded-md border p-2 text-gray-500 dark:bg-gray-500 dark:text-white"

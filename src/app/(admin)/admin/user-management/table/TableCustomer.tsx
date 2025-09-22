@@ -27,7 +27,7 @@ interface UserData {
     location_name: string;
     start_date: string;
     end_date: string;
-    is_active: number;
+    isActive: number;
   };
   Member_Customer: {
     fullname: string;
@@ -133,12 +133,12 @@ export default function TableCustomer() {
                     >
                       #
                     </TableCell>
-                    <TableCell
+                    {/* <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
                       Create Date
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
@@ -207,14 +207,14 @@ export default function TableCustomer() {
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {index + 1}
                         </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
+                        {/* <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.Member_Customer?.created_at
                             ? format(
                                 new Date(items.Member_Customer?.created_at),
                                 "dd MMM yyyy",
                               )
                             : "-"}
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.member_customer_no}
                         </TableCell>
@@ -273,12 +273,12 @@ export default function TableCustomer() {
                           <Badge
                             size="sm"
                             color={
-                              items.customer_membership_detail?.is_active === 1
+                              items.customer_membership_detail?.isActive === 1
                                 ? "success"
                                 : "error"
                             }
                           >
-                            {items.customer_membership_detail?.is_active === 1
+                            {items.customer_membership_detail?.isActive === 1
                               ? "Active"
                               : "Inactive"}
                           </Badge>

@@ -15,7 +15,7 @@ export default function Page() {
       <PageBreadcrumb
         pageTitle="Tenant Management Details"
         prevPageTitle="Tenant Management"
-        prevPageUrl="/admin/tenant"
+        prevPageUrl="/admin/b2b/list-members"
       />
       <TableDetailTennant />
     </Suspense>
