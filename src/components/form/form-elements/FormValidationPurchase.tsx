@@ -116,7 +116,7 @@ export default function ConfirmationForm() {
       bank_id: selectedProvider?.bank_id || "",
       plate_number: detail.kendaraan,
       type: detail.typeProduct,
-      method, // POINT / VIRTUAL_ACCOUNT
+      methode_purchase: method, // POINT / VIRTUAL_ACCOUNT
       code_bank: selectedProvider?.code_bank || "",
     };
 
