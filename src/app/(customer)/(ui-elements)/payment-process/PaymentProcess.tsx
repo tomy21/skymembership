@@ -79,7 +79,6 @@ export default function PaymentProcess() {
   };
 
   const getBankName = (moduleName: string) => {
-    console.log("moduleName", moduleName);
     switch (moduleName.toUpperCase()) {
       case "BAYARIND_BCA_VIRTUAL_ACCOUNT":
         return "BCA Virtual Account";

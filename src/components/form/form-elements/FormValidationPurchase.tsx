@@ -24,6 +24,25 @@ interface Provider {
   gateway_partner: string;
 }
 
+interface MembershipProduct {
+  Create_by: string;
+  Fee: number;
+  KID: string;
+  Update_by: string;
+  card_activation_fee: number;
+  created_at: string;
+  end_date: string;
+  id: number;
+  location_code: string;
+  periode: string;
+  price: number;
+  product_code: string;
+  product_name: string;
+  start_date: string;
+  updated_at: string;
+  vehicle_type: string;
+}
+
 export default function ConfirmationForm() {
   const [showModal, setShowModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -31,7 +50,7 @@ export default function ConfirmationForm() {
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
     null,
   );
-
+  const [product, setProduct] = useState<MembershipProduct | null>(null);
   const [mounted, setMounted] = useState(false);
   const [isPoint, setIsPoint] = useState(false);
   const [method, setMethod] = useState<"POINT" | "VIRTUAL_ACCOUNT" | "">("");
@@ -48,7 +67,19 @@ export default function ConfirmationForm() {
     typeProduct: "",
   });
 
+  useEffect(() => {
+    if (detail.idProduct) {
+      fetch(
+        `https://apimembership.skyparking.online/v1/product/membership-product/${detail.idProduct}`,
+      )
+        .then((res) => res.json())
+        .then((data) => setProduct(data))
+        .catch((err) => console.error(err));
+    }
+  }, [detail.idProduct]);
+
   const { data, isLoading } = useDetailCustomer();
+
   const searchParams = useSearchParams();
   // const router = useRouter();
   const { setPurchaseData } = usePurchaseContext();
@@ -70,7 +101,6 @@ export default function ConfirmationForm() {
     }
   };
 
-  console.log("selectedProvider", selectedProvider);
   // onSelect dari PaymentCard
   const handleSelectProvider = (provider?: Provider | null) => {
     if (!provider) {
@@ -104,6 +134,10 @@ export default function ConfirmationForm() {
     }
     setMounted(true);
   }, [searchParams]);
+
+  useEffect(() => {
+    if (data) localStorage.setItem("userData", JSON.stringify(data));
+  }, [data]);
 
   const handleSubmit = () => {
     if (!selectedProvider) {
@@ -279,7 +313,12 @@ export default function ConfirmationForm() {
                   </h1>
                 ) : (
                   <h1 className="my-2 text-center text-3xl font-bold">
-                    IDR {(Number(detail.harga) + 5000).toLocaleString("id-ID")}
+                    IDR{" "}
+                    {(
+                      Number(detail.harga) +
+                      5000 +
+                      Number(product?.card_activation_fee)
+                    ).toLocaleString("id-ID")}
                   </h1>
                 )}
                 <div className="mt-4 space-y-3 text-sm">
@@ -306,6 +345,18 @@ export default function ConfirmationForm() {
                       <span className="text-slate-400">Biaya Admin</span>
                       <span className="font-semibold uppercase">
                         {Number(5000).toLocaleString("id-ID")}
+                      </span>
+                    </div>
+                  )}
+                  {Number(product?.card_activation_fee) > 0 && (
+                    <div className="flex justify-between border-b border-slate-300 py-1">
+                      <span className="text-slate-400">
+                        Biaya Aktifasi Kartu
+                      </span>
+                      <span className="font-semibold uppercase">
+                        {Number(
+                          product?.card_activation_fee ?? 0,
+                        ).toLocaleString("id-ID")}
                       </span>
                     </div>
                   )}

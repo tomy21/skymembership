@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseQueryResult,
+} from "@tanstack/react-query";
 import {
   adminAPI,
   login,
@@ -185,18 +190,30 @@ export const useChangePin = () => {
   });
 };
 
-export const useDetailCustomer = () => {
-  return useQuery({
+export const useDetailCustomer = (): UseQueryResult<any, Error> => {
+  return useQuery<any, Error>({
     queryKey: ["userById"],
-    queryFn: () => Users.getByUserId(),
+    queryFn: async () => {
+      const data = await Users.getByUserId();
+      // Simpan ke localStorage langsung di sini
+      if (isBrowser && data) {
+        localStorage.setItem("userData", JSON.stringify(data));
+      }
+      return data;
+    },
     staleTime: 1000 * 60 * 5,
     retry: 1,
     refetchOnWindowFocus: false,
+    // Jangan pakai initialData langsung, nanti TypeScript error
     initialData: isBrowser
-      ? JSON.parse(localStorage.getItem("userData") || "null")
-      : null,
+      ? (() => {
+          const stored = localStorage.getItem("userData");
+          return stored ? JSON.parse(stored) : undefined;
+        })()
+      : undefined,
   });
 };
+
 export const useDetailAdmin = () => {
   return useQuery({
     queryKey: ["adminById"],

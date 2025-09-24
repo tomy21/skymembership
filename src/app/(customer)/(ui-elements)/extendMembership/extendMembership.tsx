@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Select from "react-select";
 import Loading from "@/components/Loading/Loading";
 import Button from "@/components/ui/button/Button";
-import { usePeriode, useProduct } from "@/hooks/useProduct";
+import { usePeriode } from "@/hooks/useProduct";
 import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCardListLocation } from "@/hooks/useVehicle";
@@ -17,14 +17,17 @@ type OptionType = {
 };
 
 interface Periode {
+  id: string;
   periode: string;
+  price: number;
+  product_name: string;
 }
 
-interface Product {
-  id: string;
-  product_name: string;
-  price: number;
-}
+// interface Product {
+//   id: string;
+//   product_name: string;
+//   price: number;
+// }
 
 interface responseDetailMembers {
   Cust_Member: number;
@@ -54,9 +57,9 @@ export default function ExtendMembership() {
   const searchParams = useSearchParams();
 
   const [period, setPeriod] = useState<OptionType | null>(null);
-  const [product, setProduct] = useState<OptionType | null>(null);
   const [periodData, setPeriodData] = useState<OptionType[]>([]);
-  const [productData, setProductData] = useState<OptionType[]>([]);
+  const [productName, setProductName] = useState<string>("");
+
   const [price, setPrice] = useState<number>(0);
   const [detailMember, setDetailMember] =
     useState<responseDetailMembers | null>(null);
@@ -65,11 +68,6 @@ export default function ExtendMembership() {
   const { data: dataPeriode } = usePeriode(typeVehicle, location);
   const { data: listLocation, isLoading: isLoadingLocation } =
     useCardListLocation(idCard || "");
-  const { data: dataProduct } = useProduct(
-    location,
-    typeVehicle,
-    period?.value,
-  );
 
   useEffect(() => {
     if (!listLocation || !idCard) return;
@@ -101,7 +99,7 @@ export default function ExtendMembership() {
     if (Array.isArray(dataPeriode?.data)) {
       setPeriodData(
         dataPeriode.data.map((p: Periode) => ({
-          value: p.periode,
+          value: p.id,
           label: p.periode,
         })),
       );
@@ -109,36 +107,25 @@ export default function ExtendMembership() {
   }, [dataPeriode]);
 
   useEffect(() => {
-    if (Array.isArray(dataProduct?.data)) {
-      setProductData(
-        dataProduct.data.map((p: Product) => ({
-          value: p.id,
-          label: p.product_name,
-        })),
+    if (period && Array.isArray(dataPeriode?.data)) {
+      const selected = dataPeriode.data.find(
+        (p: Periode) => p.id === period.value,
       );
-    }
-  }, [dataProduct]);
 
-  useEffect(() => {
-    if (product && Array.isArray(dataProduct?.data)) {
-      const selected = dataProduct.data.find(
-        (p: Product) => p.id === product.value,
-      );
-      if (selected) {
-        setPrice(selected.price);
-      }
+      if (selected) setPrice(selected.price);
+      if (selected) setProductName(selected.product_name);
     }
-  }, [product, dataProduct]);
+  }, [period, dataPeriode]);
 
   const handleExtendMembership = () => {
     setIsLoading(true);
-    if (location && typeVehicle && period && product && plateNumber) {
+    if (location && typeVehicle && period && plateNumber) {
       const query = new URLSearchParams({
-        idProduct: product.value,
+        idProduct: period.value,
         location: locationName,
         type: typeVehicle,
         period: period.label,
-        product: product.label,
+        product: productName,
         vehicle: plateNumber,
         typeProduct: "Extend",
         price: price.toString(),
@@ -317,18 +304,7 @@ export default function ExtendMembership() {
                   value={period}
                   onChange={(val) => {
                     setPeriod(val);
-                    setProduct(null);
                   }}
-                />
-              </div>
-
-              <div className="mb-4">
-                <Select
-                  placeholder="Product..."
-                  options={productData}
-                  value={product}
-                  onChange={(val) => setProduct(val)}
-                  isDisabled={!period}
                 />
               </div>
 

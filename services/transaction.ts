@@ -37,8 +37,6 @@ export function useTransaction() {
       const submitTypeByPoint =
         data.type === "Extend" ? extendProductPoint : createPurchasePoint;
 
-      console.log("submitType", data);
-
       if (data.methode_purchase === "POINT") {
         submitTypeByPoint(
           {

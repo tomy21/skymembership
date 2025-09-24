@@ -98,7 +98,6 @@ export default function PaymentCard({
     } else {
       setSelected({ category: categoryValue, option });
       onSelect(option.raw);
-      console.log("Selected provider:", option.raw);
     }
   };
 
