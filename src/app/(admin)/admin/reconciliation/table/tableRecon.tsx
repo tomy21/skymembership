@@ -164,6 +164,40 @@ export default function TableRecon({ bankName }: propsBank) {
     }
   };
 
+  const handleDownload = async (month: string) => {
+    try {
+      const res = await fetch(
+        `/api/export/export-mutasi-month?bankName=${bankName}&month=${month}`,
+      );
+      if (!res.ok) throw new Error("Failed to export data");
+
+      const blob = await res.blob();
+
+      // Ambil filename dari header Content-Disposition
+      const disposition = res.headers.get("Content-Disposition");
+      let filename = "data.xlsx";
+
+      if (disposition) {
+        const match = disposition.match(/filename="(.+)"/);
+        if (match && match[1]) {
+          filename = match[1];
+        }
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename; // filename dari API
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Export berhasil! File sedang diunduh...");
+    } catch (err) {
+      console.error("Export failed:", err);
+      toast.error("Export gagal, coba lagi!");
+    }
+  };
+
   if (!mounted) {
     return null;
   }
@@ -341,17 +375,26 @@ export default function TableRecon({ bankName }: propsBank) {
                         </TableCell>
 
                         <TableCell className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          <Button
-                            onClick={() =>
-                              router.push(
-                                `/admin/reconciliation/${bankName === "BAYARIND_BCA_VIRTUAL_ACCOUNT" ? "bayarind" : "nobu"}/${encodeURIComponent(items.month)}`,
-                              )
-                            }
-                            variant="outline"
-                            className="bg-blue-light-500 -p-2 text-sm"
-                          >
-                            Detail
-                          </Button>
+                          <div className="flex flex-row items-center justify-center space-x-2">
+                            <Button
+                              onClick={() =>
+                                router.push(
+                                  `/admin/reconciliation/${bankName === "BAYARIND_BCA_VIRTUAL_ACCOUNT" ? "bayarind" : "nobu"}/${encodeURIComponent(items.month)}`,
+                                )
+                              }
+                              variant="outline"
+                              className="bg-blue-light-500 -p-2 text-sm"
+                            >
+                              Detail
+                            </Button>
+                            <Button
+                              onClick={() => handleDownload(items.month)}
+                              variant="outline"
+                              className="bg-blue-light-500 -p-2 text-sm"
+                            >
+                              Download
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))

@@ -160,7 +160,7 @@ export default function ExtendMembership() {
           <div>
             <p className="text-sm text-gray-500">Start Date</p>
             <p className="font-medium text-gray-700">
-              {format(new Date(membership.start_date), "dd MMM yyyy")}
+              {format(new Date(membership.updated_at), "dd MMM yyyy")}
             </p>
           </div>
           <div>

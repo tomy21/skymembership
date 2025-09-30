@@ -15,9 +15,12 @@ import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 // import Button from "@/components/ui/button/Button";
 import { AnimatePresence, motion } from "framer-motion";
+import { Button } from "@headlessui/react";
+import ModalDetailPoint from "../components/ModalDetailPoint";
 
 interface UserData {
   id: number;
+  cust_id: number;
   member_customer_no: string;
   rfid: string;
   vehicle_type: string;
@@ -33,9 +36,16 @@ interface UserData {
     fullname: string;
     email: string;
     phone_number: string;
+    points: number;
     username: string;
     created_at: string;
   };
+}
+
+interface UserData {
+  fullname: string;
+  email: string;
+  phone_number: string;
 }
 
 export default function TableCustomer() {
@@ -48,6 +58,10 @@ export default function TableCustomer() {
   const [isError, setIsError] = useState(false);
   const [dataUser, setDataUser] = useState<UserData[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [historyData, setHistoryData] = useState([]);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const limitOption = [
     { value: "10", label: "10" },
@@ -74,7 +88,7 @@ export default function TableCustomer() {
             search,
           },
         });
-
+        console.log("[response]", response.data);
         setDataUser(response.data.data); // ambil array data
         setTotalPages(response.data.totalPages); // ambil total halaman
       } catch (error) {
@@ -90,6 +104,28 @@ export default function TableCustomer() {
   // const handleOpenModal = () => {
   //   setIsOpen(true);
   // };
+
+  const fetchDataHistory = async (idUser: number) => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/member/api/riwayat-point-byuser?userId=${idUser}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      const data = await response.json();
+
+      setHistoryData(data.data);
+      setUserData(data.userData);
+      setOpen(true); // buka modal
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const onClose = () => {
     setIsOpen(false);
   };
@@ -133,12 +169,12 @@ export default function TableCustomer() {
                     >
                       #
                     </TableCell>
-                    {/* <TableCell
+                    <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
-                      Create Date
-                    </TableCell> */}
+                      Points
+                    </TableCell>
                     <TableCell
                       isHeader
                       className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
@@ -175,6 +211,12 @@ export default function TableCustomer() {
                     >
                       Status
                     </TableCell>
+                    <TableCell
+                      isHeader
+                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
+                    >
+                      Action
+                    </TableCell>
                   </TableRow>
                 </TableHeader>
 
@@ -207,14 +249,9 @@ export default function TableCustomer() {
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {index + 1}
                         </TableCell>
-                        {/* <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
-                          {items.Member_Customer?.created_at
-                            ? format(
-                                new Date(items.Member_Customer?.created_at),
-                                "dd MMM yyyy",
-                              )
-                            : "-"}
-                        </TableCell> */}
+                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
+                          {items.Member_Customer?.points}
+                        </TableCell>
                         <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.member_customer_no}
                         </TableCell>
@@ -283,6 +320,14 @@ export default function TableCustomer() {
                               : "Inactive"}
                           </Badge>
                         </TableCell>
+                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
+                          <Button
+                            className={"rounded-lg border p-2"}
+                            onClick={() => fetchDataHistory(items.cust_id)} // ambil ID user
+                          >
+                            Detail
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
@@ -347,6 +392,18 @@ export default function TableCustomer() {
           </>
         )}
       </AnimatePresence>
+
+      <ModalDetailPoint
+        open={open}
+        onClose={() => setOpen(false)}
+        loading={loading}
+        userData={{
+          fullname: userData?.fullname || "",
+          email: userData?.email || "",
+          phone_number: userData?.phone_number || "",
+        }} // ✅ data user
+        data={historyData || []} // ✅ data riwayat
+      />
     </>
   );
 }

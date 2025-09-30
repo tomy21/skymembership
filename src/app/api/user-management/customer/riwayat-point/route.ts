@@ -1,20 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  request: NextRequest,
-  context: { params: Promise<{ locationCode: string }> }, // 👈 definisi params = Promise
-) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
+    const idUser = parseInt(searchParams.get("idUser") || "1");
     const search = searchParams.get("search") || "";
-    const month = searchParams.get("month") || "6";
-    const year = searchParams.get("year") || "2025";
-
-    const { locationCode } = await context.params; // 👈 wajib di-await
 
     if (isNaN(page) || isNaN(limit)) {
       return NextResponse.json(
@@ -24,9 +17,9 @@ export async function GET(
     }
 
     const apiRes = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/member/api/history/transaction-history-bylocation/${locationCode}`,
+      `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/member/api/riwayat-point-byuser`,
       {
-        params: { page, limit, search, month, year },
+        params: { idUser, page, limit, search },
       },
     );
 

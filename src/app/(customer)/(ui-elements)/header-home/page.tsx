@@ -2,6 +2,8 @@
 
 import Button from "@/components/ui/button/Button";
 import { useKeenSlider } from "keen-slider/react";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import "keen-slider/keen-slider.min.css";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -30,6 +32,7 @@ export default function HeaderHome() {
   const [totalSlides, setTotalSlides] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const { isAuthenticated } = useAuth();
+  const [mounted, setMounted] = useState(false);
 
   const {
     data: dataCard,
@@ -39,6 +42,7 @@ export default function HeaderHome() {
   } = useCardList(isAuthenticated);
 
   useEffect(() => {
+    setMounted(true);
     refetch();
     refetchCard();
     setTotalSlides(dataCard?.data.length || 0);
@@ -91,6 +95,21 @@ export default function HeaderHome() {
         <div className="flex flex-col items-center justify-center p-6">
           <ClipLoader size={50} color="#3b82f6" />
           <p className="mt-4 text-gray-700">Mohon menunggu . . ..</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!mounted) {
+    // SSR + render pertama client → tampilkan skeleton
+    return (
+      <div className="flex w-full items-center justify-between">
+        <div className="flex flex-row items-center justify-center space-x-3">
+          <div className="h-8 w-8 animate-pulse rounded-full bg-gray-300" />
+          <div className="flex flex-col items-start justify-start">
+            <div className="h-4 w-24 animate-pulse rounded bg-gray-300" />
+            <div className="h-3 w-16 animate-pulse rounded bg-gray-200" />
+          </div>
         </div>
       </div>
     );

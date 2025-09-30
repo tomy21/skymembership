@@ -15,6 +15,7 @@ import Image from "next/image";
 import PaymentCard from "@/components/Card-payment/CardPayment";
 import { useProviderByType } from "@/hooks/usePayment";
 import { useTransaction } from "../../../../services/transaction";
+import Loading from "@/components/Loading/Loading";
 
 interface Provider {
   id: string;
@@ -44,6 +45,7 @@ interface MembershipProduct {
 }
 
 export default function ConfirmationForm() {
+  const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -66,6 +68,15 @@ export default function ConfirmationForm() {
     harga: "",
     typeProduct: "",
   });
+
+  const harga = parseInt(detail?.harga ?? 0, 10) || 0;
+  const biayaAdmin = method === "VIRTUAL_ACCOUNT" ? 5000 : 0;
+  const biayaAktifasi =
+    (detail.typeProduct !== "Extend" &&
+      Number(product?.card_activation_fee ?? 0)) ||
+    0;
+
+  const total = harga + biayaAdmin + biayaAktifasi;
 
   useEffect(() => {
     if (detail.idProduct) {
@@ -161,7 +172,7 @@ export default function ConfirmationForm() {
 
   const handleConfirm = async () => {
     setShowModal(false);
-
+    setLoading(true);
     if (method === "POINT") {
       if (data?.data?.points < parseInt(detail.harga)) {
         toast.warning("Oops...! Point tidak mencukupi");
@@ -182,11 +193,12 @@ export default function ConfirmationForm() {
       });
 
       if (res.status === "success") {
-        console.log("✅ transaksi berhasil:", res.data);
         toast.success("Transaksi berhasil!");
+        setLoading(false);
       }
     } catch (err) {
       console.error("❌ transaksi gagal:", err);
+      setLoading(false);
       toast.error("Transaksi gagal!");
     }
   };
@@ -194,9 +206,10 @@ export default function ConfirmationForm() {
   if (!mounted) return null;
 
   if (isLoading && !data) {
-    return <p>Loading...</p>;
+    return <Loading />;
   }
 
+  if (loading) return <Loading />;
   return (
     <div className="max-h-screen p-5">
       <div className="mx-auto max-w-full">
@@ -313,12 +326,7 @@ export default function ConfirmationForm() {
                   </h1>
                 ) : (
                   <h1 className="my-2 text-center text-3xl font-bold">
-                    IDR{" "}
-                    {(
-                      Number(detail.harga) +
-                      5000 +
-                      Number(product?.card_activation_fee)
-                    ).toLocaleString("id-ID")}
+                    IDR {total.toLocaleString("id-ID")}
                   </h1>
                 )}
                 <div className="mt-4 space-y-3 text-sm">
@@ -348,18 +356,19 @@ export default function ConfirmationForm() {
                       </span>
                     </div>
                   )}
-                  {Number(product?.card_activation_fee) > 0 && (
-                    <div className="flex justify-between border-b border-slate-300 py-1">
-                      <span className="text-slate-400">
-                        Biaya Aktifasi Kartu
-                      </span>
-                      <span className="font-semibold uppercase">
-                        {Number(
-                          product?.card_activation_fee ?? 0,
-                        ).toLocaleString("id-ID")}
-                      </span>
-                    </div>
-                  )}
+                  {Number(product?.card_activation_fee) > 0 &&
+                    detail.typeProduct !== "Extend" && (
+                      <div className="flex justify-between border-b border-slate-300 py-1">
+                        <span className="text-slate-400">
+                          Biaya Aktifasi Kartu
+                        </span>
+                        <span className="font-semibold uppercase">
+                          {Number(
+                            product?.card_activation_fee ?? 0,
+                          ).toLocaleString("id-ID")}
+                        </span>
+                      </div>
+                    )}
                 </div>
                 <div className="mt-5 space-y-2">
                   <Button onClick={handleConfirm} className="w-full">

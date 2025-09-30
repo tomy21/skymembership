@@ -16,23 +16,65 @@ import { format } from "date-fns";
 import Badge from "@/components/ui/badge/Badge";
 
 interface membershipData {
-  id: number;
+  trx_history_id: number;
   location_code: string;
   location_name: string;
   vehicle_type: string;
   rfid: string;
   updatedAt: string;
-  price: number;
-  periode: string;
-  statusPayment: string;
+  price: string;
   product_name: string;
+  statusPayment: string;
   trxHistoryUser: {
-    id: number;
+    user_id: number;
     fullname: string;
     email: string;
     points: number;
+    username: string;
+    customer_memberships: [
+      {
+        vehicle_id: number;
+        rfid: string;
+        vehicle_type: string;
+        plate_number: string;
+        customer_membership_detail: {
+          membership_detail_id: number;
+          updated_at: string;
+          end_date: string;
+        };
+      },
+    ];
   };
 }
+// interface membershipData {
+//   trx_history_id: number;
+//   location_code: string;
+//   location_name: string;
+//   vehicle_type: string;
+//   rfid: string;
+//   updatedAt: string;
+//   price: string;
+//   product_name: string;
+//   statusPayment: string;
+//   trxHistoryUser: {
+//     user_id: number;
+//     fullname: string;
+//     email: string;
+//     points: number;
+//   };
+//   membershipDetail: {
+//     membership_detail_id: number;
+//     updated_at: string;
+//     end_date: string;
+//     customer_memberships: [
+//       {
+//         vehicle_id: number;
+//         rfid: string;
+//         vehicle_type: string;
+//       },
+//     ];
+//   };
+// }
 
 export default function TableDetailMembers() {
   const [search, setSearch] = useState("");
@@ -85,6 +127,7 @@ export default function TableDetailMembers() {
             },
           },
         );
+        console.log("[response]", response.data);
         setMembershipTrx(response.data.data);
         setTotalPages(response.data.totalPages);
         setTotalData(response.data.totalItems);
@@ -187,50 +230,62 @@ export default function TableDetailMembers() {
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
                       Membership
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
                       Point
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
                       RFID No
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
                       Vehicle Type
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
+                    >
+                      Start Date
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
+                    >
+                      End Date
                     </TableCell>
 
                     <TableCell
                       isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
                       Transfer Date
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
                       Price
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                      className="text-theme-xs px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
                       Periode
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="text-theme-xs px-5 py-3 text-center font-medium text-gray-500 dark:text-gray-400"
+                      className="text-theme-xs px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
                       Status
                     </TableCell>
@@ -250,13 +305,16 @@ export default function TableDetailMembers() {
                     </TableRow>
                   ) : isError ? (
                     <TableRow>
-                      <td colSpan={8} className="p-5 text-center text-red-500">
+                      <td colSpan={11} className="p-5 text-center text-red-500">
                         Failed to load roles.
                       </td>
                     </TableRow>
                   ) : membershipTrx.length === 0 ? (
                     <TableRow>
-                      <td colSpan={8} className="p-5 text-center text-gray-500">
+                      <td
+                        colSpan={11}
+                        className="p-5 text-center text-gray-500"
+                      >
                         Data not found.
                       </td>
                     </TableRow>
@@ -267,7 +325,7 @@ export default function TableDetailMembers() {
                           {index + 1}
                         </TableCell>
 
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">
+                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           <div className="flex flex-col items-start justify-start">
                             <h1 className="font-semibold text-gray-500 dark:text-gray-400">
                               {items.trxHistoryUser?.fullname ?? "-"}
@@ -277,29 +335,54 @@ export default function TableDetailMembers() {
                             </h1>
                           </div>
                         </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">
+                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {Number(items.trxHistoryUser?.points).toLocaleString(
                             "id-ID",
                           )}
                         </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">
-                          {items.rfid === "" ? "-" : items.rfid}
+                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
+                          {items.rfid && items.rfid !== ""
+                            ? items.rfid
+                            : items?.trxHistoryUser?.customer_memberships?.[0]
+                                .rfid || "-"}
                         </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">
+                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.vehicle_type === "" ? "-" : items.vehicle_type}
                         </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">
+                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
+                          {items.trxHistoryUser?.customer_memberships?.[0]
+                            ?.customer_membership_detail?.updated_at
+                            ? format(
+                                new Date(
+                                  items.trxHistoryUser?.customer_memberships?.[0]?.customer_membership_detail?.updated_at,
+                                ),
+                                "dd MMM yyyy",
+                              )
+                            : "-"}
+                        </TableCell>
+                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
+                          {items.trxHistoryUser?.customer_memberships?.[0]
+                            ?.customer_membership_detail?.updated_at
+                            ? format(
+                                new Date(
+                                  items.trxHistoryUser?.customer_memberships?.[0]?.customer_membership_detail?.updated_at,
+                                ),
+                                "dd MMM yyyy",
+                              )
+                            : "-"}
+                        </TableCell>
+                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.updatedAt
                             ? format(new Date(items.updatedAt), "dd MMM yyyy")
                             : "-"}
                         </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">
+                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {Number(items.price).toLocaleString("id-ID")}
                         </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">
+                        <TableCell className="text-theme-sm px-5 py-3 text-start font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           {items.product_name === "" ? "-" : items.product_name}
                         </TableCell>
-                        <TableCell className="text-theme-sm px-5 py-3 text-center font-medium text-gray-500 dark:text-gray-400">
+                        <TableCell className="text-theme-sm px-5 py-3 text-center font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
                           <Badge
                             size="sm"
                             color={
