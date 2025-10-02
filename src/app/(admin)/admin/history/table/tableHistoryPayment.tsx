@@ -2,7 +2,6 @@
 import Pagination from "@/components/tables/Pagination";
 import Button from "@/components/ui/button/Button";
 import Select from "@/components/form/Select";
-// import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import {
   Table,
@@ -17,6 +16,10 @@ import Badge from "@/components/ui/badge/Badge";
 import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import Loading from "@/components/Loading/Loading";
+import DatePicker from "react-datepicker";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import "react-datepicker/dist/react-datepicker.css";
 
 interface HistoryTransactionResponse {
   id: number;
@@ -50,9 +53,8 @@ export default function TableHistoryPayment() {
   const [totalPages, setTotalPages] = useState(1);
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [type] = useState("MEMBERSHIP");
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [dataHistory, setDataHistory] = useState<HistoryTransactionResponse[]>(
     [],
   );
@@ -108,10 +110,13 @@ export default function TableHistoryPayment() {
   const handleExport = async () => {
     try {
       setIsLoadingExport(true);
+
+      const start = startDate ? format(startDate, "yyyy-MM-dd") : "";
+      const end = endDate ? format(endDate, "yyyy-MM-dd") : "";
+
       const params = new URLSearchParams({
-        startDate,
-        endDate,
-        type,
+        startDate: start,
+        endDate: end,
       });
 
       const response = await fetch(
@@ -139,7 +144,7 @@ export default function TableHistoryPayment() {
       // Buat elemen link dan klik otomatis
       const a = document.createElement("a");
       a.href = url;
-      a.download = `history-export-${Date.now()}.xlsx`; // nama file
+      a.download = `history-export-${Date.now()}.xlsx`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -148,12 +153,12 @@ export default function TableHistoryPayment() {
     } catch (error) {
       console.error("Export error:", error);
       alert("Gagal mengekspor data. Silakan coba lagi.");
-      setIsLoading(false);
+      setIsLoadingExport(false);
     } finally {
       onClose();
       setIsLoadingExport(false);
-      setStartDate("");
-      setEndDate("");
+      setStartDate(null); // karena state datepicker pakai Date/null
+      setEndDate(null);
     }
   };
 
@@ -414,28 +419,31 @@ export default function TableHistoryPayment() {
                   </h2>
 
                   {/* Start Date */}
-                  <div>
+                  <div className="flex items-center justify-start space-x-10">
                     <label className="text-sm font-medium text-gray-700">
                       Start Date
                     </label>
-                    <input
-                      type="date"
+                    <DatePicker
+                      selected={startDate}
+                      onChange={(date) => setStartDate(date)}
+                      dateFormat="yyyy-MM-dd"
                       className="focus:border-brand-500 focus:ring-brand-200/50 mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:ring"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
+                      placeholderText="Select start date"
                     />
                   </div>
 
                   {/* End Date */}
-                  <div>
+                  <div className="flex items-center justify-start space-x-12">
                     <label className="text-sm font-medium text-gray-700">
                       End Date
                     </label>
-                    <input
-                      type="date"
+                    <DatePicker
+                      selected={endDate}
+                      onChange={(date) => setEndDate(date)}
+                      minDate={startDate ?? undefined} // biar endDate tidak bisa sebelum startDate
+                      dateFormat="yyyy-MM-dd"
                       className="focus:border-brand-500 focus:ring-brand-200/50 mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:ring"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
+                      placeholderText="Select end date"
                     />
                   </div>
 
