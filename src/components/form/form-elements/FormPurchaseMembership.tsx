@@ -256,7 +256,12 @@ export default function BookingForm() {
         <button
           onClick={handleSubmit}
           disabled={
-            !selectedLocation || !type || !period || !vehicle || isSubmitting
+            isSubmitting ||
+            !selectedLocation ||
+            !type ||
+            !period ||
+            !vehicle ||
+            locationValue?.value === "004SK"
           }
           className="flex w-full items-center justify-center rounded bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:bg-gray-400"
         >
@@ -288,6 +293,15 @@ export default function BookingForm() {
             "Lanjut ke Pembayaran"
           )}
         </button>
+
+        {locationValue?.value === "004SK" && (
+          <div className="mt-4 rounded-lg bg-red-50 p-4 text-center">
+            <span className="text-xs text-gray-600">
+              Maaf, pendaftaran untuk lokasi ini sedang ditutup karena quota
+              member sudah penuh.
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
