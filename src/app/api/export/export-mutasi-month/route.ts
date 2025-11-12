@@ -2,35 +2,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
-// mapping bulan ke bahasa Indonesia
-const bulanIndo = [
-  "Januari",
-  "Februari",
-  "Maret",
-  "April",
-  "Mei",
-  "Juni",
-  "Juli",
-  "Agustus",
-  "September",
-  "Oktober",
-  "November",
-  "Desember",
-];
-
-export async function GET(
-  request: NextRequest,
-  context: { params: Promise<{ locationCode: string }> },
-) {
+export async function GET(request: NextRequest) {
   try {
     const searchParams = new URL(request.url).searchParams;
-    const { locationCode } = await context.params;
-    const month = parseInt(searchParams.get("month") || "8");
-    const year = searchParams.get("year") || "2025";
+    const bankName = searchParams.get("bankName") || "-";
+    const month = searchParams.get("month") || "-";
 
     const apiRes = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/cms/api/export-data-history/${locationCode}?month=${month}&year=${year}`,
+      `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/member/api/export-mutasi-bymonth`,
       {
+        params: { month, bankName },
         responseType: "arraybuffer",
       },
     );
@@ -44,10 +25,10 @@ export async function GET(
       if (match && match[1]) {
         filename = match[1];
       } else {
-        filename = `Transaction History-${locationCode}-${bulanIndo[month - 1]}-${year}.xlsx`;
+        filename = `Mutasi-${bankName}-${month}.xlsx`;
       }
     } else {
-      filename = `Transaction History-${locationCode}-${bulanIndo[month - 1]}-${year}.xlsx`;
+      filename = `Mutasi-${bankName}-${month}.xlsx`;
     }
 
     return new NextResponse(apiRes.data, {
