@@ -16,6 +16,10 @@ import Badge from "@/components/ui/badge/Badge";
 import { AnimatePresence, motion } from "framer-motion";
 import Loading from "@/components/Loading/Loading";
 import { format } from "date-fns";
+import DatePicker from "react-datepicker";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import "react-datepicker/dist/react-datepicker.css";
 
 interface responseData {
   additonal_fee: number;
@@ -53,8 +57,8 @@ export default function TableTransaction() {
   const [isLoadingExport, setIsLoadingExport] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<string>("");
   const [listYear, setListYear] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<string>("");
@@ -134,9 +138,12 @@ export default function TableTransaction() {
   const handleExport = async () => {
     try {
       setIsLoadingExport(true);
+      const start = startDate ? format(startDate, "yyyy-MM-dd") : "";
+      const end = endDate ? format(endDate, "yyyy-MM-dd") : "";
+
       const params = new URLSearchParams({
-        startDate,
-        endDate,
+        startDate: start,
+        endDate: end,
       });
 
       const response = await fetch(
@@ -179,8 +186,8 @@ export default function TableTransaction() {
     } finally {
       onClose();
       setIsLoadingExport(false);
-      setStartDate("");
-      setEndDate("");
+      setStartDate(null);
+      setEndDate(null);
     }
   };
 
@@ -446,7 +453,7 @@ export default function TableTransaction() {
         {isOpen && (
           <>
             <motion.div
-              className="bg-opacity-50 fixed inset-0 z-99 bg-black/50"
+              className="bg-opacity-50 fixed inset-0 z-999 bg-black/50"
               onClick={onClose}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -470,28 +477,31 @@ export default function TableTransaction() {
                   </h2>
 
                   {/* Start Date */}
-                  <div>
+                  <div className="flex items-center justify-start space-x-10">
                     <label className="text-sm font-medium text-gray-700">
                       Start Date
                     </label>
-                    <input
-                      type="date"
+                    <DatePicker
+                      selected={startDate}
+                      onChange={(date) => setStartDate(date)}
+                      dateFormat="yyyy-MM-dd"
                       className="focus:border-brand-500 focus:ring-brand-200/50 mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:ring"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
+                      placeholderText="Select start date"
                     />
                   </div>
 
                   {/* End Date */}
-                  <div>
+                  <div className="flex items-center justify-start space-x-12">
                     <label className="text-sm font-medium text-gray-700">
                       End Date
                     </label>
-                    <input
-                      type="date"
+                    <DatePicker
+                      selected={endDate}
+                      onChange={(date) => setEndDate(date)}
+                      minDate={startDate ?? undefined} // biar endDate tidak bisa sebelum startDate
+                      dateFormat="yyyy-MM-dd"
                       className="focus:border-brand-500 focus:ring-brand-200/50 mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:ring"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
+                      placeholderText="Select end date"
                     />
                   </div>
 
