@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   images: {
     domains: ["apimembershipservice.skyparking.online"],
   },
+
+  turbopack: {
+    // Biarkan kosong untuk menggunakan default atau migrasi perlahan
+  },
+
   /* config options here */
   webpack(config) {
     config.module.rules.push({
