@@ -58,10 +58,11 @@ export default function PaymentCard({
   ];
 
   const getBankLogo = (gateway: string) => {
+
     switch (gateway) {
-      case "BAYARIND":
+      case "BCA":
         return "/images/company/bank/bca_logo.png";
-      case "NOBU":
+      case "NATIONALNOBU":
         return "/images/company/bank/nobu_logo.png";
       // Tambahkan yang lain jika perlu
       default:
@@ -71,6 +72,7 @@ export default function PaymentCard({
 
   // 🔹 Inject options dari provider API ke dalam baseCategories
   const paymentMethods: PaymentGroup[] = useMemo(() => {
+
     return baseCategories.map((cat) => {
       const options = providerData
         .filter(
@@ -79,7 +81,7 @@ export default function PaymentCard({
         .map((item: Provider) => ({
           id: item.id,
           name: item.code_bank === "NATIONALNOBU" ? "NOBU" : item.code_bank,
-          logo: getBankLogo(item.gateway_partner),
+          logo: getBankLogo(item.code_bank),
           raw: item,
         }));
 
@@ -116,9 +118,8 @@ export default function PaymentCard({
           >
             <span className="font-semibold">{group.category}</span>
             <ChevronDownIcon
-              className={`h-5 w-5 transform transition ${
-                openCategory === group.value ? "rotate-180" : ""
-              }`}
+              className={`h-5 w-5 transform transition ${openCategory === group.value ? "rotate-180" : ""
+                }`}
             />
           </button>
 
@@ -133,9 +134,8 @@ export default function PaymentCard({
                 return (
                   <div
                     key={opt.id}
-                    className={`border-b transition last:border-none ${
-                      isSelected ? "border-yellow-400 bg-yellow-50" : "bg-white"
-                    }`}
+                    className={`border-b transition last:border-none ${isSelected ? "border-yellow-400 bg-yellow-50" : "bg-white"
+                      }`}
                   >
                     {/* 🔹 Header baris logo + nama + checklist */}
                     <div
