@@ -54,6 +54,7 @@ const AppSidebar: React.FC = () => {
         if (!res.ok) throw new Error("Gagal ambil menu");
 
         const responseJson = await res.json();
+        console.log("[response menu]", responseJson);
         setNavItems(responseJson.data);
       } catch (err) {
         console.error("Error fetch menu", err);
