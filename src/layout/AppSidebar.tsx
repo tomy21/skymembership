@@ -9,6 +9,7 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { iconMap } from "@/utils/iconMaps";
 import { useTheme } from "@/context/ThemeContext";
+import { useDetailAdmin } from "@/hooks/useAuth";
 
 type NavItemType = {
   name: string;
@@ -27,6 +28,7 @@ const AppSidebar: React.FC = () => {
   const pathname = usePathname();
   const [navItems, setNavItems] = useState<NavItemType[]>([]);
   const { theme } = useTheme();
+  const { data, isLoading } = useDetailAdmin();
 
   /** ✅ Active route checker */
   const isActive = useCallback(
@@ -37,30 +39,33 @@ const AppSidebar: React.FC = () => {
   /** ✅ Fetch menu dari API */
   useEffect(() => {
     async function fetchMenu() {
+      // Ambil roleId dari data admin
+      const currentRoleId = data?.data?.membershipRole?.id;
+
+      if (!currentRoleId) return; // Jangan fetch jika roleId belum ada
+
       try {
-        const token = Cookies.get("refreshToken");
 
-        if (!token) return;
-
-        const payload: JWTPayload = jwtDecode(token);
-
-        const res = await fetch(`/api/menu/${payload.roleId}`, {
+        const res = await fetch(`/api/menu/${currentRoleId}`, {
           method: "GET",
           credentials: "include",
         });
-        if (!res.ok) throw new Error("Gagal ambil menu");
-        const MenuData = await res.json();
-        const data: NavItemType[] = MenuData.data;
-        // console.log("ini Payload? ", data);
 
-        setNavItems(data);
+        if (!res.ok) throw new Error("Gagal ambil menu");
+
+        const responseJson = await res.json();
+        setNavItems(responseJson.data);
       } catch (err) {
         console.error("Error fetch menu", err);
       }
     }
 
     fetchMenu();
-  }, []);
+  }, [data]);
+
+  if (isLoading && navItems.length === 0) {
+    return <aside className="fixed w-[90px] h-screen bg-white" />;
+  }
 
   return (
     <aside
@@ -70,9 +75,8 @@ const AppSidebar: React.FC = () => {
     >
       {/* ✅ Logo */}
       <div
-        className={`flex items-end gap-2 py-8 ${
-          !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
-        }`}
+        className={`flex items-end gap-2 py-8 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+          }`}
       >
         <Link href="/" className="flex items-end gap-2">
           <Image

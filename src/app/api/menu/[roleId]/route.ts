@@ -1,26 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
+// Definisikan tipe params sebagai Promise jika menggunakan Next.js terbaru
 export async function GET(
   request: NextRequest,
-  { params }: { params: { roleId: number } },
+  { params }: { params: Promise<{ roleId: string }> } // Gunakan string & Promise
 ) {
   try {
-    const roleId = params.roleId ?? "";
+    // 1. Await params-nya
+    const resolvedParams = await params;
+    const roleId = resolvedParams.roleId;
 
-    const apiRes = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/cms/api/auth/get-menu-byrole/${roleId}`,
-    );
+    if (!roleId) {
+      return NextResponse.json({ message: "Role ID is required" }, { status: 400 });
+    }
+
+    // 2. Hit ke Backend Original
+    // Pastikan env variable terbaca dengan benar
+    const backendUrl = `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/cms/api/auth/get-menu-byrole/${roleId}`;
+
+    const apiRes = await axios.get(backendUrl);
 
     return NextResponse.json(apiRes.data, {
       status: apiRes.status,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   } catch (error: any) {
-    console.error("Proxy login error:", error.response?.data || error.message);
+    // 3. Cek apakah error 404 datang dari Backend atau dari Proxy ini
+    console.error("Proxy Menu Error:", error.response?.data || error.message);
+
     return NextResponse.json(
-      error.response?.data || { message: "Something went wrong" },
-      { status: error.response?.status || 500 },
+      error.response?.data || { message: "Backend API not reachable" },
+      { status: error.response?.status || 500 }
     );
   }
 }
