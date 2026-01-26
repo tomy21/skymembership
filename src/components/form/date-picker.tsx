@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { CalenderIcon } from "../../icons";
 import Label from "./Label";
+import CalenderIcon from "@/icons/CalenderIcon";
 
 type PropsType = {
   id: string;

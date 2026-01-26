@@ -4,12 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
-import { ChevronDownIcon, HorizontaLDots } from "../icons/index";
+import { ChevronDownIcon } from "../icons/index";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { iconMap } from "@/utils/iconMaps";
 import { useTheme } from "@/context/ThemeContext";
 import { useDetailAdmin } from "@/hooks/useAuth";
+import HorizontaLDots from "@/icons/HorizontaLDots";
 
 type NavItemType = {
   name: string;

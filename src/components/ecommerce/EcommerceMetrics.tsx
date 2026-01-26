@@ -84,8 +84,7 @@ export const EcommerceMetrics = ({
       <div className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
           <DollarLineIcon
-            size={30}
-            className="text-gray-800 dark:text-white/90"
+            className="text-gray-800 dark:text-white/90 w-30 h-30"
           />
         </div>
         <div className="mt-5 flex items-end justify-between">
@@ -120,8 +119,7 @@ export const EcommerceMetrics = ({
       <div className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
           <DollarLineIcon
-            size={30}
-            className="text-gray-800 dark:text-white/90"
+            className="text-gray-800 dark:text-white/90 h-30 w-30"
           />
         </div>
         <div className="mt-5 flex items-end justify-between">

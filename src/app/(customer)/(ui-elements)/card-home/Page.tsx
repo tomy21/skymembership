@@ -95,9 +95,8 @@ export default function CardHome() {
                 router.push(item.path);
               }
             }}
-            className={`${
-              item.disable ? "pointer-events-none opacity-50" : "cursor-pointer"
-            }`}
+            className={`${item.disable ? "pointer-events-none opacity-50" : "cursor-pointer"
+              }`}
           >
             <div className="flex flex-col items-center justify-center rounded-md border border-slate-200 bg-gray-100 p-2 shadow-md transition hover:shadow-lg">
               <div className="relative h-11 w-12">
@@ -125,7 +124,7 @@ export default function CardHome() {
             onClick={(e) => e.stopPropagation()} // biar klik dalam modal gak nutup
           >
             <div className="mb-4 flex flex-row items-center justify-center space-x-3">
-              <InfoIcon size={20} className="text-blue-500" />
+              <InfoIcon className="text-blue-500 h-20 w-20" />
               <h2 className="text-lg font-semibold">Membership Info</h2>
             </div>
 
@@ -164,7 +163,7 @@ export default function CardHome() {
             onClick={(e) => e.stopPropagation()} // biar klik dalam modal gak nutup
           >
             <div className="mb-4 flex flex-row items-center justify-center space-x-3 text-center">
-              <InfoIcon size={20} className="text-blue-500" />
+              <InfoIcon className="text-blue-500 h-20 w-20" />
               <h2 className="text-lg font-semibold">Masukan No RFID</h2>
             </div>
 

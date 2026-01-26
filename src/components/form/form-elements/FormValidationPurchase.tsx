@@ -252,10 +252,8 @@ export default function ConfirmationForm() {
             </div>
           </div>
           <CheckCircleIcon
-            className={`h-6 w-6 ${
-              isPoint ? "text-yellow-400" : "text-gray-300"
-            }`}
-            strokeWidth={2.5}
+            className={`h-6 w-6 ${isPoint ? "text-yellow-400" : "text-gray-300"
+              }`}
           />
         </label>
 

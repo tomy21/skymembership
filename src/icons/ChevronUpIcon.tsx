@@ -1,0 +1,10 @@
+import React from "react";
+
+export default function ChevronUpIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M15.8333 12.7083L10.6249 7.5L5.41658 12.7083" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+</svg>
+
+  );
+}
