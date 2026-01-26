@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
   const token = req.cookies.get("refreshToken")?.value;
-
+  console.log("token:", token);
   // Jika tidak ada token, redirect ke login
   if (!token) {
     return NextResponse.redirect(new URL("/signin", req.url));
@@ -15,7 +15,7 @@ export function middleware(req: NextRequest) {
     const payload = JSON.parse(
       Buffer.from(token.split(".")[1], "base64").toString(),
     );
-
+    console.log("DEBUG PAYLOAD:", payload);
     const isExpired = payload.exp * 1000 < Date.now();
     if (isExpired) {
       console.warn("Token expired");
