@@ -147,7 +147,7 @@ export default function TableTransaction() {
       });
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/cms/api/export-data-payment?${params.toString()}`,
+        `${process.env.NEXT_PUBLIC_API_URL_USERS}/v01/cms/api/export-data-payment-b2b?${params.toString()}`,
         {
           method: "GET",
           credentials: "include",
