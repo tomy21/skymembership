@@ -1,8 +1,8 @@
 "use client";
-import Pagination from "@/components/tables/Pagination";
-import Button from "@/components/ui/button/Button";
 import Select from "@/components/form/Select";
-import React, { useEffect, useState } from "react";
+import Pagination from "@/components/tables/Pagination";
+import Badge from "@/components/ui/badge/Badge";
+import Button from "@/components/ui/button/Button";
 import {
   Table,
   TableBody,
@@ -11,9 +11,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import axios from "axios";
-import { useParams, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
-import Badge from "@/components/ui/badge/Badge";
+import { useParams, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface membershipData {
   trx_history_id: number;
@@ -46,35 +46,6 @@ interface membershipData {
     ];
   };
 }
-// interface membershipData {
-//   trx_history_id: number;
-//   location_code: string;
-//   location_name: string;
-//   vehicle_type: string;
-//   rfid: string;
-//   updatedAt: string;
-//   price: string;
-//   product_name: string;
-//   statusPayment: string;
-//   trxHistoryUser: {
-//     user_id: number;
-//     fullname: string;
-//     email: string;
-//     points: number;
-//   };
-//   membershipDetail: {
-//     membership_detail_id: number;
-//     updated_at: string;
-//     end_date: string;
-//     customer_memberships: [
-//       {
-//         vehicle_id: number;
-//         rfid: string;
-//         vehicle_type: string;
-//       },
-//     ];
-//   };
-// }
 
 export default function TableDetailMembers() {
   const [search, setSearch] = useState("");

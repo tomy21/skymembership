@@ -69,7 +69,7 @@ export default function TableRecon({ bankName }: propsBank) {
           params: {
             page: currentPage,
             limit: selectedLimit,
-            year: "2025",
+            year: selectedYear,
             bank: bankName,
           },
         });

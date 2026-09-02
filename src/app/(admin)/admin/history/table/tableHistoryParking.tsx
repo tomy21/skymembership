@@ -1,9 +1,9 @@
 "use client";
+import Select from "@/components/form/Select";
 import Pagination from "@/components/tables/Pagination";
 import Button from "@/components/ui/button/Button";
-import Select from "@/components/form/Select";
 // import { format } from "date-fns";
-import React, { useEffect, useState } from "react";
+import Badge from "@/components/ui/badge/Badge";
 import {
   Table,
   TableBody,
@@ -12,11 +12,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import axios from "axios";
-import Badge from "@/components/ui/badge/Badge";
+import { useEffect, useState } from "react";
 // import { format } from "date-fns";
-import { AnimatePresence, motion } from "framer-motion";
 import Loading from "@/components/Loading/Loading";
 import { formatToWIB } from "@/utils/time";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface HistoryParkingData {
   id: string;

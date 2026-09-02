@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${poppins.className} bg-white dark:bg-gray-900`}>
         <ProtectedLayout>
           <Toaster position="top-right" reverseOrder={false} />

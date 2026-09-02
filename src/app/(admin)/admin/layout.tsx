@@ -1,12 +1,16 @@
 "use client";
 
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
+
 import { useSidebar } from "@/context/SidebarContext";
 import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
-import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
-import Cookies from "js-cookie";
+
+const SIDEBAR_EXPANDED = "lg:ml-[280px]";
+const SIDEBAR_COLLAPSED = "lg:ml-[80px]";
 
 export default function AdminLayout({
   children,
@@ -14,73 +18,65 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+
   const router = useRouter();
-  // Dynamic class for main content margin based on sidebar state
+
+  const sidebarExpanded = isExpanded || isHovered;
+
   const mainContentMargin = isMobileOpen
     ? "ml-0"
-    : isExpanded || isHovered
-      ? "lg:ml-[290px]"
-      : "lg:ml-[90px]";
+    : sidebarExpanded
+      ? SIDEBAR_EXPANDED
+      : SIDEBAR_COLLAPSED;
 
   useEffect(() => {
-    let token: string | undefined = undefined;
+    let token: string | undefined;
 
-    // 1. Cek di localStorage
     if (typeof window !== "undefined") {
       token = localStorage.getItem("userToken") || undefined;
     }
 
-    // 2. Kalau tidak ada di localStorage, cek di Cookies
     if (!token) {
       token = Cookies.get("userToken");
     }
 
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        const isExpired = payload.exp * 1000 < Date.now();
+    if (!token) {
+      router.replace("/signin");
+      return;
+    }
 
-        if (isExpired) {
-          console.warn("Token expired");
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
 
-          // Hapus dari localStorage dan cookie
-          localStorage.removeItem("userToken");
-          Cookies.remove("userToken");
+      const isExpired = payload.exp * 1000 < Date.now();
 
-          router.replace("/signin");
-        }
-      } catch (err) {
-        console.error("Token invalid atau corrupt", err);
-
+      if (isExpired) {
         localStorage.removeItem("userToken");
         Cookies.remove("userToken");
-
         router.replace("/signin");
       }
-    } else {
-      console.warn("Token tidak ditemukan di localStorage atau cookie");
+    } catch {
+      localStorage.removeItem("userToken");
+      Cookies.remove("userToken");
       router.replace("/signin");
     }
   }, [router]);
 
   return (
-    <div className="min-h-screen xl:flex">
-      {/* Sidebar and Backdrop */}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <AppSidebar />
       <Backdrop />
-      {/* Main Content Area */}
+
       <div
-        className={`w-full flex-1 transition-all duration-300 ease-in-out ${mainContentMargin}`}
+        className={`min-h-screen transition-[margin] duration-300 ease-in-out ${mainContentMargin} `}
       >
-        {/* Header */}
         <AppHeader />
-        {/* Page Content */}
-        <div
-          className="mx-auto max-w-[var(--breakpoint-xl)] p-4 md:p-6"
-          style={{ "--breakpoint-xl": "1400px" } as React.CSSProperties}
-        >
-          {children}
-        </div>
+
+        <main className="min-h-[calc(100vh-4rem)]">
+          <div className="mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 lg:px-8">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );
