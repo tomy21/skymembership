@@ -6,8 +6,8 @@ import { useCardList } from "@/hooks/useVehicle";
 import { InfoIcon } from "@/icons";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-// import { MdOutlineAnnouncement } from "react-icons/md";
+import { useEffect, useState } from "react";
+import { FiArrowRight, FiChevronDown, FiCreditCard, FiX } from "react-icons/fi";
 
 interface DetailCard {
   member_customer_no: string;
@@ -21,220 +21,297 @@ interface DetailCard {
 }
 
 export default function CardHome() {
-  const [maintenance] = useState(false);
-  const [totalSlides, setTotalSlides] = useState(0);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalVehicleOpen, setIsModalVehicleOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const router = useRouter();
   const { isAuthenticated } = useAuth();
+
+  const { data: dataCard, refetch: refetchCard } = useCardList(isAuthenticated);
+
+  const [isMembershipModalOpen, setIsMembershipModalOpen] = useState(false);
+
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+
   const [selectedCard, setSelectedCard] = useState<DetailCard | null>(null);
 
   const features = [
     {
       image: "/images/company/vehicles.png",
       title: "Kendaraan",
+      description: "Kelola kendaraan",
       path: "/vehicle",
       disable: false,
     },
     {
       image: "/images/company/membership.png",
       title: "Membership",
+      description: "Kelola membership",
       path: "/membership",
       disable: false,
     },
     {
       image: "/images/company/map.png",
       title: "Lokasi",
+      description: "Cari lokasi",
       path: "/lokasi",
       disable: false,
     },
     {
       image: "/images/company/voucher.png",
       title: "Voucher",
+      description: "Lihat voucher",
       path: "/voucher",
       disable: false,
     },
   ];
 
-  const { data: dataCard, refetch: refetchCard } = useCardList(isAuthenticated);
-
   useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+
     refetchCard();
-    setTotalSlides(dataCard?.data.length || 0);
-    setMounted(true);
-  }, [dataCard?.data.length, refetchCard]);
+  }, [isAuthenticated, refetchCard]);
 
-  const router = useRouter();
+  const handleFeatureClick = (item: (typeof features)[number]) => {
+    if (item.disable) {
+      return;
+    }
 
-  const handleModalExtend = () => {
-    setIsModalVehicleOpen(true);
-    setIsModalOpen(false);
+    if (item.title === "Membership") {
+      setIsMembershipModalOpen(true);
+      return;
+    }
+
+    router.push(item.path);
   };
 
-  if (!mounted) return null;
+  const handleExtend = () => {
+    if (!selectedCard?.rfid) {
+      return;
+    }
+
+    setIsVehicleModalOpen(false);
+    router.push(`/extend-membership?idCard=${selectedCard.rfid}`);
+  };
 
   return (
-    <div className="p-5">
-      {/* {totalSlides > 0 && (
-        <p className="mt-12 mb-3 text-center text-sm font-light italic">
-          Untuk memperpanjang membership anda, silahkan klik pada gambar kartu
-          yang ada di atas!
-        </p>
-      )} */}
-      <div
-        className={`mt-12 grid grid-cols-4 gap-2 md:grid-cols-4 ${totalSlides > 0 ? "" : "mt-12"}`}
-      >
-        {features.map((item, index) => (
-          <div
-            key={index}
-            onClick={() => {
-              if (item.title === "Membership") {
-                // buka modal kalau klik membership
-                setIsModalOpen(true);
-              } else if (!item.disable) {
-                router.push(item.path);
-              }
-            }}
-            className={`${item.disable ? "pointer-events-none opacity-50" : "cursor-pointer"
+    <section className="px-5 pt-20">
+      <div className="mx-auto max-w-6xl">
+        {/* Section title */}
+        <div className="mb-4">
+          <p className="text-xs font-medium tracking-wider text-slate-400 uppercase">
+            Explore
+          </p>
+
+          <h2 className="mt-1 text-lg font-bold text-slate-900">
+            Quick Actions
+          </h2>
+        </div>
+
+        {/* Quick actions */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {features.map((item) => (
+            <button
+              key={item.title}
+              type="button"
+              disabled={item.disable}
+              onClick={() => handleFeatureClick(item)}
+              className={`group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md ${
+                item.disable ? "cursor-not-allowed opacity-50" : ""
               }`}
-          >
-            <div className="flex flex-col items-center justify-center rounded-md border border-slate-200 bg-gray-100 p-2 shadow-md transition hover:shadow-lg">
-              <div className="relative h-11 w-12">
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  width={100}
-                  height={100}
-                  className="object-contain"
-                />
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    width={34}
+                    height={34}
+                    className="object-contain"
+                  />
+                </div>
+
+                <FiArrowRight className="text-slate-300 transition group-hover:translate-x-1 group-hover:text-slate-600" />
               </div>
-              <div className="mt-1 text-[9px]">{item.title}</div>
-            </div>
-          </div>
-        ))}
+
+              <div className="mt-4">
+                <p className="text-sm font-bold text-slate-900">{item.title}</p>
+
+                <p className="mt-0.5 text-[11px] text-slate-400">
+                  {item.description}
+                </p>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
 
-      {isModalOpen && (
+      {/* Membership modal */}
+      {isMembershipModalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-          onClick={() => setIsModalOpen(false)} // klik backdrop -> close
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-5 backdrop-blur-sm"
+          onClick={() => setIsMembershipModalOpen(false)}
         >
           <div
-            className="relative w-80 rounded-xl bg-white p-6 shadow-lg"
-            onClick={(e) => e.stopPropagation()} // biar klik dalam modal gak nutup
+            className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
           >
-            <div className="mb-4 flex flex-row items-center justify-center space-x-3">
-              <InfoIcon className="text-blue-500 h-20 w-20" />
-              <h2 className="text-lg font-semibold">Membership Info</h2>
+            <div className="flex items-start justify-between">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50">
+                <InfoIcon className="h-6 w-6 text-blue-500" />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsMembershipModalOpen(false)}
+                className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100"
+              >
+                <FiX />
+              </button>
             </div>
 
-            <p className="text-center text-sm text-gray-600">
-              Apakah anda ingin membuat membership atau melakukan perpanjangan?
-            </p>
+            <div className="mt-5">
+              <h2 className="text-lg font-bold text-slate-900">Membership</h2>
 
-            <div className="mt-6 flex justify-center gap-3">
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                Apa yang ingin Anda lakukan?
+              </p>
+            </div>
+
+            <div className="mt-5 space-y-3">
               <button
-                onClick={handleModalExtend}
-                className="rounded-md bg-gray-200 px-4 py-2 text-sm hover:bg-gray-300"
-              >
-                Perpanjang
-              </button>
-              <button
+                type="button"
                 onClick={() => {
-                  setIsModalOpen(false);
+                  setIsMembershipModalOpen(false);
+                  setIsVehicleModalOpen(true);
+                }}
+                className="flex w-full items-center justify-between rounded-2xl border border-slate-200 p-4 text-left transition hover:border-yellow-400 hover:bg-yellow-50"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-100">
+                    <FiCreditCard className="text-yellow-600" />
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">
+                      Perpanjang
+                    </p>
+
+                    <p className="text-xs text-slate-400">
+                      Perpanjang membership kendaraan
+                    </p>
+                  </div>
+                </div>
+
+                <FiArrowRight className="text-slate-400" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMembershipModalOpen(false);
                   router.push("/membership");
                 }}
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                className="flex w-full items-center justify-between rounded-2xl bg-slate-900 p-4 text-left text-white transition hover:bg-slate-800"
               >
-                Daftar Baru
+                <div>
+                  <p className="text-sm font-bold">Daftar Membership</p>
+
+                  <p className="mt-0.5 text-xs text-white/60">
+                    Buat membership baru
+                  </p>
+                </div>
+
+                <FiArrowRight />
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {isModalVehicleOpen && (
+      {/* Vehicle modal */}
+      {isVehicleModalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-          onClick={() => setIsModalVehicleOpen(false)} // klik backdrop -> close
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-5 backdrop-blur-sm"
+          onClick={() => setIsVehicleModalOpen(false)}
         >
           <div
-            className="relative w-80 rounded-xl bg-white p-6 shadow-lg"
-            onClick={(e) => e.stopPropagation()} // biar klik dalam modal gak nutup
+            className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
           >
-            <div className="mb-4 flex flex-row items-center justify-center space-x-3 text-center">
-              <InfoIcon className="text-blue-500 h-20 w-20" />
-              <h2 className="text-lg font-semibold">Masukan No RFID</h2>
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50">
+                  <FiCreditCard className="text-xl text-blue-500" />
+                </div>
+
+                <h2 className="mt-4 text-lg font-bold text-slate-900">
+                  Pilih Kendaraan
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Pilih kendaraan yang ingin diperpanjang.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsVehicleModalOpen(false)}
+                className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100"
+              >
+                <FiX />
+              </button>
             </div>
 
-            <p className="text-center text-sm text-gray-600">
-              Untuk perpanjang membership silahkan pilih kendaraan yang akan di
-              perpanjang!
-            </p>
-
-            <div className="relative mt-5 mb-4 w-full">
+            <div className="relative mt-5">
               <select
                 value={selectedCard ? JSON.stringify(selectedCard) : ""}
-                onChange={(e) => setSelectedCard(JSON.parse(e.target.value))}
-                className="w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                onChange={(event) => {
+                  if (!event.target.value) {
+                    setSelectedCard(null);
+                    return;
+                  }
+
+                  setSelectedCard(JSON.parse(event.target.value));
+                }}
+                className="w-full appearance-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 pr-10 text-sm font-medium text-slate-700 transition outline-none focus:border-yellow-400 focus:bg-white focus:ring-4 focus:ring-yellow-100"
               >
-                <option value="">-- Pilih Kartu --</option>
-                {dataCard?.data?.map((card: any, idx: number) => (
-                  <option key={idx} value={JSON.stringify(card)}>
+                <option value="">Pilih kendaraan</option>
+
+                {dataCard?.data?.map((card: any, index: number) => (
+                  <option
+                    key={`${card.rfid}-${index}`}
+                    value={JSON.stringify(card)}
+                  >
                     {card.rfid} - {card.vehicle_type}
                     {card.plate_number ? ` - ${card.plate_number}` : ""}
                   </option>
                 ))}
               </select>
 
-              {/* Icon panah dropdown */}
-              <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                <svg
-                  className="h-5 w-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
+              <FiChevronDown className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-slate-400" />
             </div>
 
-            <div className="mt-6 flex justify-center gap-3">
+            <div className="mt-5 flex gap-3">
               <button
-                onClick={() => {
-                  router.push(`extend-membership?idCard=${selectedCard?.rfid}`);
-                  console.log("Extend membership kendaraan");
-                  setIsModalVehicleOpen(false); // ✅ close setelah action
-                }}
-                className="w-full rounded-md bg-gray-200 px-4 py-2 text-sm hover:bg-gray-300"
-              >
-                Perpanjang
-              </button>
-              <button
-                onClick={() => setIsModalVehicleOpen(false)}
-                className="w-full rounded-md bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
+                type="button"
+                onClick={() => setIsVehicleModalOpen(false)}
+                className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
               >
                 Batal
+              </button>
+
+              <button
+                type="button"
+                disabled={!selectedCard}
+                onClick={handleExtend}
+                className="flex-1 rounded-xl bg-slate-900 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
+              >
+                Perpanjang
               </button>
             </div>
           </div>
         </div>
       )}
-
-      {maintenance && (
-        <div className="bg-warning-50 border-warning-200 mb-3 flex w-full items-center justify-between rounded-xl border p-3">
-          <h1 className="text-xs">
-            Maaf transaksi anda terganggu saat ini kami sedang lakukan perbaikan
-            untuk proses pembelian ataupun topup
-          </h1>
-        </div>
-      )}
-    </div>
+    </section>
   );
 }

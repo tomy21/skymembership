@@ -1,7 +1,7 @@
-import { Metadata } from "next";
-import React, { Suspense } from "react";
 import FormValidationPurchase from "@/components/form/form-elements/FormValidationPurchase";
 import HeaderPage from "@/components/header-page/page";
+import { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Purchase | SKY Membership",

@@ -1,19 +1,25 @@
 import { Metadata } from "next";
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 import PaymentProcess from "../../(ui-elements)/payment-process/PaymentProcess";
-import Loading from "@/components/Loading/Loading";
 
 export const metadata: Metadata = {
-  title: "Payment | SKY Parking",
-  description: "Parking Membership SKY PARKING",
+  title: "Pembayaran | SKY Membership",
+  description: "Pembayaran membership SKY Parking",
 };
 
-export default function page() {
+export default function FormValidationPurchasePage() {
   return (
-    <Suspense fallback={<Loading />}>
-      <div className="relative mx-auto min-h-screen w-sm bg-white">
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[#f7f8fa] text-sm text-slate-400">
+          Memuat pembayaran...
+        </div>
+      }
+    >
+      <main className="min-h-screen bg-[#f7f8fa]">
+        {/* <HeaderPage title="Pembayaran" /> */}
         <PaymentProcess />
-      </div>
+      </main>
     </Suspense>
   );
 }
