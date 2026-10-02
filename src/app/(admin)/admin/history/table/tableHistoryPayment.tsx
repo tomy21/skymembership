@@ -113,6 +113,7 @@ export default function TableHistoryPayment() {
 
       const start = startDate ? format(startDate, "yyyy-MM-dd") : "";
       const end = endDate ? format(endDate, "yyyy-MM-dd") : "";
+      console.log("date", start);
 
       const params = new URLSearchParams({
         startDate: start,
