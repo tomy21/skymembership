@@ -6,14 +6,14 @@ import Input from "@/components/form/input/InputField";
 import Loading from "@/components/Loading/Loading";
 // import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
+import { useAuth } from "@/context/AuthContext";
+import { useLoginCMS } from "@/hooks/useAuth";
 import { EyeCloseIcon, EyeIcon } from "@/icons";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useLoginCMS } from "@/hooks/useAuth";
-import { useAuth } from "@/context/AuthContext";
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);

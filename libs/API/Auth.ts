@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { APIAPPS, APISERVICES } from "../ApiServices";
 import axios, { AxiosError } from "axios";
+import { APIAPPS, APISERVICES } from "../ApiServices";
 
 export const login = async (data: { data: string }) => {
   const response = await axios.post("/api/login", data);
@@ -96,6 +96,7 @@ export const Users = {
       throw new Error(message);
     }
   },
+
   requestResetPin: async (referralUrl = "") => {
     try {
       const response = await APIAPPS.post(
